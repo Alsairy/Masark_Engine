@@ -1,0 +1,6 @@
+@Masark.API_HostAddress = http://localhost:5282
+
+GET {{Masark.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
