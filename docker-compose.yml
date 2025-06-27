@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  masark-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__DefaultConnection=Server=masark-db;Database=MasarkEngine;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - ConnectionStrings__Redis=masark-redis:6379
+      - JWT__SecretKey=${JWT_SECRET_KEY}
+      - JWT__Issuer=${JWT_ISSUER:-MasarkEngine}
+      - JWT__Audience=${JWT_AUDIENCE:-MasarkEngineUsers}
+      - JWT__ExpirationMinutes=${JWT_EXPIRATION_MINUTES:-60}
+    depends_on:
+      - masark-db
+      - masark-redis
+    networks:
+      - masark-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  masark-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - masark-db-data:/var/opt/mssql
+    networks:
+      - masark-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  masark-redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - masark-redis-data:/data
+    networks:
+      - masark-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  masark-nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - masark-api
+    networks:
+      - masark-network
+    restart: unless-stopped
+
+volumes:
+  masark-db-data:
+    driver: local
+  masark-redis-data:
+    driver: local
+
+networks:
+  masark-network:
+    driver: bridge
