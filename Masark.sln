@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Domain", "Masark.Domain\Masark.Domain.csproj", "{D2A57673-5663-47D3-A036-461649F90922}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Application", "Masark.Application\Masark.Application.csproj", "{C4BD604B-551C-47FA-844E-1D1F4D577BF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Infrastructure", "Masark.Infrastructure\Masark.Infrastructure.csproj", "{A3A60F70-0F63-48ED-BC73-BCDDD6208C61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.API", "Masark.API\Masark.API.csproj", "{BA6BF710-58D7-439C-91B4-DA518584B9A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Tests.Unit", "Masark.Tests.Unit\Masark.Tests.Unit.csproj", "{4215141F-C79C-400B-BF7F-B3A0BA417020}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Tests.Integration", "Masark.Tests.Integration\Masark.Tests.Integration.csproj", "{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2A57673-5663-47D3-A036-461649F90922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2A57673-5663-47D3-A036-461649F90922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2A57673-5663-47D3-A036-461649F90922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2A57673-5663-47D3-A036-461649F90922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4BD604B-551C-47FA-844E-1D1F4D577BF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4BD604B-551C-47FA-844E-1D1F4D577BF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4BD604B-551C-47FA-844E-1D1F4D577BF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4BD604B-551C-47FA-844E-1D1F4D577BF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3A60F70-0F63-48ED-BC73-BCDDD6208C61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3A60F70-0F63-48ED-BC73-BCDDD6208C61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3A60F70-0F63-48ED-BC73-BCDDD6208C61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3A60F70-0F63-48ED-BC73-BCDDD6208C61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
