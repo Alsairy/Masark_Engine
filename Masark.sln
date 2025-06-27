@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Infrastructure", "Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.API", "Masark.API\Masark.API.csproj", "{BA6BF710-58D7-439C-91B4-DA518584B9A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Tests.Unit", "Masark.Tests.Unit\Masark.Tests.Unit.csproj", "{4215141F-C79C-400B-BF7F-B3A0BA417020}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masark.Tests.Integration", "Masark.Tests.Integration\Masark.Tests.Integration.csproj", "{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA6BF710-58D7-439C-91B4-DA518584B9A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4215141F-C79C-400B-BF7F-B3A0BA417020}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E82541AC-A4BD-4FAF-B73F-F20F8498EEE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

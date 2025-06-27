@@ -36,6 +36,12 @@ namespace Masark.Application.Handlers.Commands
                     request.TenantId
                 );
 
+                session.SetStudentInfo(
+                    request.StudentName ?? "",
+                    request.StudentEmail ?? "",
+                    request.StudentId ?? ""
+                );
+
                 await _personalityRepository.UpdateSessionWithResultsAsync(session);
 
                 await _mediator.Publish(new AssessmentSessionStartedEvent(session), cancellationToken);

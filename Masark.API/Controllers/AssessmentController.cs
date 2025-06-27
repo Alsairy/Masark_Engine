@@ -5,6 +5,7 @@ using MediatR;
 using Masark.Application.Commands.Assessment;
 using Masark.Application.Queries.Assessment;
 using Masark.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Masark.API.Controllers
 {
@@ -55,7 +56,7 @@ namespace Masark.API.Controllers
                 var command = new StartAssessmentSessionCommand
                 {
                     SessionToken = sessionToken,
-                    TenantId = request.TenantId ?? 1,
+                    TenantId = request.TenantId,
                     LanguagePreference = request.LanguagePreference ?? "en",
                     UserAgent = userAgent,
                     IpAddress = ipAddress,
@@ -173,7 +174,7 @@ namespace Masark.API.Controllers
                 {
                     SessionId = 1, // TODO: Get session ID from token
                     QuestionId = request.QuestionId,
-                    SelectedOption = request.AnswerValue.ToString(),
+                    SelectedOption = request.AnswerValue == 1 ? "A" : "B",
                     TenantId = request.TenantId ?? 1
                 };
 
@@ -339,25 +340,41 @@ namespace Masark.API.Controllers
 
     public class StartAssessmentSessionRequest
     {
-        public string? StudentName { get; set; }
-        public string? StudentEmail { get; set; }
+        [Required(ErrorMessage = "Student name is required")]
+        [MinLength(2, ErrorMessage = "Student name must be at least 2 characters")]
+        public string StudentName { get; set; } = string.Empty;
+        
+        [Required(ErrorMessage = "Student email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string StudentEmail { get; set; } = string.Empty;
+        
         public string? StudentId { get; set; }
         public string? DeploymentMode { get; set; } = "STANDARD";
         public string? LanguagePreference { get; set; } = "en";
-        public int? TenantId { get; set; }
+        
+        [Range(1, int.MaxValue, ErrorMessage = "Tenant ID must be a positive number")]
+        public int TenantId { get; set; } = 1;
     }
 
     public class SubmitAnswerRequest
     {
+        [Required(ErrorMessage = "Session token is required")]
         public string SessionToken { get; set; } = string.Empty;
+        
+        [Range(1, int.MaxValue, ErrorMessage = "Question ID must be a positive number")]
         public int QuestionId { get; set; }
+        
+        [Range(1, 2, ErrorMessage = "Answer value must be 1 or 2")]
         public int AnswerValue { get; set; }
+        
         public int? TenantId { get; set; }
     }
 
     public class CompleteAssessmentRequest
     {
+        [Range(1, int.MaxValue, ErrorMessage = "Session ID must be a positive number")]
         public int SessionId { get; set; }
+        
         public int? TenantId { get; set; }
     }
 }

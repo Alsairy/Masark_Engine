@@ -15,51 +15,71 @@ using Serilog;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Configure Serilog
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .WriteTo.Console()
-    .WriteTo.File("logs/masark-.txt", rollingInterval: RollingInterval.Day)
-    .Enrich.FromLogContext()
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=masark.db"));
-
-// Configure Redis distributed caching
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
-builder.Services.AddStackExchangeRedisCache(options =>
+public partial class Program 
 {
-    options.Configuration = redisConnectionString;
-    options.InstanceName = "MasarkEngine";
-});
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        ConfigureServices(builder);
+        var app = builder.Build();
+        ConfigureApp(app);
+        RunApp(app);
+    }
 
-// Configure health checks
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ApplicationDbContext>("database")
-    .AddRedis(redisConnectionString);
+    private static void ConfigureServices(WebApplicationBuilder builder)
+    {
+        // Configure Serilog
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .WriteTo.Console()
+            .WriteTo.File("logs/masark-.txt", rollingInterval: RollingInterval.Day)
+            .Enrich.FromLogContext()
+            .CreateLogger();
 
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 8;
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = false;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+        builder.Host.UseSerilog();
+
+        // Add services to the container.
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        // Configure database based on environment
+        if (builder.Environment.IsEnvironment("Testing"))
+        {
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseInMemoryDatabase("TestDatabase"));
+        }
+        else
+        {
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=masark.db"));
+        }
+
+        // Configure Redis distributed caching
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnectionString;
+            options.InstanceName = "MasarkEngine";
+        });
+
+        // Configure health checks
+        builder.Services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>("database")
+            .AddRedis(redisConnectionString);
+
+        builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequiredLength = 8;
+            options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedEmail = false;
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
 var jwtSecretKey = builder.Configuration["Jwt:SecretKey"] ?? "MasarkEngine-SuperSecure-JWT-Secret-Key-2024-Production-Ready";
 var key = Encoding.ASCII.GetBytes(jwtSecretKey);
@@ -145,7 +165,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-var app = builder.Build();
+    }
+
+    private static void ConfigureApp(WebApplication app)
+    {
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -174,22 +197,32 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    await seeder.SeedAsync();
-}
+        var skipSeeding = app.Configuration.GetValue<bool>("SkipDatabaseSeeding", false);
+        if (!skipSeeding)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+                seeder.SeedAsync().Wait();
+            }
+        }
+    }
 
-try
-{
-    Log.Information("Starting Masark Engine API");
-    app.Run();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
+    private static void RunApp(WebApplication app)
+    {
+
+        try
+        {
+            Log.Information("Starting Masark Engine API");
+            app.Run();
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Application terminated unexpectedly");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
 }

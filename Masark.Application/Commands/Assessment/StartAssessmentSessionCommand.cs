@@ -12,6 +12,9 @@ namespace Masark.Application.Commands.Assessment
         public string? UserAgent { get; set; }
         public string? IpAddress { get; set; }
         public DeploymentMode DeploymentMode { get; set; } = DeploymentMode.STANDARD;
+        public string StudentName { get; set; } = string.Empty;
+        public string StudentEmail { get; set; } = string.Empty;
+        public string StudentId { get; set; } = string.Empty;
     }
 
     public class StartAssessmentSessionResult
