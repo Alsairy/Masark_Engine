@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Masark.Infrastructure.Identity;
@@ -406,11 +407,55 @@ namespace Masark.API.Controllers
             {
                 limit = Math.Min(limit, 200);
 
+                var totalUsers = await _userManager.Users.CountAsync();
+                var users = await _userManager.Users
+                    .Skip(offset)
+                    .Take(limit)
+                    .Select(u => new
+                    {
+                        id = u.Id,
+                        username = u.UserName,
+                        email = u.Email,
+                        firstName = u.FirstName,
+                        lastName = u.LastName,
+                        fullName = u.GetFullName(),
+                        isActive = u.IsActive,
+                        tenantId = u.TenantId,
+                        createdAt = u.CreatedAt.ToString("O"),
+                        lastLoginAt = u.LastLoginAt.HasValue ? u.LastLoginAt.Value.ToString("O") : null
+                    })
+                    .ToListAsync();
+
+                var userRoles = new Dictionary<string, IList<string>>();
+                foreach (var user in users)
+                {
+                    var appUser = await _userManager.FindByIdAsync(user.id);
+                    if (appUser != null)
+                    {
+                        userRoles[user.id] = await _userManager.GetRolesAsync(appUser);
+                    }
+                }
+
+                var usersWithRoles = users.Select(u => new
+                {
+                    u.id,
+                    u.username,
+                    u.email,
+                    u.firstName,
+                    u.lastName,
+                    u.fullName,
+                    u.isActive,
+                    u.tenantId,
+                    u.createdAt,
+                    u.lastLoginAt,
+                    roles = userRoles.ContainsKey(u.id) ? userRoles[u.id] : new List<string>()
+                }).ToList();
+
                 return Ok(new
                 {
                     success = true,
-                    users = new object[0],
-                    total_users = 0,
+                    users = usersWithRoles,
+                    total_users = totalUsers,
                     limit = limit,
                     offset = offset
                 });
@@ -451,11 +496,54 @@ namespace Masark.API.Controllers
                     });
                 }
 
+                var existingUser = await _userManager.FindByNameAsync(request.Username) ?? 
+                                  await _userManager.FindByEmailAsync(request.Email);
+
+                if (existingUser != null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User with this username or email already exists"
+                    });
+                }
+
                 var role = request.Role?.ToUpper();
                 if (!new[] { "USER", "ADMIN" }.Contains(role))
                 {
                     role = "USER";
                 }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                var tenantId = currentUser?.TenantId ?? 1;
+
+                var fullNameParts = request.FullName?.Split(' ', 2) ?? new string[0];
+                var firstName = fullNameParts.Length > 0 ? fullNameParts[0] : "";
+                var lastName = fullNameParts.Length > 1 ? fullNameParts[1] : "";
+
+                var user = new ApplicationUser
+                {
+                    UserName = request.Username,
+                    Email = request.Email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    TenantId = tenantId,
+                    EmailConfirmed = true,
+                    IsActive = true
+                };
+
+                var result = await _userManager.CreateAsync(user, request.Password);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User creation failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                await _userManager.AddToRoleAsync(user, role);
 
                 return StatusCode(201, new
                 {
@@ -463,13 +551,16 @@ namespace Masark.API.Controllers
                     message = "User created successfully",
                     user = new
                     {
-                        user_id = new Random().Next(1000, 9999),
-                        username = request.Username,
-                        email = request.Email,
-                        full_name = request.FullName,
+                        id = user.Id,
+                        username = user.UserName,
+                        email = user.Email,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        fullName = user.GetFullName(),
                         role = role,
-                        is_active = true,
-                        created_at = DateTime.UtcNow.ToString("O")
+                        isActive = user.IsActive,
+                        tenantId = user.TenantId,
+                        createdAt = user.CreatedAt.ToString("O")
                     }
                 });
             }
@@ -487,18 +578,45 @@ namespace Masark.API.Controllers
 
         [HttpPost("users/{userId}/deactivate")]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> DeactivateUser(int userId)
+        public async Task<IActionResult> DeactivateUser(string userId)
         {
             try
             {
-                var currentUserId = 1; // Placeholder
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
 
-                if (userId == currentUserId)
+                if (userId == currentUser.Id)
                 {
                     return BadRequest(new
                     {
                         success = false,
                         error = "Cannot deactivate your own account"
+                    });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
+
+                user.IsActive = false;
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Failed to deactivate user",
+                        details = result.Errors.Select(e => e.Description)
                     });
                 }
 
@@ -565,18 +683,45 @@ namespace Masark.API.Controllers
         {
             try
             {
+                var totalUsers = await _userManager.Users.CountAsync();
+                var activeUsers = await _userManager.Users.CountAsync(u => u.IsActive);
+                var inactiveUsers = totalUsers - activeUsers;
+
+                var adminUsers = 0;
+                var regularUsers = 0;
+
+                var allUsers = await _userManager.Users.ToListAsync();
+                foreach (var user in allUsers)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("ADMIN"))
+                    {
+                        adminUsers++;
+                    }
+                    else
+                    {
+                        regularUsers++;
+                    }
+                }
+
+                var yesterday = DateTime.UtcNow.AddDays(-1);
+                var recentLogins = await _userManager.Users
+                    .CountAsync(u => u.LastLoginAt.HasValue && u.LastLoginAt.Value >= yesterday);
+
+                var userActivityRate = totalUsers > 0 ? (double)recentLogins / totalUsers : 0.0;
+
                 return Ok(new
                 {
                     success = true,
                     statistics = new
                     {
-                        total_users = 1,
-                        active_users = 1,
-                        inactive_users = 0,
-                        admin_users = 1,
-                        regular_users = 0,
-                        recent_logins_24h = 0,
-                        user_activity_rate = 0.0
+                        total_users = totalUsers,
+                        active_users = activeUsers,
+                        inactive_users = inactiveUsers,
+                        admin_users = adminUsers,
+                        regular_users = regularUsers,
+                        recent_logins_24h = recentLogins,
+                        user_activity_rate = Math.Round(userActivityRate, 2)
                     },
                     generated_at = DateTime.UtcNow.ToString("O")
                 });

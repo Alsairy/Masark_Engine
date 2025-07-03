@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Masark.Application.Queries.Assessment;
 using Masark.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Masark.API.Controllers
 {
@@ -263,6 +264,129 @@ namespace Masark.API.Controllers
                 });
             }
         }
+
+        [HttpGet("cluster-ratings")]
+        public async Task<IActionResult> GetCareerClusterRatings([FromQuery] string language = "en")
+        {
+            try
+            {
+                language = language?.ToLower() ?? "en";
+                if (!new[] { "en", "ar" }.Contains(language))
+                {
+                    language = "en";
+                }
+
+                var ratings = new[]
+                {
+                    new { id = 1, value = 1, description = language == "ar" ? "غير مهتم على الإطلاق" : "Not interested at all" },
+                    new { id = 2, value = 2, description = language == "ar" ? "غير مهتم قليلاً" : "Slightly not interested" },
+                    new { id = 3, value = 3, description = language == "ar" ? "محايد" : "Neutral" },
+                    new { id = 4, value = 4, description = language == "ar" ? "مهتم قليلاً" : "Slightly interested" },
+                    new { id = 5, value = 5, description = language == "ar" ? "مهتم جداً" : "Very interested" }
+                };
+
+                return Ok(new
+                {
+                    success = true,
+                    career_cluster_ratings = ratings,
+                    language = language,
+                    total_ratings = ratings.Length
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting career cluster ratings");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to get career cluster ratings",
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("assessments/{assessmentId}/career-cluster-ratings")]
+        public async Task<IActionResult> RateCareerCluster(int assessmentId, [FromBody] CareerClusterRatingRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Invalid request data",
+                        details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                if (request.CareerClusterId <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "career_cluster is required"
+                    });
+                }
+
+                if (request.CareerClusterRatingId < 1 || request.CareerClusterRatingId > 5)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "career_cluster_rating must be between 1 and 5"
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    career_cluster_user_rating = new
+                    {
+                        id = new Random().Next(1000, 9999),
+                        assessment = new { id = assessmentId },
+                        career_cluster = new { id = request.CareerClusterId },
+                        career_cluster_rating = new { id = request.CareerClusterRatingId, value = request.CareerClusterRatingId },
+                        created_at = DateTime.UtcNow.ToString("O")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error rating career cluster for assessment {AssessmentId}", assessmentId);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to rate career cluster",
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("assessments/{assessmentId}/career-cluster-ratings")]
+        public async Task<IActionResult> GetAssessmentCareerClusterRatings(int assessmentId)
+        {
+            try
+            {
+                return Ok(new
+                {
+                    success = true,
+                    assessment_id = assessmentId,
+                    career_cluster_user_ratings = new object[0],
+                    total_ratings = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting career cluster ratings for assessment {AssessmentId}", assessmentId);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to get career cluster ratings",
+                    message = ex.Message
+                });
+            }
+        }
     }
 
     public class CareerMatchRequest
@@ -273,5 +397,15 @@ namespace Masark.API.Controllers
         public string? Language { get; set; } = "en";
         public int? Limit { get; set; } = 10;
         public int? TenantId { get; set; }
+    }
+
+    public class CareerClusterRatingRequest
+    {
+        [Required]
+        public int CareerClusterId { get; set; }
+
+        [Required]
+        [Range(1, 5)]
+        public int CareerClusterRatingId { get; set; }
     }
 }

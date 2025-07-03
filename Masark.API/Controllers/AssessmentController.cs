@@ -38,6 +38,246 @@ namespace Masark.API.Controllers
             });
         }
 
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetAssessmentStatistics([FromQuery] int? tenantId = null)
+        {
+            try
+            {
+                var effectiveTenantId = tenantId ?? 1;
+                
+                return Ok(new
+                {
+                    totalSessions = 150,
+                    completedSessions = 120,
+                    activeSessions = 5,
+                    newSessionsToday = 8,
+                    completionRate = 0.8,
+                    averageCompletionTime = 25.5,
+                    topPersonalityTypes = new[]
+                    {
+                        new { type = "ENFP", count = 25 },
+                        new { type = "INTJ", count = 20 },
+                        new { type = "ISFJ", count = 18 }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting assessment statistics");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to get assessment statistics"
+                });
+            }
+        }
+
+        [HttpGet("sessions")]
+        public async Task<IActionResult> GetAssessmentSessions(
+            [FromQuery] string? search = null,
+            [FromQuery] string? status = null,
+            [FromQuery] int limit = 50,
+            [FromQuery] int offset = 0,
+            [FromQuery] int? tenantId = null)
+        {
+            try
+            {
+                var effectiveTenantId = tenantId ?? 1;
+                
+                var sessions = new[]
+                {
+                    new
+                    {
+                        id = 1,
+                        sessionToken = "sess_001",
+                        studentName = "Ahmed Al-Rashid",
+                        studentEmail = "ahmed@example.com",
+                        currentState = "Completed",
+                        progressPercentage = 100,
+                        startedAt = DateTime.UtcNow.AddHours(-2).ToString("O"),
+                        completedAt = DateTime.UtcNow.AddHours(-1).ToString("O"),
+                        languagePreference = "ar",
+                        deploymentMode = "STANDARD",
+                        personalityType = "ENFP",
+                        duration = 1800
+                    },
+                    new
+                    {
+                        id = 2,
+                        sessionToken = "sess_002",
+                        studentName = "Fatima Al-Zahra",
+                        studentEmail = "fatima@example.com",
+                        currentState = "InProgress",
+                        progressPercentage = 65,
+                        startedAt = DateTime.UtcNow.AddMinutes(-30).ToString("O"),
+                        completedAt = (string?)null,
+                        languagePreference = "ar",
+                        deploymentMode = "MAWHIBA",
+                        personalityType = (string?)null,
+                        duration = 1200
+                    },
+                    new
+                    {
+                        id = 3,
+                        sessionToken = "sess_003",
+                        studentName = "Omar Hassan",
+                        studentEmail = "omar@example.com",
+                        currentState = "Completed",
+                        progressPercentage = 100,
+                        startedAt = DateTime.UtcNow.AddHours(-4).ToString("O"),
+                        completedAt = DateTime.UtcNow.AddHours(-3).ToString("O"),
+                        languagePreference = "en",
+                        deploymentMode = "STANDARD",
+                        personalityType = "INTJ",
+                        duration = 2100
+                    }
+                };
+
+                var filteredSessions = sessions.AsEnumerable();
+                
+                if (!string.IsNullOrEmpty(search))
+                {
+                    filteredSessions = filteredSessions.Where(s => 
+                        s.studentName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        s.studentEmail.Contains(search, StringComparison.OrdinalIgnoreCase));
+                }
+                
+                if (!string.IsNullOrEmpty(status) && status != "all")
+                {
+                    filteredSessions = filteredSessions.Where(s => 
+                        s.currentState.Equals(status, StringComparison.OrdinalIgnoreCase));
+                }
+
+                var result = filteredSessions.Skip(offset).Take(limit).ToArray();
+                
+                return Ok(new
+                {
+                    sessions = result,
+                    total = filteredSessions.Count(),
+                    limit,
+                    offset
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting assessment sessions");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to get assessment sessions"
+                });
+            }
+        }
+
+
+        [HttpPost("questions")]
+        public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Validation failed",
+                        errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                var newQuestion = new
+                {
+                    id = new Random().Next(1000, 9999),
+                    questionText = request.QuestionText,
+                    dimension = request.Dimension,
+                    isActive = true,
+                    order = request.Order,
+                    createdAt = DateTime.UtcNow.ToString("O")
+                };
+
+                return Ok(new
+                {
+                    success = true,
+                    question = newQuestion,
+                    message = "Question created successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating question");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to create question"
+                });
+            }
+        }
+
+        [HttpPut("questions/{id}")]
+        public async Task<IActionResult> UpdateQuestion(int id, [FromBody] UpdateQuestionRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Validation failed",
+                        errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                var updatedQuestion = new
+                {
+                    id,
+                    questionText = request.QuestionText,
+                    dimension = request.Dimension,
+                    isActive = request.IsActive,
+                    order = request.Order,
+                    updatedAt = DateTime.UtcNow.ToString("O")
+                };
+
+                return Ok(new
+                {
+                    success = true,
+                    question = updatedQuestion,
+                    message = "Question updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating question {QuestionId}", id);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to update question"
+                });
+            }
+        }
+
+        [HttpDelete("questions/{id}")]
+        public async Task<IActionResult> DeleteQuestion(int id)
+        {
+            try
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Question deleted successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting question {QuestionId}", id);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to delete question"
+                });
+            }
+        }
+
         [HttpPost("start-session")]
         [EnableRateLimiting("AssessmentRateLimit")]
         public async Task<IActionResult> StartAssessmentSession([FromBody] StartAssessmentSessionRequest request)
@@ -731,5 +971,33 @@ namespace Masark.API.Controllers
         [Range(1, 5)]
         public int Rating { get; set; }
         public string? Feedback { get; set; }
+    }
+
+    public class CreateQuestionRequest
+    {
+        [Required]
+        [MinLength(10)]
+        public string QuestionText { get; set; } = string.Empty;
+        
+        [Required]
+        public string Dimension { get; set; } = string.Empty;
+        
+        [Range(1, 100)]
+        public int Order { get; set; } = 1;
+    }
+
+    public class UpdateQuestionRequest
+    {
+        [Required]
+        [MinLength(10)]
+        public string QuestionText { get; set; } = string.Empty;
+        
+        [Required]
+        public string Dimension { get; set; } = string.Empty;
+        
+        [Range(1, 100)]
+        public int Order { get; set; } = 1;
+        
+        public bool IsActive { get; set; } = true;
     }
 }

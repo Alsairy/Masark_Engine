@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using Masark.Infrastructure.Identity;
 
 namespace Masark.API.Controllers
 {
@@ -8,22 +12,61 @@ namespace Masark.API.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(ILogger<UserController> logger)
+        public UserController(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
+            ILogger<UserController> logger)
         {
+            _userManager = userManager;
+            _roleManager = roleManager;
             _logger = logger;
         }
 
         [HttpGet("users")]
         [Authorize]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers([FromQuery] int limit = 50, [FromQuery] int offset = 0)
         {
             try
             {
-                var users = new object[0];
+                limit = Math.Min(limit, 200);
 
-                return Ok(users);
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
+
+                var users = await _userManager.Users
+                    .Where(u => u.TenantId == currentUser.TenantId)
+                    .Skip(offset)
+                    .Take(limit)
+                    .Select(u => new
+                    {
+                        id = u.Id,
+                        username = u.UserName,
+                        email = u.Email,
+                        firstName = u.FirstName,
+                        lastName = u.LastName,
+                        fullName = u.GetFullName(),
+                        isActive = u.IsActive,
+                        tenantId = u.TenantId,
+                        createdAt = u.CreatedAt.ToString("O"),
+                        lastLoginAt = u.LastLoginAt.HasValue ? u.LastLoginAt.Value.ToString("O") : null
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    users = users,
+                    total = await _userManager.Users.CountAsync(u => u.TenantId == currentUser.TenantId),
+                    limit = limit,
+                    offset = offset
+                });
             }
             catch (Exception ex)
             {
@@ -53,16 +96,57 @@ namespace Masark.API.Controllers
                     });
                 }
 
-                var user = new
+                var existingUser = await _userManager.FindByNameAsync(request.Username) ?? 
+                                  await _userManager.FindByEmailAsync(request.Email);
+
+                if (existingUser != null)
                 {
-                    id = new Random().Next(1000, 9999),
-                    username = request.Username,
-                    email = request.Email,
-                    created_at = DateTime.UtcNow.ToString("O"),
-                    updated_at = DateTime.UtcNow.ToString("O")
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User with this username or email already exists"
+                    });
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                var tenantId = currentUser?.TenantId ?? 1;
+
+                var user = new ApplicationUser
+                {
+                    UserName = request.Username,
+                    Email = request.Email,
+                    TenantId = tenantId,
+                    EmailConfirmed = true,
+                    IsActive = true
                 };
 
-                return StatusCode(201, user);
+                var result = await _userManager.CreateAsync(user, "TempPassword123!");
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User creation failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                await _userManager.AddToRoleAsync(user, "USER");
+
+                return StatusCode(201, new
+                {
+                    success = true,
+                    message = "User created successfully",
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.UserName,
+                        email = user.Email,
+                        isActive = user.IsActive,
+                        tenantId = user.TenantId,
+                        createdAt = user.CreatedAt.ToString("O")
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -78,11 +162,11 @@ namespace Masark.API.Controllers
 
         [HttpGet("users/{userId}")]
         [Authorize]
-        public async Task<IActionResult> GetUser(int userId)
+        public async Task<IActionResult> GetUser(string userId)
         {
             try
             {
-                if (userId <= 0)
+                if (string.IsNullOrWhiteSpace(userId))
                 {
                     return BadRequest(new
                     {
@@ -91,10 +175,41 @@ namespace Masark.API.Controllers
                     });
                 }
 
-                return NotFound(new
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
                 {
-                    success = false,
-                    error = "User not found"
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null || user.TenantId != currentUser.TenantId)
+                {
+                    return Forbid();
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+
+                return Ok(new
+                {
+                    success = true,
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.UserName,
+                        email = user.Email,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        fullName = user.GetFullName(),
+                        isActive = user.IsActive,
+                        tenantId = user.TenantId,
+                        roles = roles,
+                        createdAt = user.CreatedAt.ToString("O"),
+                        lastLoginAt = user.LastLoginAt.HasValue ? user.LastLoginAt.Value.ToString("O") : null
+                    }
                 });
             }
             catch (Exception ex)
@@ -111,11 +226,11 @@ namespace Masark.API.Controllers
 
         [HttpPut("users/{userId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserRequest request)
         {
             try
             {
-                if (userId <= 0)
+                if (string.IsNullOrWhiteSpace(userId))
                 {
                     return BadRequest(new
                     {
@@ -134,15 +249,116 @@ namespace Masark.API.Controllers
                     });
                 }
 
-                var user = new
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
                 {
-                    id = userId,
-                    username = request.Username,
-                    email = request.Email,
-                    updated_at = DateTime.UtcNow.ToString("O")
-                };
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
 
-                return Ok(user);
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null || user.TenantId != currentUser.TenantId)
+                {
+                    return Forbid();
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.Username) && request.Username != user.UserName)
+                {
+                    var existingUser = await _userManager.FindByNameAsync(request.Username);
+                    if (existingUser != null && existingUser.Id != userId)
+                    {
+                        return BadRequest(new
+                        {
+                            success = false,
+                            error = "Username already exists"
+                        });
+                    }
+                    user.UserName = request.Username;
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.Email) && request.Email != user.Email)
+                {
+                    var existingUser = await _userManager.FindByEmailAsync(request.Email);
+                    if (existingUser != null && existingUser.Id != userId)
+                    {
+                        return BadRequest(new
+                        {
+                            success = false,
+                            error = "Email already exists"
+                        });
+                    }
+                    user.Email = request.Email;
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.FirstName))
+                {
+                    user.FirstName = request.FirstName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.LastName))
+                {
+                    user.LastName = request.LastName;
+                }
+
+                if (request.IsActive.HasValue)
+                {
+                    user.IsActive = request.IsActive.Value;
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User update failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.Role))
+                {
+                    var currentRoles = await _userManager.GetRolesAsync(user);
+                    var newRole = request.Role.ToUpper();
+                    
+                    if (new[] { "USER", "ADMIN" }.Contains(newRole) && !currentRoles.Contains(newRole))
+                    {
+                        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                        await _userManager.AddToRoleAsync(user, newRole);
+                    }
+                }
+
+                result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User update failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "User updated successfully",
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.UserName,
+                        email = user.Email,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        fullName = user.GetFullName(),
+                        isActive = user.IsActive,
+                        tenantId = user.TenantId,
+                        updatedAt = DateTime.UtcNow.ToString("O")
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -158,11 +374,11 @@ namespace Masark.API.Controllers
 
         [HttpDelete("users/{userId}")]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> DeleteUser(int userId)
+        public async Task<IActionResult> DeleteUser(string userId)
         {
             try
             {
-                if (userId <= 0)
+                if (string.IsNullOrWhiteSpace(userId))
                 {
                     return BadRequest(new
                     {
@@ -171,7 +387,52 @@ namespace Masark.API.Controllers
                     });
                 }
 
-                return NoContent();
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
+
+                if (userId == currentUser.Id)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Cannot delete your own account"
+                    });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
+
+                if (user.TenantId != currentUser.TenantId)
+                {
+                    return Forbid();
+                }
+
+                var result = await _userManager.DeleteAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User deletion failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "User deleted successfully"
+                });
             }
             catch (Exception ex)
             {
@@ -180,6 +441,229 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to delete user",
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("users/{userId}/roles")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> AssignRole(string userId, [FromBody] AssignRoleRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(request.Role))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User ID and role are required"
+                    });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null || user.TenantId != currentUser.TenantId)
+                {
+                    return Forbid();
+                }
+
+                var role = request.Role.ToUpper();
+                if (!new[] { "USER", "ADMIN" }.Contains(role))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Invalid role. Must be USER or ADMIN"
+                    });
+                }
+
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Contains(role))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = $"User already has {role} role"
+                    });
+                }
+
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                var result = await _userManager.AddToRoleAsync(user, role);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Role assignment failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Role {role} assigned successfully",
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.UserName,
+                        email = user.Email,
+                        role = role
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning role to user {UserId}", userId);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to assign role",
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("users/{userId}/roles/{role}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> RemoveRole(string userId, string role)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(role))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User ID and role are required"
+                    });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null || user.TenantId != currentUser.TenantId)
+                {
+                    return Forbid();
+                }
+
+                var roleUpper = role.ToUpper();
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                
+                if (!currentRoles.Contains(roleUpper))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = $"User does not have {roleUpper} role"
+                    });
+                }
+
+                var result = await _userManager.RemoveFromRoleAsync(user, roleUpper);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Role removal failed",
+                        details = result.Errors.Select(e => e.Description)
+                    });
+                }
+
+                if (!currentRoles.Any(r => r != roleUpper))
+                {
+                    await _userManager.AddToRoleAsync(user, "USER");
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Role {roleUpper} removed successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing role from user {UserId}", userId);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to remove role",
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("users/{userId}/roles")]
+        [Authorize]
+        public async Task<IActionResult> GetUserRoles(string userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "User ID is required"
+                    });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        error = "User not found"
+                    });
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null || user.TenantId != currentUser.TenantId)
+                {
+                    return Forbid();
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+
+                return Ok(new
+                {
+                    success = true,
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.UserName,
+                        email = user.Email,
+                        roles = roles
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user roles {UserId}", userId);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "Failed to get user roles",
                     message = ex.Message
                 });
             }
@@ -202,5 +686,19 @@ namespace Masark.API.Controllers
 
         [EmailAddress]
         public string? Email { get; set; }
+
+        public string? FirstName { get; set; }
+
+        public string? LastName { get; set; }
+
+        public string? Role { get; set; }
+
+        public bool? IsActive { get; set; }
+    }
+
+    public class AssignRoleRequest
+    {
+        [Required]
+        public string Role { get; set; } = string.Empty;
     }
 }
