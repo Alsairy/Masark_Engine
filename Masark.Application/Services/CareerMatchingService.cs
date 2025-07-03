@@ -24,6 +24,13 @@ namespace Masark.Application.Services
         public string? SsocCode { get; set; }
         public string? DescriptionEn { get; set; }
         public string? DescriptionAr { get; set; }
+        public string? OnetId { get; set; }
+        public int OnetJobZone { get; set; }
+        public decimal? AnnualSalary { get; set; }
+        public decimal? OutlookGrowthPercentage { get; set; }
+        public string? WorkContext { get; set; }
+        public string? SkillsRequired { get; set; }
+        public string? EducationLevel { get; set; }
     }
 
     public class ProgramDto
@@ -210,7 +217,14 @@ namespace Masark.Application.Services
                     Pathways = pathwayDtos,
                     SsocCode = career.SsocCode,
                     DescriptionEn = career.DescriptionEn,
-                    DescriptionAr = career.DescriptionAr
+                    DescriptionAr = career.DescriptionAr,
+                    OnetId = career.OnetId,
+                    OnetJobZone = career.OnetJobZone,
+                    AnnualSalary = career.AnnualSalary,
+                    OutlookGrowthPercentage = career.OutlookGrowthPercentage,
+                    WorkContext = career.WorkContext,
+                    SkillsRequired = career.SkillsRequired,
+                    EducationLevel = career.EducationLevel
                 };
             }
             catch (Exception ex)
@@ -284,6 +298,13 @@ namespace Masark.Application.Services
                     ["name"] = language == "en" ? career.NameEn : career.NameAr,
                     ["description"] = language == "en" ? career.DescriptionEn : career.DescriptionAr,
                     ["ssoc_code"] = career.SsocCode ?? string.Empty,
+                    ["onet_id"] = career.OnetId ?? string.Empty,
+                    ["onet_job_zone"] = career.OnetJobZone,
+                    ["annual_salary"] = career.AnnualSalary,
+                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage,
+                    ["work_context"] = career.WorkContext ?? string.Empty,
+                    ["skills_required"] = career.SkillsRequired ?? string.Empty,
+                    ["education_level"] = career.EducationLevel ?? string.Empty,
                     ["cluster"] = cluster != null ? new
                     {
                         id = cluster.Id,
@@ -330,7 +351,12 @@ namespace Masark.Application.Services
                     ["description"] = language == "en" ? career.DescriptionEn : career.DescriptionAr,
                     ["cluster"] = career.Cluster != null ? 
                         (language == "en" ? career.Cluster.NameEn : career.Cluster.NameAr) : null,
-                    ["ssoc_code"] = career.SsocCode ?? string.Empty
+                    ["ssoc_code"] = career.SsocCode ?? string.Empty,
+                    ["onet_id"] = career.OnetId ?? string.Empty,
+                    ["onet_job_zone"] = career.OnetJobZone,
+                    ["annual_salary"] = career.AnnualSalary,
+                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage,
+                    ["education_level"] = career.EducationLevel ?? string.Empty
                 }).ToList();
             }
             catch (Exception ex)
@@ -353,7 +379,12 @@ namespace Masark.Application.Services
                     ["id"] = career.Id,
                     ["name"] = language == "en" ? career.NameEn : career.NameAr,
                     ["description"] = language == "en" ? career.DescriptionEn : career.DescriptionAr,
-                    ["ssoc_code"] = career.SsocCode ?? string.Empty
+                    ["ssoc_code"] = career.SsocCode ?? string.Empty,
+                    ["onet_id"] = career.OnetId ?? string.Empty,
+                    ["onet_job_zone"] = career.OnetJobZone,
+                    ["annual_salary"] = career.AnnualSalary,
+                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage,
+                    ["education_level"] = career.EducationLevel ?? string.Empty
                 }).ToList();
             }
             catch (Exception ex)

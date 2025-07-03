@@ -127,6 +127,7 @@ builder.Services.AddHostedService<PerformanceMonitoringService>();
 builder.Services.AddScoped<IPerformanceMonitoringService>(provider => 
     provider.GetServices<IHostedService>().OfType<PerformanceMonitoringService>().First());
 builder.Services.AddScoped<IReportGenerationService, ReportGenerationService>();
+builder.Services.AddScoped<IAssessmentStateMachineService, AssessmentStateMachineService>();
 builder.Services.AddScoped<DatabaseSeeder>();
 
 // Configure rate limiting
@@ -196,6 +197,12 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 });
 
 app.MapControllers();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            context.Database.EnsureCreated();
+        }
 
         var skipSeeding = app.Configuration.GetValue<bool>("SkipDatabaseSeeding", false);
         if (!skipSeeding)

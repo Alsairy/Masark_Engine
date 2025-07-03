@@ -218,8 +218,8 @@ public class AssessmentApiIntegrationTests : IClassFixture<WebApplicationFactory
         
         var questions = new[]
         {
-            new Masark.Domain.Entities.Question(1, Masark.Domain.Enums.PersonalityDimension.EI, "Test Question 1", "سؤال تجريبي 1", "Option A", "الخيار أ", true, "Option B", "الخيار ب", 1),
-            new Masark.Domain.Entities.Question(2, Masark.Domain.Enums.PersonalityDimension.SN, "Test Question 2", "سؤال تجريبي 2", "Option A", "الخيار أ", true, "Option B", "الخيار ب", 1)
+            new Masark.Domain.Entities.Question(1, Masark.Domain.Enums.PersonalityDimension.EI, "Test Question 1", "سؤال تجريبي 1", "Pregunta de prueba 1", "测试问题1", "Option A", "الخيار أ", "Opción A", "选项A", true, "Option B", "الخيار ب", "Opción B", "选项B", 1),
+            new Masark.Domain.Entities.Question(2, Masark.Domain.Enums.PersonalityDimension.SN, "Test Question 2", "سؤال تجريبي 2", "Pregunta de prueba 2", "测试问题2", "Option A", "الخيار أ", "Opción A", "选项A", true, "Option B", "الخيار ب", "Opción B", "选项B", 1)
         };
         
         context.Questions.AddRange(questions);

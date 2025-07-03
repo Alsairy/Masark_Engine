@@ -11,7 +11,9 @@ namespace Masark.Application.Services
     public enum Language
     {
         English,
-        Arabic
+        Arabic,
+        Spanish,
+        Chinese
     }
 
     public enum TextDirection
@@ -34,7 +36,7 @@ namespace Masark.Application.Services
     public class LocalizationOptions
     {
         public string DefaultLanguage { get; set; } = "en";
-        public List<string> SupportedLanguages { get; set; } = new() { "en", "ar" };
+        public List<string> SupportedLanguages { get; set; } = new() { "en", "ar", "es", "zh" };
         public bool EnableRtlSupport { get; set; } = true;
         public string TranslationsPath { get; set; } = "Translations";
     }
@@ -96,6 +98,28 @@ namespace Masark.Application.Services
                 CultureCode = "ar-SA",
                 IsDefault = false
             };
+
+            _languageConfigs["es"] = new LanguageConfig
+            {
+                Language = Language.Spanish,
+                Code = "es",
+                Name = "Spanish",
+                NativeName = "Español",
+                Direction = TextDirection.LeftToRight,
+                CultureCode = "es-ES",
+                IsDefault = false
+            };
+
+            _languageConfigs["zh"] = new LanguageConfig
+            {
+                Language = Language.Chinese,
+                Code = "zh",
+                Name = "Chinese",
+                NativeName = "中文",
+                Direction = TextDirection.LeftToRight,
+                CultureCode = "zh-CN",
+                IsDefault = false
+            };
         }
 
         private void InitializeTranslations()
@@ -125,6 +149,30 @@ namespace Masark.Application.Services
                     ["not_found"] = "المورد غير موجود",
                     ["unauthorized"] = "وصول غير مصرح",
                     ["forbidden"] = "الوصول محظور"
+                },
+                ["es"] = new Dictionary<string, string>
+                {
+                    ["welcome"] = "Bienvenido a Masark",
+                    ["loading"] = "Cargando...",
+                    ["error"] = "Ocurrió un error",
+                    ["success"] = "Operación completada exitosamente",
+                    ["validation_error"] = "Por favor verifica tu entrada",
+                    ["server_error"] = "Ocurrió un error del servidor",
+                    ["not_found"] = "Recurso no encontrado",
+                    ["unauthorized"] = "Acceso no autorizado",
+                    ["forbidden"] = "Acceso prohibido"
+                },
+                ["zh"] = new Dictionary<string, string>
+                {
+                    ["welcome"] = "欢迎来到Masark",
+                    ["loading"] = "加载中...",
+                    ["error"] = "发生错误",
+                    ["success"] = "操作成功完成",
+                    ["validation_error"] = "请检查您的输入",
+                    ["server_error"] = "服务器错误",
+                    ["not_found"] = "资源未找到",
+                    ["unauthorized"] = "未授权访问",
+                    ["forbidden"] = "访问被禁止"
                 }
             };
 
@@ -161,6 +209,38 @@ namespace Masark.Application.Services
                     ["invalid_credentials"] = "البريد الإلكتروني أو كلمة المرور غير صحيحة",
                     ["account_locked"] = "الحساب مقفل",
                     ["password_reset_sent"] = "تم إرسال رابط إعادة تعيين كلمة المرور"
+                },
+                ["es"] = new Dictionary<string, string>
+                {
+                    ["login"] = "Iniciar sesión",
+                    ["logout"] = "Cerrar sesión",
+                    ["register"] = "Registrarse",
+                    ["email"] = "Correo electrónico",
+                    ["password"] = "Contraseña",
+                    ["confirm_password"] = "Confirmar contraseña",
+                    ["forgot_password"] = "¿Olvidaste tu contraseña?",
+                    ["reset_password"] = "Restablecer contraseña",
+                    ["login_success"] = "Inicio de sesión exitoso",
+                    ["login_failed"] = "Error al iniciar sesión",
+                    ["invalid_credentials"] = "Correo electrónico o contraseña inválidos",
+                    ["account_locked"] = "La cuenta está bloqueada",
+                    ["password_reset_sent"] = "Correo de restablecimiento de contraseña enviado"
+                },
+                ["zh"] = new Dictionary<string, string>
+                {
+                    ["login"] = "登录",
+                    ["logout"] = "登出",
+                    ["register"] = "注册",
+                    ["email"] = "电子邮件",
+                    ["password"] = "密码",
+                    ["confirm_password"] = "确认密码",
+                    ["forgot_password"] = "忘记密码？",
+                    ["reset_password"] = "重置密码",
+                    ["login_success"] = "登录成功",
+                    ["login_failed"] = "登录失败",
+                    ["invalid_credentials"] = "无效的电子邮件或密码",
+                    ["account_locked"] = "账户已锁定",
+                    ["password_reset_sent"] = "密码重置邮件已发送"
                 }
             };
 
@@ -197,6 +277,38 @@ namespace Masark.Application.Services
                     ["time_remaining"] = "الوقت المتبقي",
                     ["save_progress"] = "حفظ التقدم",
                     ["resume_later"] = "المتابعة لاحقاً"
+                },
+                ["es"] = new Dictionary<string, string>
+                {
+                    ["start_assessment"] = "Iniciar evaluación",
+                    ["continue_assessment"] = "Continuar evaluación",
+                    ["complete_assessment"] = "Completar evaluación",
+                    ["question"] = "Pregunta",
+                    ["of"] = "de",
+                    ["next"] = "Siguiente",
+                    ["previous"] = "Anterior",
+                    ["submit"] = "Enviar",
+                    ["assessment_completed"] = "Evaluación completada exitosamente",
+                    ["assessment_progress"] = "Progreso de la evaluación",
+                    ["time_remaining"] = "Tiempo restante",
+                    ["save_progress"] = "Guardar progreso",
+                    ["resume_later"] = "Continuar más tarde"
+                },
+                ["zh"] = new Dictionary<string, string>
+                {
+                    ["start_assessment"] = "开始评估",
+                    ["continue_assessment"] = "继续评估",
+                    ["complete_assessment"] = "完成评估",
+                    ["question"] = "问题",
+                    ["of"] = "的",
+                    ["next"] = "下一个",
+                    ["previous"] = "上一个",
+                    ["submit"] = "提交",
+                    ["assessment_completed"] = "评估成功完成",
+                    ["assessment_progress"] = "评估进度",
+                    ["time_remaining"] = "剩余时间",
+                    ["save_progress"] = "保存进度",
+                    ["resume_later"] = "稍后继续"
                 }
             };
 
@@ -231,6 +343,36 @@ namespace Masark.Application.Services
                     ["related_careers"] = "المهن ذات الصلة",
                     ["programs"] = "البرامج",
                     ["pathways"] = "المسارات"
+                },
+                ["es"] = new Dictionary<string, string>
+                {
+                    ["career_matches"] = "Coincidencias de carrera",
+                    ["top_matches"] = "Mejores coincidencias",
+                    ["match_score"] = "Puntuación de coincidencia",
+                    ["career_details"] = "Detalles de carrera",
+                    ["job_description"] = "Descripción del trabajo",
+                    ["required_skills"] = "Habilidades requeridas",
+                    ["education_requirements"] = "Requisitos educativos",
+                    ["salary_range"] = "Rango salarial",
+                    ["career_outlook"] = "Perspectivas de carrera",
+                    ["related_careers"] = "Carreras relacionadas",
+                    ["programs"] = "Programas",
+                    ["pathways"] = "Rutas"
+                },
+                ["zh"] = new Dictionary<string, string>
+                {
+                    ["career_matches"] = "职业匹配",
+                    ["top_matches"] = "最佳匹配",
+                    ["match_score"] = "匹配分数",
+                    ["career_details"] = "职业详情",
+                    ["job_description"] = "工作描述",
+                    ["required_skills"] = "所需技能",
+                    ["education_requirements"] = "教育要求",
+                    ["salary_range"] = "薪资范围",
+                    ["career_outlook"] = "职业前景",
+                    ["related_careers"] = "相关职业",
+                    ["programs"] = "项目",
+                    ["pathways"] = "路径"
                 }
             };
 
@@ -265,6 +407,36 @@ namespace Masark.Application.Services
                     ["strengths"] = "نقاط القوة",
                     ["challenges"] = "التحديات",
                     ["recommendations"] = "التوصيات"
+                },
+                ["es"] = new Dictionary<string, string>
+                {
+                    ["personality_report"] = "Informe de personalidad",
+                    ["career_report"] = "Informe de carrera",
+                    ["detailed_report"] = "Informe detallado",
+                    ["summary_report"] = "Informe resumen",
+                    ["download_pdf"] = "Descargar PDF",
+                    ["share_report"] = "Compartir informe",
+                    ["print_report"] = "Imprimir informe",
+                    ["report_generated"] = "Informe generado exitosamente",
+                    ["personality_type"] = "Tipo de personalidad",
+                    ["strengths"] = "Fortalezas",
+                    ["challenges"] = "Desafíos",
+                    ["recommendations"] = "Recomendaciones"
+                },
+                ["zh"] = new Dictionary<string, string>
+                {
+                    ["personality_report"] = "性格报告",
+                    ["career_report"] = "职业报告",
+                    ["detailed_report"] = "详细报告",
+                    ["summary_report"] = "摘要报告",
+                    ["download_pdf"] = "下载PDF",
+                    ["share_report"] = "分享报告",
+                    ["print_report"] = "打印报告",
+                    ["report_generated"] = "报告生成成功",
+                    ["personality_type"] = "性格类型",
+                    ["strengths"] = "优势",
+                    ["challenges"] = "挑战",
+                    ["recommendations"] = "建议"
                 }
             };
 
@@ -295,6 +467,32 @@ namespace Masark.Application.Services
                     ["system_health"] = "صحة النظام",
                     ["performance_metrics"] = "مقاييس الأداء",
                     ["audit_logs"] = "سجلات المراجعة"
+                },
+                ["es"] = new Dictionary<string, string>
+                {
+                    ["dashboard"] = "Panel de control",
+                    ["users"] = "Usuarios",
+                    ["assessments"] = "Evaluaciones",
+                    ["reports"] = "Informes",
+                    ["settings"] = "Configuración",
+                    ["analytics"] = "Analíticas",
+                    ["user_management"] = "Gestión de usuarios",
+                    ["system_health"] = "Salud del sistema",
+                    ["performance_metrics"] = "Métricas de rendimiento",
+                    ["audit_logs"] = "Registros de auditoría"
+                },
+                ["zh"] = new Dictionary<string, string>
+                {
+                    ["dashboard"] = "仪表板",
+                    ["users"] = "用户",
+                    ["assessments"] = "评估",
+                    ["reports"] = "报告",
+                    ["settings"] = "设置",
+                    ["analytics"] = "分析",
+                    ["user_management"] = "用户管理",
+                    ["system_health"] = "系统健康",
+                    ["performance_metrics"] = "性能指标",
+                    ["audit_logs"] = "审计日志"
                 }
             };
         }
