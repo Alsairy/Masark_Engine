@@ -1,0 +1,426 @@
+name: Deployment Validation
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Azure", "Deploy to AWS"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to validate'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      deployment_target:
+        description: 'Deployment target to validate'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+        - azure
+        - aws
+        - both
+
+env:
+  AZURE_WEBAPP_NAME: masark-engine
+  AWS_REGION: us-east-1
+
+jobs:
+  validate-azure-deployment:
+    runs-on: ubuntu-latest
+    if: ${{ (github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch') && (github.event.inputs.deployment_target == 'azure' || github.event.inputs.deployment_target == 'both' || github.event_name == 'workflow_run') }}
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set Environment Variables
+      run: |
+        echo "ENVIRONMENT=${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_ENV
+        echo "AZURE_APP_URL=https://${{ env.AZURE_WEBAPP_NAME }}-${{ github.event.inputs.environment || 'staging' }}.azurewebsites.net" >> $GITHUB_ENV
+        
+    - name: Wait for Azure Deployment to Stabilize
+      run: |
+        echo "Waiting for Azure deployment to stabilize..."
+        sleep 60
+        
+    - name: Azure Health Check
+      id: azure-health
+      run: |
+        echo "## 🏥 Azure Health Check" >> $GITHUB_STEP_SUMMARY
+        echo "Testing Azure deployment at: ${{ env.AZURE_APP_URL }}"
+        
+        HEALTH_ENDPOINTS=(
+          "/health"
+          "/api/system/health"
+          "/api/system/status"
+        )
+        
+        HEALTH_PASSED=false
+        
+        for endpoint in "${HEALTH_ENDPOINTS[@]}"; do
+          echo "Testing endpoint: ${{ env.AZURE_APP_URL }}$endpoint"
+          
+          for i in {1..10}; do
+            if curl -f -s -k "${{ env.AZURE_APP_URL }}$endpoint" > /dev/null; then
+              echo "✅ Health check passed for $endpoint"
+              echo "- ✅ Health endpoint: $endpoint" >> $GITHUB_STEP_SUMMARY
+              HEALTH_PASSED=true
+              break 2
+            else
+              echo "⏳ Health check attempt $i failed for $endpoint, retrying in 15 seconds..."
+              sleep 15
+            fi
+          done
+        done
+        
+        if [ "$HEALTH_PASSED" = "false" ]; then
+          echo "❌ All health checks failed"
+          echo "- ❌ All health endpoints failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+        
+    - name: Azure API Smoke Tests
+      run: |
+        echo "## 🧪 Azure API Smoke Tests" >> $GITHUB_STEP_SUMMARY
+        echo "Running comprehensive API smoke tests..."
+        
+        BASE_URL="${{ env.AZURE_APP_URL }}"
+        
+        # Test API endpoints
+        API_ENDPOINTS=(
+          "/api/assessment/questions"
+          "/api/careers/clusters"
+          "/api/system/info"
+          "/api/localization/languages"
+        )
+        
+        FAILED_TESTS=0
+        TOTAL_TESTS=${#API_ENDPOINTS[@]}
+        
+        for endpoint in "${API_ENDPOINTS[@]}"; do
+          echo "Testing API endpoint: $BASE_URL$endpoint"
+          
+          if curl -f -s -k "$BASE_URL$endpoint" -H "Accept: application/json" > /dev/null; then
+            echo "✅ API test passed: $endpoint"
+            echo "- ✅ API endpoint: $endpoint" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ API test failed: $endpoint"
+            echo "- ❌ API endpoint: $endpoint" >> $GITHUB_STEP_SUMMARY
+            ((FAILED_TESTS++))
+          fi
+        done
+        
+        echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "- **Total Tests**: $TOTAL_TESTS" >> $GITHUB_STEP_SUMMARY
+        echo "- **Passed**: $((TOTAL_TESTS - FAILED_TESTS))" >> $GITHUB_STEP_SUMMARY
+        echo "- **Failed**: $FAILED_TESTS" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $FAILED_TESTS -gt 0 ]; then
+          echo "Some API tests failed"
+          exit 1
+        fi
+        
+    - name: Azure Performance Test
+      if: github.event.inputs.environment == 'production'
+      run: |
+        echo "## ⚡ Azure Performance Test" >> $GITHUB_STEP_SUMMARY
+        
+        # Install k6 for load testing
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+        
+        # Run performance test
+        k6 run --vus 25 --duration 1m - <<EOF
+        import http from 'k6/http';
+        import { check, sleep } from 'k6';
+        
+        export default function () {
+          let response = http.get('${{ env.AZURE_APP_URL }}/health');
+          check(response, {
+            'status is 200': (r) => r.status === 200,
+            'response time < 2000ms': (r) => r.timings.duration < 2000,
+          });
+          sleep(1);
+        }
+        EOF
+        
+        echo "- ✅ Performance test completed" >> $GITHUB_STEP_SUMMARY
+
+  validate-aws-deployment:
+    runs-on: ubuntu-latest
+    if: ${{ (github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch') && (github.event.inputs.deployment_target == 'aws' || github.event.inputs.deployment_target == 'both' || github.event_name == 'workflow_run') }}
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Get AWS Application URL
+      id: aws-url
+      run: |
+        STACK_NAME="masark-engine-${{ github.event.inputs.environment || 'staging' }}"
+        
+        LOAD_BALANCER_DNS=$(aws cloudformation describe-stacks \
+          --stack-name $STACK_NAME \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDNS`].OutputValue' \
+          --output text 2>/dev/null || echo "")
+        
+        if [ -n "$LOAD_BALANCER_DNS" ]; then
+          echo "AWS_APP_URL=https://$LOAD_BALANCER_DNS" >> $GITHUB_ENV
+          echo "AWS_APP_URL=https://$LOAD_BALANCER_DNS" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Could not retrieve AWS application URL"
+          exit 1
+        fi
+        
+    - name: Wait for AWS Deployment to Stabilize
+      run: |
+        echo "Waiting for AWS deployment to stabilize..."
+        sleep 90
+        
+    - name: AWS Health Check
+      id: aws-health
+      run: |
+        echo "## 🏥 AWS Health Check" >> $GITHUB_STEP_SUMMARY
+        echo "Testing AWS deployment at: ${{ env.AWS_APP_URL }}"
+        
+        HEALTH_ENDPOINTS=(
+          "/health"
+          "/api/system/health"
+          "/api/system/status"
+        )
+        
+        HEALTH_PASSED=false
+        
+        for endpoint in "${HEALTH_ENDPOINTS[@]}"; do
+          echo "Testing endpoint: ${{ env.AWS_APP_URL }}$endpoint"
+          
+          for i in {1..15}; do
+            if curl -f -s -k "${{ env.AWS_APP_URL }}$endpoint" > /dev/null; then
+              echo "✅ Health check passed for $endpoint"
+              echo "- ✅ Health endpoint: $endpoint" >> $GITHUB_STEP_SUMMARY
+              HEALTH_PASSED=true
+              break 2
+            else
+              echo "⏳ Health check attempt $i failed for $endpoint, retrying in 20 seconds..."
+              sleep 20
+            fi
+          done
+        done
+        
+        if [ "$HEALTH_PASSED" = "false" ]; then
+          echo "❌ All health checks failed"
+          echo "- ❌ All health endpoints failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+        
+    - name: AWS API Smoke Tests
+      run: |
+        echo "## 🧪 AWS API Smoke Tests" >> $GITHUB_STEP_SUMMARY
+        echo "Running comprehensive API smoke tests..."
+        
+        BASE_URL="${{ env.AWS_APP_URL }}"
+        
+        # Test API endpoints
+        API_ENDPOINTS=(
+          "/api/assessment/questions"
+          "/api/careers/clusters"
+          "/api/system/info"
+          "/api/localization/languages"
+        )
+        
+        FAILED_TESTS=0
+        TOTAL_TESTS=${#API_ENDPOINTS[@]}
+        
+        for endpoint in "${API_ENDPOINTS[@]}"; do
+          echo "Testing API endpoint: $BASE_URL$endpoint"
+          
+          if curl -f -s -k "$BASE_URL$endpoint" -H "Accept: application/json" > /dev/null; then
+            echo "✅ API test passed: $endpoint"
+            echo "- ✅ API endpoint: $endpoint" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ API test failed: $endpoint"
+            echo "- ❌ API endpoint: $endpoint" >> $GITHUB_STEP_SUMMARY
+            ((FAILED_TESTS++))
+          fi
+        done
+        
+        echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "- **Total Tests**: $TOTAL_TESTS" >> $GITHUB_STEP_SUMMARY
+        echo "- **Passed**: $((TOTAL_TESTS - FAILED_TESTS))" >> $GITHUB_STEP_SUMMARY
+        echo "- **Failed**: $FAILED_TESTS" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $FAILED_TESTS -gt 0 ]; then
+          echo "Some API tests failed"
+          exit 1
+        fi
+        
+    - name: AWS Performance Test
+      if: github.event.inputs.environment == 'production'
+      run: |
+        echo "## ⚡ AWS Performance Test" >> $GITHUB_STEP_SUMMARY
+        
+        # Install k6 for load testing
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+        
+        # Run performance test
+        k6 run --vus 25 --duration 1m - <<EOF
+        import http from 'k6/http';
+        import { check, sleep } from 'k6';
+        
+        export default function () {
+          let response = http.get('${{ env.AWS_APP_URL }}/health');
+          check(response, {
+            'status is 200': (r) => r.status === 200,
+            'response time < 2000ms': (r) => r.timings.duration < 2000,
+          });
+          sleep(1);
+        }
+        EOF
+        
+        echo "- ✅ Performance test completed" >> $GITHUB_STEP_SUMMARY
+
+  security-validation:
+    runs-on: ubuntu-latest
+    needs: [validate-azure-deployment, validate-aws-deployment]
+    if: always() && (needs.validate-azure-deployment.result == 'success' || needs.validate-aws-deployment.result == 'success')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Security Headers Check
+      run: |
+        echo "## 🔒 Security Validation" >> $GITHUB_STEP_SUMMARY
+        
+        # Check Azure deployment security headers
+        if [ -n "${{ env.AZURE_APP_URL }}" ]; then
+          echo "### Azure Security Headers" >> $GITHUB_STEP_SUMMARY
+          
+          AZURE_HEADERS=$(curl -I -s "${{ env.AZURE_APP_URL }}/health" || echo "")
+          
+          if echo "$AZURE_HEADERS" | grep -i "x-frame-options" > /dev/null; then
+            echo "- ✅ X-Frame-Options header present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ X-Frame-Options header missing" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if echo "$AZURE_HEADERS" | grep -i "x-content-type-options" > /dev/null; then
+            echo "- ✅ X-Content-Type-Options header present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ X-Content-Type-Options header missing" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+        
+        # Check AWS deployment security headers
+        if [ -n "${{ env.AWS_APP_URL }}" ]; then
+          echo "### AWS Security Headers" >> $GITHUB_STEP_SUMMARY
+          
+          AWS_HEADERS=$(curl -I -s "${{ env.AWS_APP_URL }}/health" || echo "")
+          
+          if echo "$AWS_HEADERS" | grep -i "x-frame-options" > /dev/null; then
+            echo "- ✅ X-Frame-Options header present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ X-Frame-Options header missing" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if echo "$AWS_HEADERS" | grep -i "x-content-type-options" > /dev/null; then
+            echo "- ✅ X-Content-Type-Options header present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ X-Content-Type-Options header missing" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+  generate-validation-report:
+    runs-on: ubuntu-latest
+    needs: [validate-azure-deployment, validate-aws-deployment, security-validation]
+    if: always()
+    
+    steps:
+    - name: Generate Validation Report
+      run: |
+        echo "## 📊 Deployment Validation Report" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment Target**: ${{ github.event.inputs.deployment_target || 'both' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Validation Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+        
+        # Job status summary
+        echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.validate-azure-deployment.result }}" = "success" ]; then
+          echo "- ✅ Azure Deployment Validation: Passed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.validate-azure-deployment.result }}" = "failure" ]; then
+          echo "- ❌ Azure Deployment Validation: Failed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.validate-azure-deployment.result }}" = "skipped" ]; then
+          echo "- ⏭️ Azure Deployment Validation: Skipped" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.validate-aws-deployment.result }}" = "success" ]; then
+          echo "- ✅ AWS Deployment Validation: Passed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.validate-aws-deployment.result }}" = "failure" ]; then
+          echo "- ❌ AWS Deployment Validation: Failed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.validate-aws-deployment.result }}" = "skipped" ]; then
+          echo "- ⏭️ AWS Deployment Validation: Skipped" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.security-validation.result }}" = "success" ]; then
+          echo "- ✅ Security Validation: Passed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.security-validation.result }}" = "failure" ]; then
+          echo "- ❌ Security Validation: Failed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.security-validation.result }}" = "skipped" ]; then
+          echo "- ⏭️ Security Validation: Skipped" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Overall status
+        OVERALL_STATUS="success"
+        
+        if [ "${{ needs.validate-azure-deployment.result }}" = "failure" ] || [ "${{ needs.validate-aws-deployment.result }}" = "failure" ]; then
+          OVERALL_STATUS="failure"
+        fi
+        
+        if [ "$OVERALL_STATUS" = "success" ]; then
+          echo "### 🎉 Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+          echo "All deployment validations passed successfully!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ❌ Overall Status: FAILURE" >> $GITHUB_STEP_SUMMARY
+          echo "One or more deployment validations failed. Please check the logs above." >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+  notify-on-failure:
+    runs-on: ubuntu-latest
+    needs: [validate-azure-deployment, validate-aws-deployment]
+    if: failure()
+    
+    steps:
+    - name: Notify on Validation Failure
+      run: |
+        echo "## ❌ Deployment Validation Failed" >> $GITHUB_STEP_SUMMARY
+        echo "The deployment validation workflow has failed." >> $GITHUB_STEP_SUMMARY
+        echo "Please check the deployment logs and fix any issues before proceeding." >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Failed At**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+        
+        # You could add additional notification logic here
+        # such as sending alerts to Slack, email, etc.

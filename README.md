@@ -1,5 +1,11 @@
 # Masark Mawhiba Personality-Career Matching Engine
 
+![CI/CD Pipeline](https://github.com/Alsairy/Masark_Engine/actions/workflows/ci-cd.yml/badge.svg)
+![Deploy to Azure](https://github.com/Alsairy/Masark_Engine/actions/workflows/deploy-azure.yml/badge.svg)
+![Deploy to AWS](https://github.com/Alsairy/Masark_Engine/actions/workflows/deploy-aws.yml/badge.svg)
+![Deployment Validation](https://github.com/Alsairy/Masark_Engine/actions/workflows/validate-deployment.yml/badge.svg)
+![Environment Configuration](https://github.com/Alsairy/Masark_Engine/actions/workflows/environments.yml/badge.svg)
+
 A world-class, enterprise-grade personality assessment and career matching system designed specifically for Saudi Arabia's educational landscape, supporting both Ministry of Education (MOE) and Mawhiba pathways.
 
 ## 🌟 Overview
@@ -326,9 +332,116 @@ python -m pytest tests/test_career_matching.py -v
 - External service dependency monitoring
 - Automated alerting for system issues
 
-## 🚀 Deployment
+## 🚀 CI/CD & Deployment
+
+### **Automated CI/CD Pipeline**
+
+The Masark Engine uses a comprehensive GitHub Actions-based CI/CD pipeline with multiple workflows for different aspects of deployment and validation.
+
+#### **Main CI/CD Workflow** (`.github/workflows/ci-cd.yml`)
+- **Triggers**: Push to `main`/`develop` branches, pull requests to `main`, releases
+- **Stages**:
+  - **Build & Test**: .NET 8.0 build, unit tests, integration tests
+  - **Security Scan**: CodeQL analysis, vulnerability scanning
+  - **Docker Build**: Multi-stage Docker image creation with caching
+  - **Code Quality**: Code coverage analysis and reporting
+  - **Performance Tests**: Load testing with k6 (production releases only)
+
+#### **Azure Deployment Workflow** (`.github/workflows/deploy-azure.yml`)
+- **Triggers**: Successful CI/CD completion, manual dispatch
+- **Environments**: Staging, Production
+- **Features**:
+  - ARM template deployment
+  - Azure App Service configuration
+  - Health checks and smoke tests
+  - Automatic cleanup of old staging deployments
+
+#### **AWS Deployment Workflow** (`.github/workflows/deploy-aws.yml`)
+- **Triggers**: Successful CI/CD completion, manual dispatch
+- **Environments**: Staging, Production
+- **Features**:
+  - CloudFormation stack deployment
+  - ECR image management
+  - ECS service updates
+  - Load testing for production deployments
+
+#### **Deployment Validation** (`.github/workflows/validate-deployment.yml`)
+- **Triggers**: Completion of Azure/AWS deployments
+- **Validation Steps**:
+  - Health endpoint verification
+  - API smoke tests
+  - Security header validation
+  - Performance benchmarking
+
+#### **Environment Configuration** (`.github/workflows/environments.yml`)
+- **Manual Workflow**: Configure, validate, cleanup, or reset environments
+- **Features**:
+  - Azure Key Vault integration
+  - AWS Parameter Store management
+  - Environment-specific configurations
+  - Resource cleanup automation
+
+### **Deployment Environments**
+
+#### **Staging Environment**
+- **Purpose**: Pre-production testing and validation
+- **Configuration**: 
+  - Azure: P1v3 App Service Plan
+  - AWS: t3.small instances
+  - Deployment Mode: MAWHIBA
+  - Auto-cleanup: Keeps last 3 deployments
+
+#### **Production Environment**
+- **Purpose**: Live production system
+- **Configuration**:
+  - Azure: P2v3 App Service Plan
+  - AWS: t3.medium instances
+  - Deployment Mode: STANDARD
+  - Enhanced monitoring and alerting
+  - Manual approval required for changes
+
+### **Manual Deployment**
+
+You can trigger deployments manually through GitHub Actions:
+
+1. **Navigate to Actions Tab**: Go to your repository's Actions tab
+2. **Select Workflow**: Choose the deployment workflow (Azure or AWS)
+3. **Run Workflow**: Click "Run workflow" button
+4. **Configure Options**:
+   - **Environment**: Select `staging` or `production`
+   - **Deployment Target**: Choose `azure`, `aws`, or `both`
+5. **Execute**: Click "Run workflow" to start deployment
+
+### **Environment Management**
+
+Use the Environment Configuration workflow for advanced operations:
+
+```bash
+# Configure new environment
+Workflow: environments.yml
+Action: configure
+Environment: staging/production
+
+# Validate environment setup
+Workflow: environments.yml
+Action: validate
+Environment: staging/production
+
+# Cleanup old resources (staging only)
+Workflow: environments.yml
+Action: cleanup
+Environment: staging
+
+# Reset environment (staging only)
+Workflow: environments.yml
+Action: reset
+Environment: staging
+```
 
 ### **Docker Deployment**
+
+For local development and testing:
+
 ```bash
 # Build and run with Docker Compose
 docker-compose up -d
@@ -338,22 +451,41 @@ docker-compose up -d --scale web=3
 
 # View logs
 docker-compose logs -f web
+
+# Build with specific environment
+docker build --build-arg ASPNETCORE_ENVIRONMENT=Production \
+             --build-arg DEPLOYMENT_MODE=STANDARD \
+             --build-arg BUILD_VERSION=1.0.0 \
+             -t masark-engine:latest .
 ```
 
 ### **Production Deployment**
-```bash
-# Install production dependencies
-pip install -r requirements.txt
 
-# Set production environment
-export FLASK_ENV=production
+For manual production deployment:
+
+```bash
+# Build the application
+dotnet publish Masark.API/Masark.API.csproj -c Release -o ./publish
+
+# Set production environment variables
+export ASPNETCORE_ENVIRONMENT=Production
+export DEPLOYMENT_MODE=STANDARD
 
 # Initialize database
-python src/database_init.py
+dotnet ef database update --project Masark.Infrastructure
 
-# Start with Gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 src.main:app
+# Start the application
+dotnet ./publish/Masark.API.dll
 ```
+
+### **Deployment Monitoring**
+
+Monitor deployments through:
+- **GitHub Actions**: Real-time workflow execution logs
+- **Azure Portal**: App Service metrics and logs
+- **AWS CloudWatch**: ECS service and application logs
+- **Health Endpoints**: `/health` and `/api/system/health`
+- **Grafana Dashboard**: Custom metrics and alerts
 
 ## 📞 Support & Maintenance
 
