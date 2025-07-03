@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   Shield,
-  Zap
+  Zap,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -34,6 +35,7 @@ const Layout: React.FC = () => {
     { name: t('careers', 'admin'), href: '/careers', icon: Briefcase },
     { name: t('reports', 'admin'), href: '/reports', icon: FileText },
     { name: t('api_integration', 'admin'), href: '/api-integration', icon: Zap },
+    { name: t('pathways', 'admin'), href: '/pathways', icon: Globe },
   ];
 
   const handleLogout = () => {

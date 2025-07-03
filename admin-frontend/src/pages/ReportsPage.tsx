@@ -8,7 +8,8 @@ import {
   RefreshCw,
   TrendingUp,
   Users,
-  Calendar
+  Calendar,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -17,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import ReportGenerator from '../components/reports/ReportGenerator';
 import ReportList from '../components/reports/ReportList';
 import ReportViewer from '../components/reports/ReportViewer';
+import MawhibaReportSection from '../components/reports/MawhibaReportSection';
 import { reportService, Report } from '../services/reportService';
 
 const ReportsPage: React.FC = () => {
@@ -77,10 +79,14 @@ const ReportsPage: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="generate">Generate</TabsTrigger>
           <TabsTrigger value="list">Reports</TabsTrigger>
+          <TabsTrigger value="mawhiba">
+            <GraduationCap className="h-4 w-4 mr-2" />
+            Mawhiba Analytics
+          </TabsTrigger>
           <TabsTrigger value="viewer">Viewer</TabsTrigger>
         </TabsList>
 
@@ -222,6 +228,12 @@ const ReportsPage: React.FC = () => {
 
         <TabsContent value="list" className="space-y-6">
           <ReportList onReportSelect={handleReportSelect} />
+        </TabsContent>
+
+        <TabsContent value="mawhiba" className="space-y-6">
+          <MawhibaReportSection 
+            deploymentMode="MAWHIBA"
+          />
         </TabsContent>
 
         <TabsContent value="viewer" className="space-y-6">

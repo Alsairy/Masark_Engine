@@ -39,6 +39,8 @@ namespace Masark.Infrastructure.Services
                 await SeedQuestionsAsync();
                 await SeedCareerClustersAsync();
                 await SeedCareersAsync();
+                await SeedPathwaysAsync();
+                await SeedCareerPathwayMappingsAsync();
                 await SeedPersonalityCareerMatchesAsync();
                 await SeedCareerClusterRatingsAsync();
                 await SeedReportElementsAsync();
@@ -682,6 +684,247 @@ namespace Masark.Infrastructure.Services
 
             await _context.Careers.AddRangeAsync(careers);
             _logger.LogInformation($"Added {careers.Count} careers");
+        }
+
+        private async Task SeedPathwaysAsync()
+        {
+            if (await _context.Pathways.AnyAsync())
+            {
+                _logger.LogInformation("Pathways already exist, skipping seeding");
+                return;
+            }
+
+            _logger.LogInformation("Seeding pathways...");
+
+            var pathways = new List<Pathway>();
+
+            var moeScientific = new Pathway(
+                "Scientific Track", 
+                "المسار العلمي", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeScientific.Update(
+                "Scientific Track", "المسار العلمي",
+                PathwaySource.MOE,
+                "Focuses on mathematics, physics, chemistry, and biology for students interested in scientific careers.",
+                "يركز على الرياضيات والفيزياء والكيمياء والأحياء للطلاب المهتمين بالمهن العلمية."
+            );
+            pathways.Add(moeScientific);
+
+            var moeHumanities = new Pathway(
+                "Humanities Track", 
+                "المسار الإنساني", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeHumanities.Update(
+                "Humanities Track", "المسار الإنساني",
+                PathwaySource.MOE,
+                "Emphasizes literature, history, geography, and social sciences for students interested in humanities careers.",
+                "يؤكد على الأدب والتاريخ والجغرافيا والعلوم الاجتماعية للطلاب المهتمين بمهن العلوم الإنسانية."
+            );
+            pathways.Add(moeHumanities);
+
+            var moeBusiness = new Pathway(
+                "Business and Administration Track", 
+                "مسار الأعمال والإدارة", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeBusiness.Update(
+                "Business and Administration Track", "مسار الأعمال والإدارة",
+                PathwaySource.MOE,
+                "Covers business principles, economics, accounting, and management for future business leaders.",
+                "يغطي مبادئ الأعمال والاقتصاد والمحاسبة والإدارة لقادة الأعمال المستقبليين."
+            );
+            pathways.Add(moeBusiness);
+
+            var moeHealth = new Pathway(
+                "Health Sciences Track", 
+                "مسار العلوم الصحية", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeHealth.Update(
+                "Health Sciences Track", "مسار العلوم الصحية",
+                PathwaySource.MOE,
+                "Prepares students for healthcare careers through biology, chemistry, and health science fundamentals.",
+                "يعد الطلاب لمهن الرعاية الصحية من خلال الأحياء والكيمياء وأساسيات علوم الصحة."
+            );
+            pathways.Add(moeHealth);
+
+            var moeTechnology = new Pathway(
+                "Technology and Engineering Track", 
+                "مسار التكنولوجيا والهندسة", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeTechnology.Update(
+                "Technology and Engineering Track", "مسار التكنولوجيا والهندسة",
+                PathwaySource.MOE,
+                "Focuses on engineering principles, computer science, and technology applications.",
+                "يركز على مبادئ الهندسة وعلوم الحاسوب وتطبيقات التكنولوجيا."
+            );
+            pathways.Add(moeTechnology);
+
+            var mawhibaMedical = new Pathway(
+                "Medical, Biological and Chemical Sciences", 
+                "العلوم الطبية والبيولوجية والكيميائية", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaMedical.Update(
+                "Medical, Biological and Chemical Sciences", "العلوم الطبية والبيولوجية والكيميائية",
+                PathwaySource.MAWHIBA,
+                "Advanced program for gifted students in medical sciences, biochemistry, and molecular biology.",
+                "برنامج متقدم للطلاب الموهوبين في العلوم الطبية والكيمياء الحيوية والبيولوجيا الجزيئية."
+            );
+            pathways.Add(mawhibaMedical);
+
+            var mawhibaPhysics = new Pathway(
+                "Physics, Earth and Space Sciences", 
+                "الفيزياء وعلوم الأرض والفضاء", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaPhysics.Update(
+                "Physics, Earth and Space Sciences", "الفيزياء وعلوم الأرض والفضاء",
+                PathwaySource.MAWHIBA,
+                "Specialized track for gifted students in physics, astronomy, geology, and space sciences.",
+                "مسار متخصص للطلاب الموهوبين في الفيزياء وعلم الفلك والجيولوجيا وعلوم الفضاء."
+            );
+            pathways.Add(mawhibaPhysics);
+
+            var mawhibaEngineering = new Pathway(
+                "Engineering Studies", 
+                "الدراسات الهندسية", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaEngineering.Update(
+                "Engineering Studies", "الدراسات الهندسية",
+                PathwaySource.MAWHIBA,
+                "Intensive engineering program for gifted students covering multiple engineering disciplines.",
+                "برنامج هندسي مكثف للطلاب الموهوبين يغطي تخصصات هندسية متعددة."
+            );
+            pathways.Add(mawhibaEngineering);
+
+            var mawhibaComputer = new Pathway(
+                "Computer and Applied Mathematics", 
+                "الحاسوب والرياضيات التطبيقية", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaComputer.Update(
+                "Computer and Applied Mathematics", "الحاسوب والرياضيات التطبيقية",
+                PathwaySource.MAWHIBA,
+                "Advanced program for gifted students in computer science, algorithms, and applied mathematics.",
+                "برنامج متقدم للطلاب الموهوبين في علوم الحاسوب والخوارزميات والرياضيات التطبيقية."
+            );
+            pathways.Add(mawhibaComputer);
+
+            await _context.Pathways.AddRangeAsync(pathways);
+            await _context.SaveChangesAsync(); // Save immediately to ensure they're available for career mappings
+            _logger.LogInformation($"Added {pathways.Count} pathways (5 MOE + 4 Mawhiba)");
+        }
+
+        private async Task SeedCareerPathwayMappingsAsync()
+        {
+            if (await _context.CareerPathways.AnyAsync())
+            {
+                _logger.LogInformation("Career pathway mappings already exist, skipping seeding");
+                return;
+            }
+
+            _logger.LogInformation("Seeding career pathway mappings...");
+
+            await _context.SaveChangesAsync(); // Ensure pathways and careers are saved before querying
+
+            var pathways = await _context.Pathways.ToListAsync();
+            var careers = await _context.Careers.ToListAsync();
+
+            var careerPathwayMappings = new List<CareerPathway>();
+
+            foreach (var career in careers)
+            {
+                foreach (var pathway in pathways)
+                {
+                    var recommendationScore = CalculateCareerPathwayScore(career.NameEn, pathway.NameEn, pathway.Source);
+                    
+                    if (recommendationScore > 0.3m) // Only create mappings with meaningful scores
+                    {
+                        var mapping = new CareerPathway(
+                            career.Id,
+                            pathway.Id,
+                            recommendationScore,
+                            1
+                        );
+                        careerPathwayMappings.Add(mapping);
+                    }
+                }
+            }
+
+            await _context.CareerPathways.AddRangeAsync(careerPathwayMappings);
+            _logger.LogInformation($"Added {careerPathwayMappings.Count} career pathway mappings");
+        }
+
+        private static decimal CalculateCareerPathwayScore(string careerName, string pathwayName, PathwaySource pathwaySource)
+        {
+            var baseScore = 0.3m;
+            var score = baseScore;
+
+            if (careerName.Contains("Software") || careerName.Contains("Data"))
+            {
+                if (pathwayName.Contains("Technology") || pathwayName.Contains("Computer") || pathwayName.Contains("Engineering"))
+                {
+                    score = pathwaySource == PathwaySource.MAWHIBA ? 0.9m : 0.8m;
+                }
+                else if (pathwayName.Contains("Scientific"))
+                {
+                    score = 0.6m;
+                }
+            }
+            else if (careerName.Contains("Nurse") || careerName.Contains("Health"))
+            {
+                if (pathwayName.Contains("Health") || pathwayName.Contains("Medical") || pathwayName.Contains("Biological"))
+                {
+                    score = pathwaySource == PathwaySource.MAWHIBA ? 0.9m : 0.8m;
+                }
+                else if (pathwayName.Contains("Scientific"))
+                {
+                    score = 0.6m;
+                }
+            }
+            else if (careerName.Contains("Business") || careerName.Contains("Analyst"))
+            {
+                if (pathwayName.Contains("Business") || pathwayName.Contains("Administration"))
+                {
+                    score = 0.8m;
+                }
+                else if (pathwayName.Contains("Applied Mathematics"))
+                {
+                    score = pathwaySource == PathwaySource.MAWHIBA ? 0.7m : 0.5m;
+                }
+            }
+            else if (careerName.Contains("Teacher") || careerName.Contains("Education"))
+            {
+                if (pathwayName.Contains("Humanities"))
+                {
+                    score = 0.7m;
+                }
+                else if (pathwayName.Contains("Scientific") || pathwayName.Contains("Technology"))
+                {
+                    score = 0.6m;
+                }
+            }
+
+            if (pathwaySource == PathwaySource.MAWHIBA && score > 0.5m)
+            {
+                score = Math.Min(1.0m, score + 0.1m);
+            }
+
+            return score;
         }
 
         private async Task SeedPersonalityCareerMatchesAsync()
