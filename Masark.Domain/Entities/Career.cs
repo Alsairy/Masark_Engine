@@ -11,6 +11,13 @@ namespace Masark.Domain.Entities
         public string DescriptionEn { get; private set; }
         public string DescriptionAr { get; private set; }
         public string SsocCode { get; private set; }
+        public string? OnetId { get; private set; }
+        public int OnetJobZone { get; private set; }
+        public decimal? AnnualSalary { get; private set; }
+        public decimal? OutlookGrowthPercentage { get; private set; }
+        public string? WorkContext { get; private set; }
+        public string? SkillsRequired { get; private set; }
+        public string? EducationLevel { get; private set; }
         public bool IsActive { get; private set; }
 
         public int ClusterId { get; private set; }
@@ -46,6 +53,20 @@ namespace Masark.Domain.Entities
             DescriptionEn = descriptionEn;
             DescriptionAr = descriptionAr;
             SsocCode = ssocCode;
+            UpdateTimestamp();
+        }
+
+        public void UpdateOnetData(string? onetId, int onetJobZone, decimal? annualSalary, 
+                                  decimal? outlookGrowthPercentage, string? workContext, 
+                                  string? skillsRequired, string? educationLevel)
+        {
+            OnetId = onetId;
+            OnetJobZone = onetJobZone;
+            AnnualSalary = annualSalary;
+            OutlookGrowthPercentage = outlookGrowthPercentage;
+            WorkContext = workContext;
+            SkillsRequired = skillsRequired;
+            EducationLevel = educationLevel;
             UpdateTimestamp();
         }
 

@@ -399,3 +399,19 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Development configuration files
+appsettings.Development.json
+appsettings.Local.json
+
+# Database files
+*.db
+*.db-shm
+*.db-wal

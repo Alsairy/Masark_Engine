@@ -38,6 +38,9 @@ namespace Masark.Infrastructure.Identity
         public DbSet<ReportUserAnswer> ReportUserAnswers { get; set; }
         public DbSet<ReportElementRating> ReportElementRatings { get; set; }
         public DbSet<TieBreakerQuestion> TieBreakerQuestions { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
+        public DbSet<ApiUsageLog> ApiUsageLogs { get; set; }
+        public DbSet<RateLimitConfig> RateLimitConfigs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -190,6 +193,40 @@ namespace Masark.Infrastructure.Identity
                 entity.Property(e => e.OptionBEn).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.OptionBAr).HasMaxLength(500);
                 entity.HasIndex(e => new { e.TenantId, e.Dimension, e.OrderIndex });
+            });
+
+            modelBuilder.Entity<ApiKey>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Key).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Permissions).HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+                entity.HasIndex(e => e.Key).IsUnique();
+                entity.HasIndex(e => new { e.UserId, e.Name });
+                entity.HasIndex(e => new { e.TenantId, e.IsActive });
+            });
+
+            modelBuilder.Entity<ApiUsageLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Endpoint).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Method).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.UserAgent).HasMaxLength(1000);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.ErrorMessage).HasMaxLength(2000);
+                entity.HasIndex(e => new { e.Timestamp, e.StatusCode });
+                entity.HasIndex(e => new { e.UserId, e.Timestamp });
+                entity.HasIndex(e => new { e.ApiKeyId, e.Timestamp });
+            });
+
+            modelBuilder.Entity<RateLimitConfig>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.AppliesTo).IsRequired().HasMaxLength(50);
+                entity.HasIndex(e => new { e.AppliesTo, e.TargetId, e.IsActive });
             });
         }
 

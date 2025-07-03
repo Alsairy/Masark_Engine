@@ -28,6 +28,7 @@ namespace Masark.Infrastructure.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
@@ -49,6 +50,7 @@ namespace Masark.Infrastructure.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Role")
@@ -63,11 +65,140 @@ namespace Masark.Infrastructure.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdminUser");
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Username")
+                        .IsUnique();
+
+                    b.ToTable("AdminUsers");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ApiKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastUsed")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RateLimit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UsageCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "IsActive");
+
+                    b.HasIndex("UserId", "Name");
+
+                    b.ToTable("ApiKeys");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ApiUsageLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ApiKeyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("ResponseTimeMs")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiKeyId", "Timestamp");
+
+                    b.HasIndex("Timestamp", "StatusCode");
+
+                    b.HasIndex("UserId", "Timestamp");
+
+                    b.ToTable("ApiUsageLogs");
                 });
 
             modelBuilder.Entity("Masark.Domain.Entities.AssessmentAnswer", b =>
@@ -113,11 +244,17 @@ namespace Masark.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("AssessmentRating")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("CurrentState")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("DeploymentMode")
                         .HasColumnType("INTEGER");
@@ -148,6 +285,9 @@ namespace Masark.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("PersonalityTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("RequiresTieBreaker")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal?>("SStrength")
@@ -266,6 +406,9 @@ namespace Masark.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal?>("AnnualSalary")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ClusterId")
                         .HasColumnType("INTEGER");
 
@@ -282,6 +425,9 @@ namespace Masark.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("EducationLevel")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
@@ -295,6 +441,18 @@ namespace Masark.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OnetId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OnetJobZone")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("OutlookGrowthPercentage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SkillsRequired")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("SsocCode")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -304,6 +462,9 @@ namespace Masark.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WorkContext")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -349,6 +510,82 @@ namespace Masark.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CareerClusters");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.CareerClusterRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DescriptionAr")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Value");
+
+                    b.ToTable("CareerClusterRatings");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.CareerClusterUserRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AssessmentSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CareerClusterId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CareerClusterRatingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentSessionId");
+
+                    b.HasIndex("CareerClusterId");
+
+                    b.HasIndex("CareerClusterRatingId");
+
+                    b.HasIndex("TenantId", "AssessmentSessionId", "CareerClusterRatingId")
+                        .IsUnique();
+
+                    b.ToTable("CareerClusterUserRatings");
                 });
 
             modelBuilder.Entity("Masark.Domain.Entities.CareerPathway", b =>
@@ -616,6 +853,14 @@ namespace Masark.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OptionATextEs")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OptionATextZh")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("OptionBTextAr")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -624,6 +869,14 @@ namespace Masark.Infrastructure.Migrations
                     b.Property<string>("OptionBTextEn")
                         .IsRequired()
                         .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OptionBTextEs")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OptionBTextZh")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("OrderNumber")
@@ -642,6 +895,14 @@ namespace Masark.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("TextEs")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TextZh")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -650,6 +911,285 @@ namespace Masark.Infrastructure.Migrations
                     b.HasIndex("TenantId", "Dimension", "OrderNumber");
 
                     b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.RateLimitConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AppliesTo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("BurstLimit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RequestsPerDay")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RequestsPerHour")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RequestsPerMinute")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("TargetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppliesTo", "TargetId", "IsActive");
+
+                    b.ToTable("RateLimitConfigs");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ActivityData")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AssessmentSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentAr")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ElementType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GraphData")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsInteractive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ParentElementId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TitleAr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentSessionId");
+
+                    b.HasIndex("ParentElementId");
+
+                    b.HasIndex("TenantId", "AssessmentSessionId", "OrderIndex");
+
+                    b.ToTable("ReportElements");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElementQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OptionsJson")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("QuestionTextAr")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("QuestionTextEn")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("QuestionType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReportElementId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportElementId");
+
+                    b.HasIndex("TenantId", "ReportElementId", "OrderIndex");
+
+                    b.ToTable("ReportElementQuestions");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElementRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AssessmentSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReportElementId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ReportElementId1")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentSessionId");
+
+                    b.HasIndex("ReportElementId");
+
+                    b.HasIndex("ReportElementId1");
+
+                    b.HasIndex("TenantId", "AssessmentSessionId", "ReportElementId")
+                        .IsUnique();
+
+                    b.ToTable("ReportElementRatings");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportUserAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool?>("AnswerBoolean")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AnswerChoice")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("AnswerRating")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AnsweredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AssessmentSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReportElementQuestionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ReportElementQuestionId1")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentSessionId");
+
+                    b.HasIndex("ReportElementQuestionId");
+
+                    b.HasIndex("ReportElementQuestionId1");
+
+                    b.HasIndex("TenantId", "AssessmentSessionId", "ReportElementQuestionId")
+                        .IsUnique();
+
+                    b.ToTable("ReportUserAnswers");
                 });
 
             modelBuilder.Entity("Masark.Domain.Entities.SystemConfiguration", b =>
@@ -685,6 +1225,70 @@ namespace Masark.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SystemConfigurations");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.TieBreakerQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Dimension")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OptionAAr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OptionAEn")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("OptionAMapsToFirst")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OptionBAr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OptionBEn")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TextAr")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TextEn")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Dimension", "OrderIndex");
+
+                    b.ToTable("TieBreakerQuestions");
                 });
 
             modelBuilder.Entity("Masark.Infrastructure.Identity.ApplicationRole", b =>
@@ -760,6 +1364,9 @@ namespace Masark.Infrastructure.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
                         .HasMaxLength(100)
@@ -969,6 +1576,33 @@ namespace Masark.Infrastructure.Migrations
                     b.Navigation("Cluster");
                 });
 
+            modelBuilder.Entity("Masark.Domain.Entities.CareerClusterUserRating", b =>
+                {
+                    b.HasOne("Masark.Domain.Entities.AssessmentSession", "AssessmentSession")
+                        .WithMany()
+                        .HasForeignKey("AssessmentSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.CareerCluster", "CareerCluster")
+                        .WithMany()
+                        .HasForeignKey("CareerClusterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.CareerClusterRating", "CareerClusterRating")
+                        .WithMany()
+                        .HasForeignKey("CareerClusterRatingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentSession");
+
+                    b.Navigation("CareerCluster");
+
+                    b.Navigation("CareerClusterRating");
+                });
+
             modelBuilder.Entity("Masark.Domain.Entities.CareerPathway", b =>
                 {
                     b.HasOne("Masark.Domain.Entities.Career", "Career")
@@ -1032,6 +1666,80 @@ namespace Masark.Infrastructure.Migrations
                     b.Navigation("Career");
 
                     b.Navigation("PersonalityType");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElement", b =>
+                {
+                    b.HasOne("Masark.Domain.Entities.AssessmentSession", "AssessmentSession")
+                        .WithMany()
+                        .HasForeignKey("AssessmentSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.ReportElement", "ParentElement")
+                        .WithMany("ChildElements")
+                        .HasForeignKey("ParentElementId");
+
+                    b.Navigation("AssessmentSession");
+
+                    b.Navigation("ParentElement");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElementQuestion", b =>
+                {
+                    b.HasOne("Masark.Domain.Entities.ReportElement", "ReportElement")
+                        .WithMany("Questions")
+                        .HasForeignKey("ReportElementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReportElement");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElementRating", b =>
+                {
+                    b.HasOne("Masark.Domain.Entities.AssessmentSession", "AssessmentSession")
+                        .WithMany()
+                        .HasForeignKey("AssessmentSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.ReportElement", "ReportElement")
+                        .WithMany()
+                        .HasForeignKey("ReportElementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.ReportElement", null)
+                        .WithMany("Ratings")
+                        .HasForeignKey("ReportElementId1");
+
+                    b.Navigation("AssessmentSession");
+
+                    b.Navigation("ReportElement");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportUserAnswer", b =>
+                {
+                    b.HasOne("Masark.Domain.Entities.AssessmentSession", "AssessmentSession")
+                        .WithMany()
+                        .HasForeignKey("AssessmentSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.ReportElementQuestion", "ReportElementQuestion")
+                        .WithMany()
+                        .HasForeignKey("ReportElementQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Masark.Domain.Entities.ReportElementQuestion", null)
+                        .WithMany("UserAnswers")
+                        .HasForeignKey("ReportElementQuestionId1");
+
+                    b.Navigation("AssessmentSession");
+
+                    b.Navigation("ReportElementQuestion");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1129,6 +1837,20 @@ namespace Masark.Infrastructure.Migrations
             modelBuilder.Entity("Masark.Domain.Entities.Question", b =>
                 {
                     b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElement", b =>
+                {
+                    b.Navigation("ChildElements");
+
+                    b.Navigation("Questions");
+
+                    b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("Masark.Domain.Entities.ReportElementQuestion", b =>
+                {
+                    b.Navigation("UserAnswers");
                 });
 #pragma warning restore 612, 618
         }

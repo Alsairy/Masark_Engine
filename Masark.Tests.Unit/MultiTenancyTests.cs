@@ -19,11 +19,17 @@ public class MultiTenancyTests
             dimension: PersonalityDimension.EI,
             textEn: "Test Question",
             textAr: "سؤال تجريبي",
+            textEs: "Pregunta de prueba",
+            textZh: "测试问题",
             optionATextEn: "Option A",
             optionATextAr: "الخيار أ",
+            optionATextEs: "Opción A",
+            optionATextZh: "选项A",
             optionAMapsToFirst: true,
             optionBTextEn: "Option B",
             optionBTextAr: "الخيار ب",
+            optionBTextEs: "Opción B",
+            optionBTextZh: "选项B",
             tenantId: 5
         );
 
@@ -60,11 +66,17 @@ public class MultiTenancyTests
             dimension: PersonalityDimension.EI,
             textEn: "Question 1",
             textAr: "سؤال 1",
+            textEs: "Pregunta 1",
+            textZh: "问题1",
             optionATextEn: "Option A",
             optionATextAr: "الخيار أ",
+            optionATextEs: "Opción A",
+            optionATextZh: "选项A",
             optionAMapsToFirst: true,
             optionBTextEn: "Option B",
             optionBTextAr: "الخيار ب",
+            optionBTextEs: "Opción B",
+            optionBTextZh: "选项B",
             tenantId: tenantId
         );
         
@@ -73,11 +85,17 @@ public class MultiTenancyTests
             dimension: PersonalityDimension.EI,
             textEn: "Question 2",
             textAr: "سؤال 2",
+            textEs: "Pregunta 2",
+            textZh: "问题2",
             optionATextEn: "Option A",
             optionATextAr: "الخيار أ",
+            optionATextEs: "Opción A",
+            optionATextZh: "选项A",
             optionAMapsToFirst: true,
             optionBTextEn: "Option B",
             optionBTextAr: "الخيار ب",
+            optionBTextEs: "Opción B",
+            optionBTextZh: "选项B",
             tenantId: tenantId + 1
         );
 
