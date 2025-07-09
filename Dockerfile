@@ -42,7 +42,7 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 ARG ASPNETCORE_ENVIRONMENT=Production
 ARG DEPLOYMENT_MODE=STANDARD
-RUN dotnet publish "Masark.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish --no-build /p:UseAppHost=false
+RUN dotnet publish "Masark.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Final stage - runtime image
 FROM base AS final
