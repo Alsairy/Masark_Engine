@@ -39,6 +39,8 @@ namespace Masark.Infrastructure.Services
                 await SeedQuestionsAsync();
                 await SeedCareerClustersAsync();
                 await SeedCareersAsync();
+                await SeedPathwaysAsync();
+                await SeedCareerPathwayMappingsAsync();
                 await SeedPersonalityCareerMatchesAsync();
                 await SeedCareerClusterRatingsAsync();
                 await SeedReportElementsAsync();
@@ -141,7 +143,7 @@ namespace Masark.Infrastructure.Services
             intj.UpdateContent(
                 "The Architect", "المهندس المعماري",
                 "Imaginative and strategic thinkers, with a plan for everything.",
-                "مفكرون خياليون واستراتيجيون، لديهم خطة لكل شيء.",
+                "أنت شخص منطقي، واثق من أفكارك وفي قدرتك على تلبية أو تجاوز أهدافك. أنت شخص طموح في كل ما تفعله، ولديك الدافعية لتكون مبدعاً ومتفوقاً، ولديك حدس قوي عما هو ممكن وتحمل وجهة نظر عالمية. أنت مفكر استراتيجي، وتنظر فيما وراء المعلوم كي ترى روابط بين العناصر التي غالباً ما تكون مختلفة جداً. أنت تسعى إلى الكمال، كما أنك ناقد وكثير المطالب من نفسك ولا تهاب المعارضة. أنت شخص مركز وعازم على تحقيق رؤيتك في الحياة، وتعمل بلا كلل لإنتاج فكرة أو منتج لا تشوبه شائبة. أنت تميل إلى الاهتمام بتلبية أو تجاوز معاييرك العالية الخاصة أكثر من محاولة إرضاء الآخرين.",
                 "Strategic thinking, Independence, Determination, Hard-working, Open-minded",
                 "التفكير الاستراتيجي، الاستقلالية، التصميم، العمل الجاد، الانفتاح الذهني",
                 "Arrogant, Judgmental, Overly analytical, Loathe highly structured environments, Clueless in romance",
@@ -152,7 +154,7 @@ namespace Masark.Infrastructure.Services
             intp.UpdateContent(
                 "The Thinker", "المفكر",
                 "Innovative inventors with an unquenchable thirst for knowledge.",
-                "مخترعون مبتكرون لديهم عطش لا ينضب للمعرفة.",
+                "أنت شخص مستقل، وفضولي وتحب الخصوصية، وقضاء الوقت بمفردك للتفكير في الأشياء من خلال استكشاف الموضوعات والمشاريع التي تهمك بشكل خاص جداً. أنت تفضل أن يكون لديك مجموعة من الأصدقاء المقربين ذوي الثقة، ونادراً ما تبدأ أنت بالأنشطة الاجتماعية. أنت تفضل الحصول على أقصى استفادة من عدد قليل من الأنشطة الاجتماعية المميزة من خلال المشاركة في عدد كبير من اللقاءات القصيرة والمركّزة. قد يكون لديك شغف حقيقي في العلوم أو الفنون وتستمتع بتعلم أشياء جديدة، أنت تقوم بتكوين علاقات سريعة ومفيدة، وتستمتع بالوصول إلى حلول جذرية للمشكلات، إلا أنك تشعر بالملل بسرعة، وتكره التكرار، وقد تجد صعوبة في شرح أفكارك ببساطة ووضوح للآخرين.",
                 "Great analysts and abstract thinkers, Imaginative and original, Open-minded, Enthusiastic, Objective, Honest and straightforward",
                 "محللون عظماء ومفكرون مجردون، خياليون وأصليون، منفتحون، متحمسون، موضوعيون، صادقون ومباشرون",
                 "Very private and withdrawn, Insensitive, Absent-minded, Condescending, Loathe rules and guidelines, Second-guess themselves",
@@ -163,7 +165,7 @@ namespace Masark.Infrastructure.Services
             entj.UpdateContent(
                 "The Commander", "القائد",
                 "Bold, imaginative and strong-willed leaders, always finding a way – or making one.",
-                "قادة جريئون وخياليون وأقوياء الإرادة، يجدون دائماً طريقة أو يصنعونها.",
+                "أنت شخص واثق من نفسك وحازم، تتحدث عما يدور في ذهنك ويبدو أنك تثق في نفسك دائماً، كما إنك صادق ونزيه وبالتالي صريح جداً. لديك آراء قوية وعادة ما تكون قادراً على إقناع الآخرين بأن موقفك هو الصواب. أنت شخص ودود ومريح وتمثل مركز اهتمام الآخرين، وربما لديك مجموعة كبيرة من الأصدقاء. أنت تميل إلى أن تسأل الأسئلة المحفزة للتفكير، تحب أن تتعلم، ولكنك تملّ من التكرار. أنت شخص تخيلي وتحب أن تنظر إلى ما وراء الروتين اليومي لفهم حقيقة لماذا يعمل العالم بالطريقة التي يعمل بها، وتحتاج إلى تحديات جديدة ثابتة للبقاء مهتماً.",
                 "Efficient, Energetic, Self-confident, Strong-willed, Strategic thinkers, Charismatic and inspiring",
                 "فعالون، نشيطون، واثقون من أنفسهم، أقوياء الإرادة، مفكرون استراتيجيون، جذابون وملهمون",
                 "Stubborn and dominant, Intolerant, Impatient, Arrogant, Poor handling of emotions, Cold and ruthless",
@@ -174,7 +176,7 @@ namespace Masark.Infrastructure.Services
             entp.UpdateContent(
                 "The Debater", "المناقش",
                 "Smart and curious thinkers who cannot resist an intellectual challenge.",
-                "مفكرون أذكياء وفضوليون لا يستطيعون مقاومة التحدي الفكري.",
+                "أنت شخص ودود ومبدع وواثق في نفسك، ولديك الكثير من الأصدقاء والعلاقات ومن السهل جداً التعرف عليك. أنت تحب أن تتحدث وتريد أن تكون دائماً في دائرة الضوء. أنت تستمتع بتسلية الآخرين بقصصك الجذابة، كما أنك طريف وتمتلك روح دعابة عالية، إلا أن لديك مشكلة بسيطة في التكيف مع التغيير. أنت تفخر بنفسك وبقدرتك على رؤية الإمكانيات واستثمارها. يمكنك فهم الأفكار الجديدة بسرعة وتستمتع بالتعلم، ومع ذلك، أنت سريع التشتت وتشعر بالملل عند انتهاء التحدي في مشروع ما.",
                 "Knowledgeable, Quick thinkers, Original, Excellent brainstormers, Charismatic, Energetic",
                 "مطلعون، مفكرون سريعون، أصليون، ممتازون في العصف الذهني، جذابون، نشيطون",
                 "Very argumentative, Insensitive, Intolerant, Can find it difficult to focus, Dislike practical matters",
@@ -185,7 +187,7 @@ namespace Masark.Infrastructure.Services
             infj.UpdateContent(
                 "The Advocate", "المدافع",
                 "Quiet and mystical, yet very inspiring and tireless idealists.",
-                "هادئون وغامضون، لكنهم مُلهمون جداً ومثاليون لا يكلون.",
+                "أنت شخص تميل إلى أن تكون عميقاً ودقيقاً ومبدعاً، كما أن اتجاهك في الحياة منقاد بقيمك الشخصية الدقيقة المحكمة. أنت شخص مفتون بالطرق الابتكارية للنظر إلى العالم، وأنت تستقي إلهامك من الابتكار وحل المشاكل. أنت شخص يعكس مثالاً لطيفاً وثابتاً، ولذا فأنت جيد في التأثير على الآخرين من أجل بناء التغيير الإيجابي في حياتهم الخاصة. يساعدك حدسك على اكتشاف معان وإمكانيات جديدة، ويمكنك من تطوير حياة داخلية متوازنة. أنت شخص متحفظ وتحب الخصوصية، وقادر على منح الحنان والرحمة للآخرين الذين تعرفهم جيداً. أنت تتخذ قراراتك بعناية، مع تخصيص الوقت للتفكير في كل نتيجة بشكل شامل قبل تنفيذ اختيارك.",
                 "Creative, Insightful, Inspiring and convincing, Decisive, Determined, Passionate, Altruistic",
                 "مبدعون، بصيرون، ملهمون ومقنعون، حاسمون، مصممون، شغوفون، إيثاريون",
                 "Sensitive, Extremely private, Perfectionist, Always need to have a cause, Can burn out easily",
@@ -196,7 +198,7 @@ namespace Masark.Infrastructure.Services
             infp.UpdateContent(
                 "The Mediator", "الوسيط",
                 "Poetic, kind and altruistic people, always eager to help a good cause.",
-                "أشخاص شاعريون ولطفاء وإيثاريون، متحمسون دائماً لمساعدة قضية جيدة.",
+                "أنت شخص حساس ومثالي، وتسعى للانسجام الداخلي، وأنت صديق مخلص ومتعاطف، تكرس نفسك للناس وللقضايا التي تهتم بها. أنت قد تبدو بارداً أو مستقلاً أحياناً، إلا أن لديك مشاعراً قوية وجياشة جداً. أنت تثق في ردود أفعالك الشخصية ونظرتك للأمور، وتستخدم منظومتك القيمية لتوجيه حياتك. أنت شخص فضولي نحو الاحتمالات، ويمكنك الاستمتاع بالعديد من المحاولات الإبداعية كما يمكنك أن تكون مفكراً مبدعاً، وتحب استخدام سماتك الشخصية واستثمارها في كل ما تفعله.",
                 "Idealistic, Loyal and devoted, Hard-working, Creative, Passionate, Open-minded",
                 "مثاليون، مخلصون ومتفانون، مجتهدون، مبدعون، شغوفون، منفتحو الذهن",
                 "Too idealistic, Too altruistic, Impractical, Dislike dealing with data, Take things personally, Difficult to get to know",
@@ -207,7 +209,7 @@ namespace Masark.Infrastructure.Services
             enfj.UpdateContent(
                 "The Protagonist", "البطل",
                 "Charismatic and inspiring leaders, able to mesmerize their listeners.",
-                "قادة جذابون وملهمون، قادرون على سحر مستمعيهم.",
+                "أنت شخص ودود، واجتماعي ومتحدث، تستطيع تكوين صداقات بسهولة، وغالباً ما تكون محبوباً. أنت تهتم كثيراً بالأسرة والأصدقاء، وتعبر عن مشاعرك من خلال الكلمات والأفعال. أسلوبك جيد في الحديث؛ حيث لديك حجج وآراء قوية، تستطيع التعبير عنها بلباقة. أنت عاطفي جداً ولديك إحساس فطري عمّا يشعر به الآخرون. تزعجك وتوترك الصراعات بشكل كبير، لذلك تحاول بجد إسعاد الآخرين، وإعادة التوافق بين الأفراد المتنازعين. تكره المواجهة المباشرة مما يجعل خطابك لطيفاً، أو تتجنب أن تكون صادقاً تماماً إذا كان ذلك يساعد على الانسجام ويمنع جرح مشاعر الآخرين.",
                 "Tolerant, Reliable, Charismatic, Altruistic, Natural leaders",
                 "متسامحون، موثوقون، جذابون، إيثاريون، قادة طبيعيون",
                 "Overly idealistic, Too selfless, Too sensitive, Fluctuating self-esteem, Struggle to make tough decisions",
@@ -218,7 +220,7 @@ namespace Masark.Infrastructure.Services
             enfp.UpdateContent(
                 "The Campaigner", "المناضل",
                 "Enthusiastic, creative and sociable free spirits, who can always find a reason to smile.",
-                "أرواح حرة متحمسة ومبدعة واجتماعية، يمكنها دائماً إيجاد سبب للابتسام.",
+                "أنت شخص مبادر، ومتحمس وعفوي وفضولي، تحب التحدث مع الآخرين مما قد يكون لديك الكثير من الأصدقاء. وأنت شخص حيوي ونشط، ومنفتح على الخبرات الجديدة باستمرار. وتطرح الكثير من الأسئلة، ولديك خيال خصب، وتحب حل المشكلات بطرق خارجة عن المألوف. أنت شخص تحب مناقشة القضايا؛ خاصة حول المرح أو الإمكانيات المثيرة للاهتمام. أنت حساس وعاطفي، ولديك إدراك ورؤية عن الآخرين. ويعرف أصدقاؤك أنك عطوف ومخلص وتتفاعل مع ما يواجهون من مشكلات بعمق، حتى لو لم تظهر ذلك.",
                 "Enthusiastic, Creative, Sociable, Energetic, Compassionate",
                 "متحمسون، مبدعون، اجتماعيون، نشيطون، رحماء",
                 "Poor practical skills, Find it difficult to focus, Overthink things, Get stressed easily, Highly emotional",
@@ -229,7 +231,7 @@ namespace Masark.Infrastructure.Services
             istj.UpdateContent(
                 "The Logistician", "اللوجستي",
                 "Practical and fact-minded, reliability cannot be doubted.",
-                "عمليون ومهتمون بالحقائق، لا يمكن الشك في موثوقيتهم.",
+                "أنت شخص هادئ، واقعي وعملي، يمكنك التواصل بأسلوب واضح وبسيط ومباشر. أنت شخص مراقب حريص، وتلاحظ التفاصيل التي تهمك أو تتعلق بك ولها ذكرى جيدة بتجاربك الماضية. أنت تفكر في الأشياء مليّاً قبل مشاركة أفكارك، وتتوخى الحذر حول التغيير. أنت شخص مسؤول وواثق، وتجتهد في بذل قصارى جهدك في كل موقف. أنت شخص منطقي وصاحب ضمير حي، وترغب في اتخاذ القرارات المعقولة والحفاظ على الأمور مرتبة. أنت شخص منظم ومنتج، ولديك قدرة كبيرة على التركيز وإنجاز الأمور. أنت تضع معايير عالية لنفسك وللآخرين، وتحب أن تُقيَّم عن طريق ميزاتك، وتكون عادلاً وثابتاً على المبادئ عند التعامل مع الآخرين.",
                 "Honest and direct, Strong-willed and dutiful, Very responsible, Calm and practical, Create and enforce order",
                 "صادقون ومباشرون، أقوياء الإرادة ومطيعون للواجب، مسؤولون جداً، هادئون وعمليون، ينشئون النظام ويطبقونه",
                 "Stubborn, Insensitive, Always by the book, Judgmental, Often unreasonably blame themselves",
@@ -240,7 +242,7 @@ namespace Masark.Infrastructure.Services
             isfj.UpdateContent(
                 "The Protector", "الحامي",
                 "Warm-hearted and dedicated, always ready to protect their loved ones.",
-                "دافئو القلب ومتفانون، مستعدون دائماً لحماية أحبائهم.",
+                "أنت شخص هادئ وجاد ومجتهد. أنت عملي وواقعي، وتهتم بالحقائق والتفاصيل وتتذكرها بدقة، وخاصة تلك المتعلقة بالآخرين والتفاعلات معهم. ولكي تقوم بعملك على أفضل حال، فأنت تحتاج إلى اتجاهات وتوقعات محددة بوضوح، كما أن لديك الحدس السليم الجيد وتميل إلى اتخاذ القرارات المدروسة والمعقولة. أنت شخص صبور وتراعي الآخرين، وتهتم باحتياجاتهم ومشاعرهم، ولكن النصيحة أن تشارك مشاعرك وآراءك الخاصة فقط مع أشخاص تعرفهم جيداً. أنت تحمي عائلتك وأصدقاءك، وتخلص لهم، تكرس حياتك لخدمتهم، وتفخر بإنجازاتهم، ولديك أخلاقيات عمل رفيعة وتحترم التزاماتك بجدية.",
                 "Supportive, Reliable and patient, Imaginative and observant, Enthusiastic, Loyal, Hard-working",
                 "داعمون، موثوقون وصبورون، خياليون ومراقبون، متحمسون، مخلصون، مجتهدون",
                 "Humble and shy, Take things too personally, Repress their feelings, Overload themselves, Reluctant to change, Too altruistic",
@@ -251,7 +253,7 @@ namespace Masark.Infrastructure.Services
             estj.UpdateContent(
                 "The Executive", "التنفيذي",
                 "Excellent administrators, unsurpassed at managing things – or people.",
-                "إداريون ممتازون، لا يُضاهون في إدارة الأشياء أو الأشخاص.",
+                "أنت شخص ودود ومبادر ونزيه وتميل إلى وجهات النظر التقليدية في كثير من الأحيان، ومحافظ جداً، وتعبر عن آرائك بارتياح. أنت تثق في تجربتك الشخصية، وتهتم بشكل أكثر بالأمور الواقعية، والمشكلات الحالية وليس النظريات أو الاحتمالات. أنت شخص عملي، واقعي، ومنظم، وتسعى لغرس النظام والبناء التنظيمي، وتعمل بجد لتحقيق أو تجاوز التوقعات. أنت شخص مباشر وصريح، وترغب أن تبقي مشغولاً، وتحب أن ترى نتائجاً ملموسة لجهودك. أنت تتخذ القرارات السريعة والمنطقية، وتنتقل إلى المهمة التالية دون انتظار. أنت شخص مسؤول وصاحب ضمير حي، وتستمتع بالمسؤولية وبتنظيم الآخرين وبتنفيذ المشاريع.",
                 "Dedicated, Strong-willed, Direct and honest, Loyal, Patient and reliable, Enjoy creating order",
                 "متفانون، أقوياء الإرادة، مباشرون وصادقون، مخلصون، صبورون وموثوقون، يستمتعون بخلق النظام",
                 "Inflexible and stubborn, Uncomfortable with unconventional situations, Judgmental, Too focused on social status, Difficult to relax",
@@ -262,7 +264,7 @@ namespace Masark.Infrastructure.Services
             esfj.UpdateContent(
                 "The Consul", "القنصل",
                 "Extraordinarily caring, social and popular people, always eager to help.",
-                "أشخاص مهتمون واجتماعيون ومحبوبون بشكل استثنائي، متحمسون دائماً للمساعدة.",
+                "أنت شخص ودود وغير متحفظ، وتستمتع بمقابلة الآخرين، كما أن العلاقات مع الآخرين مهمة بالنسبة لك. أنت تهتم بمشاعر الآخرين، وتحرص على إرضاء ومساعدة الآخرين بطرق واقعية وعملية. أنت عاطفي وتراعي مشاعر الآخرين، وذو رأي حازم وتستند على قيمك الراسخة كشخص حيوي ومهتم بالكثير من الأشياء، ولديك العديد من المشاريع والأنشطة والأصدقاء. أنت تتمتع بحس سليم وثابت، وتتذكر التفاصيل جيداً. أنت شخص مجتهد، ومنظم وذو ضمير حي، وتستمتع بكونك جزءاً من فريق متعاون، كما أنك تقدر التقاليد، وتأخذ مسؤولياتك على محمل الجد، ومستعد لبذل الكثير من الطاقة في الأشياء التي تؤمن بها.",
                 "Strong practical skills, Strong sense of duty, Very loyal, Sensitive and warm, Good at connecting with others",
                 "مهارات عملية قوية، حس قوي بالواجب، مخلصون جداً، حساسون ودافئون، جيدون في التواصل مع الآخرين",
                 "Worried about their social status, Inflexible, Reluctant to innovate or improvise, Vulnerable to criticism, Often too needy",
@@ -273,7 +275,7 @@ namespace Masark.Infrastructure.Services
             istp.UpdateContent(
                 "The Virtuoso", "الفنان الماهر",
                 "Bold and practical experimenters, masters of all kinds of tools.",
-                "مجربون جريئون وعمليون، أسياد جميع أنواع الأدوات.",
+                "أنت شخص هادئ ومستقل، وتحب أن تبقى مشغولاً بالمشاريع المهمة والمشوقة بالنسبة إليك. أنت تقدر مهاراتك وأداءك الجيدين وكذلك مهارات وأداء الآخرين. أنت شخص متحفظ وتحب الخصوصية، وليس من عادتك تبادل ردود أفعالك أو آرائك مع الآخرين، وكشخص مباشر وصادق، أنت تهتم بالمناقشات أكثر من الأفعال، إلّا إذا كنت على معرفة واسعة بموضوع المناقشة. أنت شخص متواضع وخلوق، وفضولي ومندفع أكثر من كونك مخطط ومنظم. أنت شخص ترتاح بالمعارف والقضايا المجردة والنظرية، ولكنك تفضل العمل مع الأشياء الحقيقية بدلاً من الأفكار المجردة، فأنت واقعي، وتجيد التحليل المنطقي، كما أنك قادر على فهم كيفية عمل الأشياء.",
                 "Optimistic and energetic, Creative and practical, Spontaneous and rational, Know how to prioritize, Great in a crisis",
                 "متفائلون ونشيطون، مبدعون وعمليون، عفويون وعقلانيون، يعرفون كيفية ترتيب الأولويات، عظماء في الأزمات",
                 "Stubborn, Insensitive, Private and reserved, Easily bored, Dislike commitment, Risky behavior",
@@ -284,7 +286,7 @@ namespace Masark.Infrastructure.Services
             isfp.UpdateContent(
                 "The Adventurer", "المغامر",
                 "Flexible and charming artists, always ready to explore new possibilities.",
-                "فنانون مرنون وجذابون، مستعدون دائماً لاستكشاف إمكانيات جديدة.",
+                "أنت شخص لطيف، وهادئ ومتواضع، وقد تبدو للآخرين بارداً وغير عاطفي، ولكن لديك مشاعر عميقة تشاركها فقط مع الآخرين الذين تثق فيهم وتعرفهم جيداً. أنت شخص مخلص ومتفان وصبور، لا تحاول السيطرة أو فرض قيمك الخاصة على الآخرين، فأنت طيب القلب وجدير بالثقة وحساس وتحتاج إلى أن تكون علاقاتك ممتعة وخالية من التوتر. أنت غالباً ما تأخذ النقد البناء جداً على محمل شخصي وربما تشعر بخيبة أمل أو أذى. أنت حساس وواقعي ترغب في الاستمتاع بالحياة وتعيشها على أكمل وجه. أنت عفوي ومرح وتميل إلى الاستجابة للأحداث بدلاً من التخطيط للمستقبل.",
                 "Charming, Sensitive to others, Imaginative, Passionate, Curious, Artistic",
                 "جذابون، حساسون للآخرين، خياليون، شغوفون، فضوليون، فنيون",
                 "Fiercely independent, Unpredictable, Easily stressed, Overly competitive, Fluctuating self-esteem",
@@ -295,7 +297,7 @@ namespace Masark.Infrastructure.Services
             estp.UpdateContent(
                 "The Entrepreneur", "رجل الأعمال",
                 "Smart, energetic and very perceptive people, who truly enjoy living on the edge.",
-                "أشخاص أذكياء ونشيطون وحساسون جداً، يستمتعون حقاً بالعيش على الحافة.",
+                "أنت شخص منطقي، وصريح، وملاحظ دقيق جداً وتعيش اللحظة، وتقيّم الأفكار والأنشطة والآخرين من حولك باستمرار. أنت شخص نشيط ومندفع نحو المتعة، وتتوق إلى النشاط دائماً. أنت شخص واقعي، وفضولي وعملي، لا تتردد في التحدث بما في عقلك، وتعتقد أن الآخرين يجب أن يتحملوا المسؤولية عن أفعالهم. أنت عفوي ومرح، وتتمتع بكونك محور الاهتمام، ويمكنك عادة جعل الأمور مسلية. أنت جيد في ملاحظة وتذكر التفاصيل الدقيقة، ويمكنك التقييم والاستجابة بسرعة للتعامل مع المشكلات الفورية، لكنك أقل مهارة في حل المشكلات طويلة المدى.",
                 "Bold, Rational and practical, Original, Perceptive, Direct, Sociable",
                 "جريئون، عقلانيون وعمليون، أصليون، حساسون، مباشرون، اجتماعيون",
                 "Insensitive, Impatient, Risk-prone, Unstructured, May miss the bigger picture, Defiant",
@@ -306,7 +308,7 @@ namespace Masark.Infrastructure.Services
             esfp.UpdateContent(
                 "The Entertainer", "المسلي",
                 "Spontaneous, energetic and enthusiastic people – life is never boring around them.",
-                "أشخاص عفويون ونشيطون ومتحمسون - الحياة لا تكون مملة أبداً من حولهم.",
+                "أنت شخص ودود وحنون ونشيط، ولديك دائرة كبيرة من الأصدقاء أنت شخص حيوي وتتحدث كثيراً وهادئ الطباع، كما أن حبك للحياة يجذب الآخرين إليك. أنت تسعى إلى المرح في كل ما تفعله، وتكون في أفضل حالاتك وتستمتع عند القيام بالأشياء مع الآخرين. أنت شخص واقعي، وعقلاني وعملي وتتعامل مع التفاصيل بشكل جيد ولديك ذاكرة رائعة للحقائق التي تخص الآخرين. أنت شخص عاطفي وحريص على المساعدة، وتحاول تجنب انتقاد الآخرين، وعادة لا ترغب في السيطرة عليهم. يمكنك استخدام الحس السليم لابتكار حلول للمشكلات الفورية وتقديم المساعدة العملية للآخرين.",
                 "Bold, Original, Aesthetics and showcase, Practical, Observant, Excellent people skills",
                 "جريئون، أصليون، جماليون وعرضيون، عمليون، مراقبون، مهارات ممتازة مع الناس",
                 "Sensitive, Conflict-averse, Easily bored, Poor long-term planners, Unfocused",
@@ -682,6 +684,246 @@ namespace Masark.Infrastructure.Services
 
             await _context.Careers.AddRangeAsync(careers);
             _logger.LogInformation($"Added {careers.Count} careers");
+        }
+
+        private async Task SeedPathwaysAsync()
+        {
+            if (await _context.Pathways.AnyAsync())
+            {
+                _logger.LogInformation("Pathways already exist, skipping seeding");
+                return;
+            }
+
+            _logger.LogInformation("Seeding pathways...");
+
+            var pathways = new List<Pathway>();
+
+            var moeScientific = new Pathway(
+                "Scientific Track", 
+                "المسار العلمي", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeScientific.Update(
+                "Scientific Track", "المسار العلمي",
+                PathwaySource.MOE,
+                "Focuses on mathematics, physics, chemistry, and biology for students interested in scientific careers.",
+                "يركز على الرياضيات والفيزياء والكيمياء والأحياء للطلاب المهتمين بالمهن العلمية."
+            );
+            pathways.Add(moeScientific);
+
+            var moeHumanities = new Pathway(
+                "Humanities Track", 
+                "المسار الإنساني", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeHumanities.Update(
+                "Humanities Track", "المسار الإنساني",
+                PathwaySource.MOE,
+                "Emphasizes literature, history, geography, and social sciences for students interested in humanities careers.",
+                "يؤكد على الأدب والتاريخ والجغرافيا والعلوم الاجتماعية للطلاب المهتمين بمهن العلوم الإنسانية."
+            );
+            pathways.Add(moeHumanities);
+
+            var moeBusiness = new Pathway(
+                "Business and Administration Track", 
+                "مسار الأعمال والإدارة", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeBusiness.Update(
+                "Business and Administration Track", "مسار الأعمال والإدارة",
+                PathwaySource.MOE,
+                "Covers business principles, economics, accounting, and management for future business leaders.",
+                "يغطي مبادئ الأعمال والاقتصاد والمحاسبة والإدارة لقادة الأعمال المستقبليين."
+            );
+            pathways.Add(moeBusiness);
+
+            var moeHealth = new Pathway(
+                "Health Sciences Track", 
+                "مسار العلوم الصحية", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeHealth.Update(
+                "Health Sciences Track", "مسار العلوم الصحية",
+                PathwaySource.MOE,
+                "Prepares students for healthcare careers through biology, chemistry, and health science fundamentals.",
+                "يعد الطلاب لمهن الرعاية الصحية من خلال الأحياء والكيمياء وأساسيات علوم الصحة."
+            );
+            pathways.Add(moeHealth);
+
+            var moeTechnology = new Pathway(
+                "Technology and Engineering Track", 
+                "مسار التكنولوجيا والهندسة", 
+                PathwaySource.MOE, 
+                1
+            );
+            moeTechnology.Update(
+                "Technology and Engineering Track", "مسار التكنولوجيا والهندسة",
+                PathwaySource.MOE,
+                "Focuses on engineering principles, computer science, and technology applications.",
+                "يركز على مبادئ الهندسة وعلوم الحاسوب وتطبيقات التكنولوجيا."
+            );
+            pathways.Add(moeTechnology);
+
+            var mawhibaMedical = new Pathway(
+                "Medical, Biological and Chemical Sciences", 
+                "العلوم الطبية والبيولوجية والكيميائية", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaMedical.Update(
+                "Medical, Biological and Chemical Sciences", "العلوم الطبية والبيولوجية والكيميائية",
+                PathwaySource.MAWHIBA,
+                "Advanced program for gifted students in medical sciences, biochemistry, and molecular biology.",
+                "برنامج متقدم للطلاب الموهوبين في العلوم الطبية والكيمياء الحيوية والبيولوجيا الجزيئية."
+            );
+            pathways.Add(mawhibaMedical);
+
+            var mawhibaPhysics = new Pathway(
+                "Physics, Earth and Space Sciences", 
+                "الفيزياء وعلوم الأرض والفضاء", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaPhysics.Update(
+                "Physics, Earth and Space Sciences", "الفيزياء وعلوم الأرض والفضاء",
+                PathwaySource.MAWHIBA,
+                "Specialized track for gifted students in physics, astronomy, geology, and space sciences.",
+                "مسار متخصص للطلاب الموهوبين في الفيزياء وعلم الفلك والجيولوجيا وعلوم الفضاء."
+            );
+            pathways.Add(mawhibaPhysics);
+
+            var mawhibaEngineering = new Pathway(
+                "Engineering Studies", 
+                "الدراسات الهندسية", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaEngineering.Update(
+                "Engineering Studies", "الدراسات الهندسية",
+                PathwaySource.MAWHIBA,
+                "Intensive engineering program for gifted students covering multiple engineering disciplines.",
+                "برنامج هندسي مكثف للطلاب الموهوبين يغطي تخصصات هندسية متعددة."
+            );
+            pathways.Add(mawhibaEngineering);
+
+            var mawhibaComputer = new Pathway(
+                "Computer and Applied Mathematics", 
+                "الحاسوب والرياضيات التطبيقية", 
+                PathwaySource.MAWHIBA, 
+                1
+            );
+            mawhibaComputer.Update(
+                "Computer and Applied Mathematics", "الحاسوب والرياضيات التطبيقية",
+                PathwaySource.MAWHIBA,
+                "Advanced program for gifted students in computer science, algorithms, and applied mathematics.",
+                "برنامج متقدم للطلاب الموهوبين في علوم الحاسوب والخوارزميات والرياضيات التطبيقية."
+            );
+            pathways.Add(mawhibaComputer);
+
+            await _context.Pathways.AddRangeAsync(pathways);
+            await _context.SaveChangesAsync(); // Save immediately to ensure they're available for career mappings
+            _logger.LogInformation($"Added {pathways.Count} pathways (5 MOE + 4 Mawhiba)");
+        }
+
+        private async Task SeedCareerPathwayMappingsAsync()
+        {
+            if (await _context.CareerPathways.AnyAsync())
+            {
+                _logger.LogInformation("Career pathway mappings already exist, skipping seeding");
+                return;
+            }
+
+            _logger.LogInformation("Seeding career pathway mappings...");
+
+            await _context.SaveChangesAsync(); // Ensure pathways and careers are saved before querying
+
+            var pathways = await _context.Pathways.ToListAsync();
+            var careers = await _context.Careers.ToListAsync();
+
+            var careerPathwayMappings = new List<CareerPathway>();
+
+            foreach (var career in careers)
+            {
+                foreach (var pathway in pathways)
+                {
+                    var recommendationScore = CalculateCareerPathwayScore(career.NameEn, pathway.NameEn, pathway.Source);
+                    
+                    if (recommendationScore > 0.3m) // Only create mappings with meaningful scores
+                    {
+                        var mapping = new CareerPathway(
+                            career.Id,
+                            pathway.Id,
+                            1
+                        );
+                        careerPathwayMappings.Add(mapping);
+                    }
+                }
+            }
+
+            await _context.CareerPathways.AddRangeAsync(careerPathwayMappings);
+            _logger.LogInformation($"Added {careerPathwayMappings.Count} career pathway mappings");
+        }
+
+        private static decimal CalculateCareerPathwayScore(string careerName, string pathwayName, PathwaySource pathwaySource)
+        {
+            var baseScore = 0.3m;
+            var score = baseScore;
+
+            if (careerName.Contains("Software") || careerName.Contains("Data"))
+            {
+                if (pathwayName.Contains("Technology") || pathwayName.Contains("Computer") || pathwayName.Contains("Engineering"))
+                {
+                    score = pathwaySource == PathwaySource.MAWHIBA ? 0.9m : 0.8m;
+                }
+                else if (pathwayName.Contains("Scientific"))
+                {
+                    score = 0.6m;
+                }
+            }
+            else if (careerName.Contains("Nurse") || careerName.Contains("Health"))
+            {
+                if (pathwayName.Contains("Health") || pathwayName.Contains("Medical") || pathwayName.Contains("Biological"))
+                {
+                    score = pathwaySource == PathwaySource.MAWHIBA ? 0.9m : 0.8m;
+                }
+                else if (pathwayName.Contains("Scientific"))
+                {
+                    score = 0.6m;
+                }
+            }
+            else if (careerName.Contains("Business") || careerName.Contains("Analyst"))
+            {
+                if (pathwayName.Contains("Business") || pathwayName.Contains("Administration"))
+                {
+                    score = 0.8m;
+                }
+                else if (pathwayName.Contains("Applied Mathematics"))
+                {
+                    score = pathwaySource == PathwaySource.MAWHIBA ? 0.7m : 0.5m;
+                }
+            }
+            else if (careerName.Contains("Teacher") || careerName.Contains("Education"))
+            {
+                if (pathwayName.Contains("Humanities"))
+                {
+                    score = 0.7m;
+                }
+                else if (pathwayName.Contains("Scientific") || pathwayName.Contains("Technology"))
+                {
+                    score = 0.6m;
+                }
+            }
+
+            if (pathwaySource == PathwaySource.MAWHIBA && score > 0.5m)
+            {
+                score = Math.Min(1.0m, score + 0.1m);
+            }
+
+            return score;
         }
 
         private async Task SeedPersonalityCareerMatchesAsync()

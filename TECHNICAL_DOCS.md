@@ -1,14 +1,230 @@
 # Masark Technical Documentation
 
 ## Table of Contents
-1. [System Architecture](#system-architecture)
-2. [API Reference](#api-reference)
-3. [Database Schema](#database-schema)
-4. [Deployment Guide](#deployment-guide)
-5. [Configuration Reference](#configuration-reference)
-6. [Troubleshooting](#troubleshooting)
-7. [Performance Optimization](#performance-optimization)
-8. [Security Guidelines](#security-guidelines)
+1. [Mawhiba Integration Architecture](#mawhiba-integration-architecture)
+2. [System Architecture](#system-architecture)
+3. [API Reference](#api-reference)
+4. [Database Schema](#database-schema)
+5. [Deployment Guide](#deployment-guide)
+6. [Configuration Reference](#configuration-reference)
+7. [Troubleshooting](#troubleshooting)
+8. [Performance Optimization](#performance-optimization)
+9. [Security Guidelines](#security-guidelines)
+
+## Mawhiba Integration Architecture
+
+### Overview
+The Masark personality-career matching system integrates deeply with the Saudi Arabian education system through two primary pathway sources: **MOE (Ministry of Education)** and **MAWHIBA (King Abdulaziz and His Companions Foundation for Giftedness and Creativity)**.
+
+### PathwaySource Enum
+```csharp
+public enum PathwaySource
+{
+    MOE = 1,        // Ministry of Education pathways
+    MAWHIBA = 2     // Gifted program pathways
+}
+```
+
+### Integration Points
+
+#### 1. Assessment Flow Integration
+```
+MBTI Assessment (36 questions) → Personality Type (1 of 16) → Career Matching → Pathway Recommendations
+```
+
+#### 2. Career Recommendation Service
+The `CareerRecommendationService` handles Mawhiba integration through specialized scoring and filtering logic:
+
+**Scoring Algorithm:**
+- Base score: 0.5
+- MOE pathways: +0.3 boost (total: 0.8)
+- Mawhiba pathways: +0.2 boost (total: 0.7)
+
+**Duration Estimates:**
+- MOE pathways: 2-4 years
+- Mawhiba pathways: 1-2 years (accelerated for gifted students)
+
+**Difficulty Assessment:**
+- MOE pathways: "Moderate to High"
+- Mawhiba pathways: "High" (specialized requirements)
+
+**Prerequisites:**
+- MOE: High school diploma, minimum GPA requirements
+- Mawhiba: Exceptional academic performance, specialized aptitude tests
+
+#### 3. Deployment Mode Filtering
+```csharp
+if (deploymentMode == DeploymentMode.STANDARD && pathway.Source != PathwaySource.MOE)
+{
+    continue; // Filter out Mawhiba pathways in STANDARD mode
+}
+```
+
+### Pathway System Overview
+
+#### MOE Pathways (5 Total)
+1. **The Sharia Track** - Religious studies focus
+2. **Business Administration** - Commerce and management
+3. **Health and Life Sciences** - Medical and biological sciences
+4. **Science, Computers and Engineering** - STEM fields
+5. **General Path** - Arts & Humanities
+
+#### Mawhiba Pathways (4 Total)
+1. **Medical, Biological and Chemical Sciences** - Advanced life sciences
+2. **Physics, Earth and Space Sciences** - Physical sciences and astronomy
+3. **Engineering Studies** - Advanced engineering disciplines
+4. **Computer and Applied Mathematics** - Computing and mathematical sciences
+
+### Pathway Characteristics
+
+| Aspect | MOE Pathways | Mawhiba Pathways |
+|--------|--------------|------------------|
+| **Target Audience** | General population | Gifted students |
+| **Duration** | 2-4 years | 1-2 years |
+| **Difficulty** | Moderate to High | High |
+| **Prerequisites** | Standard academic requirements | Exceptional performance + aptitude tests |
+| **Recommendation Score** | +0.3 boost | +0.2 boost |
+| **Focus Areas** | Broad educational tracks | Specialized STEM excellence |
+
+### Career Recommendation Engine
+
+#### Matching Algorithm
+1. **Personality Assessment**: 36 forced-choice questions yield MBTI type
+2. **Career Scoring**: 261 careers scored against personality type
+3. **Pathway Mapping**: Each career mapped to relevant MOE and/or Mawhiba pathways
+4. **Recommendation Generation**: Sorted by match percentage with pathway details
+
+#### Example Output Format
+```
+Software Engineer – 95% match
+├── Career Cluster: Technology
+├── MOE Pathway: Science, Computers and Engineering
+├── Mawhiba Pathway: Computer and Applied Mathematics
+├── Duration: 1-2 years (Mawhiba) / 2-4 years (MOE)
+└── Prerequisites: Exceptional academic performance + specialized tests
+```
+
+### Deployment Modes
+
+#### STANDARD Mode
+- **Target**: General educational institutions
+- **Pathways Shown**: MOE only
+- **Use Case**: Public schools, standard career guidance
+
+#### MAWHIBA Mode
+- **Target**: Gifted education programs
+- **Pathways Shown**: Both MOE and Mawhiba
+- **Use Case**: Specialized gifted programs, advanced career planning
+
+### Configuration
+Deployment mode affects:
+- Pathway visibility in recommendations
+- Report branding and content
+- Assessment flow customization
+- User interface theming
+
+### Database Schema for Pathways
+
+#### Pathway Table
+```sql
+CREATE TABLE Pathway (
+    Id INT PRIMARY KEY,
+    NameEn NVARCHAR(255),
+    NameAr NVARCHAR(255),
+    DescriptionEn NTEXT,
+    DescriptionAr NTEXT,
+    Source INT, -- PathwaySource enum (1=MOE, 2=MAWHIBA)
+    IsActive BIT,
+    CreatedAt DATETIME2,
+    UpdatedAt DATETIME2
+);
+```
+
+#### CareerPathway Mapping Table
+```sql
+CREATE TABLE CareerPathway (
+    Id INT PRIMARY KEY,
+    CareerId INT,
+    PathwayId INT,
+    RecommendationScore DECIMAL(3,2),
+    CreatedAt DATETIME2,
+    FOREIGN KEY (CareerId) REFERENCES Career(Id),
+    FOREIGN KEY (PathwayId) REFERENCES Pathway(Id)
+);
+```
+
+### API Endpoints for Mawhiba Integration
+
+#### Pathway Management
+- `GET /api/pathways` - List all pathways
+- `GET /api/pathways?source=MAWHIBA` - List Mawhiba pathways only
+- `GET /api/pathways/{id}` - Get pathway details
+- `POST /api/pathways` - Create pathway (Admin)
+- `PUT /api/pathways/{id}` - Update pathway (Admin)
+- `DELETE /api/pathways/{id}` - Delete pathway (Admin)
+
+#### Career Recommendations with Pathways
+- `GET /api/careers/{id}/pathways` - Get pathways for career
+- `POST /api/assessment/recommendations?deploymentMode=MAWHIBA` - Get career recommendations with Mawhiba pathways
+
+#### System Configuration
+- `GET /api/system/deployment-mode` - Get current deployment mode
+- `PUT /api/system/deployment-mode` - Set deployment mode (Admin)
+
+### Localization Support
+
+#### Languages Supported
+- **English (en)**: Primary language for international use
+- **Arabic (ar)**: Primary language for Saudi Arabian deployment
+
+#### Localized Content
+- Pathway names and descriptions
+- Career titles and descriptions
+- Assessment questions and instructions
+- Report content and recommendations
+- User interface elements
+
+### Performance Considerations
+
+#### Caching Strategy
+- Pathway data cached for 24 hours
+- Career-pathway mappings cached per deployment mode
+- Recommendation scores pre-calculated and cached
+
+#### Scalability
+- Database indexing on PathwaySource and IsActive fields
+- Lazy loading of pathway descriptions
+- Pagination for large pathway lists
+
+### Security & Access Control
+
+#### Role-Based Access
+- **USER**: View own pathway recommendations
+- **MANAGER**: View team pathway analytics
+- **ADMIN**: Manage pathways, configure deployment modes
+
+#### API Security
+- JWT token authentication
+- Rate limiting per deployment mode
+- Audit logging for pathway modifications
+
+### Monitoring & Analytics
+
+#### Key Metrics
+- Pathway recommendation frequency
+- MOE vs Mawhiba pathway selection rates
+- Career-pathway mapping effectiveness
+- User engagement by deployment mode
+
+#### Reporting
+- Pathway utilization reports
+- Career matching accuracy metrics
+- Deployment mode performance comparison
+- User satisfaction by pathway type
+
+---
+
+*Mawhiba Integration Documentation - Version 2.0.0*
 
 ## System Architecture
 

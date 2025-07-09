@@ -13,6 +13,7 @@ import AssessmentPage from './pages/AssessmentPage';
 import CareersPage from './pages/CareersPage';
 import ReportsPage from './pages/ReportsPage';
 import ApiIntegrationPage from './pages/ApiIntegrationPage';
+import PathwayPage from './pages/PathwayPage';
 import Layout from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -50,6 +51,7 @@ function App() {
                 <Route path="careers" element={<CareersPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="api-integration" element={<ApiIntegrationPage />} />
+                <Route path="pathways" element={<PathwayPage />} />
               </Route>
             </Routes>
           </Router>

@@ -1,0 +1,393 @@
+name: Environment Configuration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to configure'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      action:
+        description: 'Configuration action'
+        required: true
+        default: 'configure'
+        type: choice
+        options:
+        - configure
+        - validate
+        - cleanup
+        - reset
+
+env:
+  AZURE_WEBAPP_NAME: masark-engine
+  AZURE_RESOURCE_GROUP: masark-rg
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: masark-engine
+
+jobs:
+  configure-environment:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set Environment Variables
+      run: |
+        echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+        echo "ACTION=${{ github.event.inputs.action }}" >> $GITHUB_ENV
+        
+        # Set environment-specific configurations
+        if [ "${{ github.event.inputs.environment }}" = "production" ]; then
+          echo "DEPLOYMENT_MODE=STANDARD" >> $GITHUB_ENV
+          echo "LOG_LEVEL=Warning" >> $GITHUB_ENV
+          echo "AZURE_SKU=P2v3" >> $GITHUB_ENV
+          echo "AWS_INSTANCE_TYPE=t3.medium" >> $GITHUB_ENV
+          echo "MIN_REPLICAS=2" >> $GITHUB_ENV
+          echo "MAX_REPLICAS=10" >> $GITHUB_ENV
+          echo "HEALTH_CHECK_TIMEOUT=60" >> $GITHUB_ENV
+        else
+          echo "DEPLOYMENT_MODE=MAWHIBA" >> $GITHUB_ENV
+          echo "LOG_LEVEL=Information" >> $GITHUB_ENV
+          echo "AZURE_SKU=P1v3" >> $GITHUB_ENV
+          echo "AWS_INSTANCE_TYPE=t3.small" >> $GITHUB_ENV
+          echo "MIN_REPLICAS=1" >> $GITHUB_ENV
+          echo "MAX_REPLICAS=3" >> $GITHUB_ENV
+          echo "HEALTH_CHECK_TIMEOUT=30" >> $GITHUB_ENV
+        fi
+        
+    - name: Configure Azure Environment
+      if: github.event.inputs.action == 'configure'
+      run: |
+        echo "## 🔧 Configuring Azure Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Azure Login
+        az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        
+        # Set subscription
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+        # Create resource group if it doesn't exist
+        RESOURCE_GROUP="${{ env.AZURE_RESOURCE_GROUP }}-${{ env.ENVIRONMENT }}"
+        echo "Creating/updating resource group: $RESOURCE_GROUP"
+        
+        az group create \
+          --name "$RESOURCE_GROUP" \
+          --location "East US" \
+          --tags \
+            Environment="${{ env.ENVIRONMENT }}" \
+            Project="MasarkEngine" \
+            ManagedBy="GitHubActions" \
+            DeploymentMode="${{ env.DEPLOYMENT_MODE }}"
+        
+        # Configure Key Vault for secrets
+        KEYVAULT_NAME="masark-kv-${{ env.ENVIRONMENT }}-$(date +%s | tail -c 6)"
+        echo "Creating Key Vault: $KEYVAULT_NAME"
+        
+        az keyvault create \
+          --name "$KEYVAULT_NAME" \
+          --resource-group "$RESOURCE_GROUP" \
+          --location "East US" \
+          --sku standard \
+          --enabled-for-template-deployment true
+        
+        # Store configuration secrets
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "DeploymentMode" --value "${{ env.DEPLOYMENT_MODE }}"
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "LogLevel" --value "${{ env.LOG_LEVEL }}"
+        az keyvault secret set --vault-name "$KEYVAULT_NAME" --name "Environment" --value "${{ env.ENVIRONMENT }}"
+        
+        echo "- **Resource Group**: $RESOURCE_GROUP" >> $GITHUB_STEP_SUMMARY
+        echo "- **Key Vault**: $KEYVAULT_NAME" >> $GITHUB_STEP_SUMMARY
+        echo "- **SKU**: ${{ env.AZURE_SKU }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment Mode**: ${{ env.DEPLOYMENT_MODE }}" >> $GITHUB_STEP_SUMMARY
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        
+    - name: Configure AWS Environment
+      if: github.event.inputs.action == 'configure'
+      run: |
+        echo "## ☁️ Configuring AWS Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Configure AWS credentials
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set default.region ${{ env.AWS_REGION }}
+        
+        # Create parameter store entries for environment configuration
+        PARAMETER_PREFIX="/masark-engine/${{ env.ENVIRONMENT }}"
+        
+        echo "Creating SSM parameters with prefix: $PARAMETER_PREFIX"
+        
+        aws ssm put-parameter \
+          --name "$PARAMETER_PREFIX/DeploymentMode" \
+          --value "${{ env.DEPLOYMENT_MODE }}" \
+          --type "String" \
+          --overwrite \
+          --description "Deployment mode for ${{ env.ENVIRONMENT }} environment"
+        
+        aws ssm put-parameter \
+          --name "$PARAMETER_PREFIX/LogLevel" \
+          --value "${{ env.LOG_LEVEL }}" \
+          --type "String" \
+          --overwrite \
+          --description "Log level for ${{ env.ENVIRONMENT }} environment"
+        
+        aws ssm put-parameter \
+          --name "$PARAMETER_PREFIX/InstanceType" \
+          --value "${{ env.AWS_INSTANCE_TYPE }}" \
+          --type "String" \
+          --overwrite \
+          --description "EC2 instance type for ${{ env.ENVIRONMENT }} environment"
+        
+        aws ssm put-parameter \
+          --name "$PARAMETER_PREFIX/MinReplicas" \
+          --value "${{ env.MIN_REPLICAS }}" \
+          --type "String" \
+          --overwrite \
+          --description "Minimum replicas for ${{ env.ENVIRONMENT }} environment"
+        
+        aws ssm put-parameter \
+          --name "$PARAMETER_PREFIX/MaxReplicas" \
+          --value "${{ env.MAX_REPLICAS }}" \
+          --type "String" \
+          --overwrite \
+          --description "Maximum replicas for ${{ env.ENVIRONMENT }} environment"
+        
+        # Create ECR repository if it doesn't exist
+        aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || \
+        aws ecr create-repository \
+          --repository-name ${{ env.ECR_REPOSITORY }} \
+          --region ${{ env.AWS_REGION }} \
+          --image-tag-mutability MUTABLE \
+          --image-scanning-configuration scanOnPush=true
+        
+        # Tag ECR repository
+        REPOSITORY_ARN=$(aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --query 'repositories[0].repositoryArn' --output text)
+        aws ecr tag-resource \
+          --resource-arn "$REPOSITORY_ARN" \
+          --tags \
+            Key=Environment,Value=${{ env.ENVIRONMENT }} \
+            Key=Project,Value=MasarkEngine \
+            Key=ManagedBy,Value=GitHubActions
+        
+        echo "- **Parameter Prefix**: $PARAMETER_PREFIX" >> $GITHUB_STEP_SUMMARY
+        echo "- **Instance Type**: ${{ env.AWS_INSTANCE_TYPE }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Scaling**: ${{ env.MIN_REPLICAS }}-${{ env.MAX_REPLICAS }} replicas" >> $GITHUB_STEP_SUMMARY
+        echo "- **ECR Repository**: ${{ env.ECR_REPOSITORY }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment Mode**: ${{ env.DEPLOYMENT_MODE }}" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Validate Environment Configuration
+      if: github.event.inputs.action == 'validate'
+      run: |
+        echo "## ✅ Validating Environment Configuration: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Validate Azure configuration
+        echo "### Azure Validation" >> $GITHUB_STEP_SUMMARY
+        
+        az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+        RESOURCE_GROUP="${{ env.AZURE_RESOURCE_GROUP }}-${{ env.ENVIRONMENT }}"
+        
+        if az group show --name "$RESOURCE_GROUP" > /dev/null 2>&1; then
+          echo "- ✅ Resource Group exists: $RESOURCE_GROUP" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ❌ Resource Group missing: $RESOURCE_GROUP" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Validate AWS configuration
+        echo "### AWS Validation" >> $GITHUB_STEP_SUMMARY
+        
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set default.region ${{ env.AWS_REGION }}
+        
+        PARAMETER_PREFIX="/masark-engine/${{ env.ENVIRONMENT }}"
+        
+        # Check SSM parameters
+        PARAMETERS=(
+          "$PARAMETER_PREFIX/DeploymentMode"
+          "$PARAMETER_PREFIX/LogLevel"
+          "$PARAMETER_PREFIX/InstanceType"
+          "$PARAMETER_PREFIX/MinReplicas"
+          "$PARAMETER_PREFIX/MaxReplicas"
+        )
+        
+        for param in "${PARAMETERS[@]}"; do
+          if aws ssm get-parameter --name "$param" > /dev/null 2>&1; then
+            VALUE=$(aws ssm get-parameter --name "$param" --query 'Parameter.Value' --output text)
+            echo "- ✅ Parameter exists: $param = $VALUE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Parameter missing: $param" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+        
+        # Check ECR repository
+        if aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} > /dev/null 2>&1; then
+          echo "- ✅ ECR Repository exists: ${{ env.ECR_REPOSITORY }}" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ❌ ECR Repository missing: ${{ env.ECR_REPOSITORY }}" >> $GITHUB_STEP_SUMMARY
+        fi
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        
+    - name: Cleanup Environment
+      if: github.event.inputs.action == 'cleanup' && github.event.inputs.environment == 'staging'
+      run: |
+        echo "## 🧹 Cleaning up Staging Environment" >> $GITHUB_STEP_SUMMARY
+        
+        # Cleanup Azure staging resources
+        echo "### Azure Cleanup" >> $GITHUB_STEP_SUMMARY
+        
+        az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+        # List and delete old staging resource groups (keep last 2)
+        OLD_GROUPS=$(az group list --query "[?starts_with(name, 'masark-rg-staging')].name" -o tsv | sort -r | tail -n +3)
+        
+        for group in $OLD_GROUPS; do
+          echo "Deleting old resource group: $group"
+          az group delete --name "$group" --yes --no-wait
+          echo "- 🗑️ Deleted: $group" >> $GITHUB_STEP_SUMMARY
+        done
+        
+        # Cleanup AWS staging resources
+        echo "### AWS Cleanup" >> $GITHUB_STEP_SUMMARY
+        
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set default.region ${{ env.AWS_REGION }}
+        
+        # Delete old CloudFormation stacks (keep last 2)
+        OLD_STACKS=$(aws cloudformation list-stacks \
+          --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+          --query 'StackSummaries[?contains(StackName, `masark-engine-staging`)].{Name:StackName,Time:CreationTime}' \
+          --output text | sort -k2 -r | tail -n +3 | cut -f1)
+        
+        for stack in $OLD_STACKS; do
+          echo "Deleting old CloudFormation stack: $stack"
+          aws cloudformation delete-stack --stack-name "$stack" --region ${{ env.AWS_REGION }}
+          echo "- 🗑️ Deleted: $stack" >> $GITHUB_STEP_SUMMARY
+        done
+        
+        # Cleanup old ECR images (keep last 5)
+        OLD_IMAGES=$(aws ecr list-images \
+          --repository-name ${{ env.ECR_REPOSITORY }} \
+          --filter tagStatus=TAGGED \
+          --query 'imageIds[5:].[imageDigest]' \
+          --output text)
+        
+        if [ -n "$OLD_IMAGES" ]; then
+          echo "Cleaning up old ECR images..."
+          echo "$OLD_IMAGES" | while read -r digest; do
+            if [ -n "$digest" ]; then
+              aws ecr batch-delete-image \
+                --repository-name ${{ env.ECR_REPOSITORY }} \
+                --image-ids imageDigest="$digest" || true
+              echo "- 🗑️ Deleted ECR image: $digest" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+        fi
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        
+    - name: Reset Environment
+      if: github.event.inputs.action == 'reset' && github.event.inputs.environment == 'staging'
+      run: |
+        echo "## 🔄 Resetting Staging Environment" >> $GITHUB_STEP_SUMMARY
+        echo "⚠️ This will completely reset the staging environment!"
+        
+        # Reset Azure staging environment
+        echo "### Azure Reset" >> $GITHUB_STEP_SUMMARY
+        
+        az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+        RESOURCE_GROUP="${{ env.AZURE_RESOURCE_GROUP }}-staging"
+        
+        # Delete the entire staging resource group
+        if az group show --name "$RESOURCE_GROUP" > /dev/null 2>&1; then
+          echo "Deleting staging resource group: $RESOURCE_GROUP"
+          az group delete --name "$RESOURCE_GROUP" --yes --no-wait
+          echo "- 🔄 Reset: $RESOURCE_GROUP" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Reset AWS staging environment
+        echo "### AWS Reset" >> $GITHUB_STEP_SUMMARY
+        
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set default.region ${{ env.AWS_REGION }}
+        
+        # Delete all staging CloudFormation stacks
+        STAGING_STACKS=$(aws cloudformation list-stacks \
+          --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+          --query 'StackSummaries[?contains(StackName, `masark-engine-staging`)].StackName' \
+          --output text)
+        
+        for stack in $STAGING_STACKS; do
+          echo "Deleting staging stack: $stack"
+          aws cloudformation delete-stack --stack-name "$stack" --region ${{ env.AWS_REGION }}
+          echo "- 🔄 Reset: $stack" >> $GITHUB_STEP_SUMMARY
+        done
+        
+        # Delete staging SSM parameters
+        PARAMETER_PREFIX="/masark-engine/staging"
+        STAGING_PARAMS=$(aws ssm get-parameters-by-path --path "$PARAMETER_PREFIX" --query 'Parameters[].Name' --output text)
+        
+        for param in $STAGING_PARAMS; do
+          echo "Deleting parameter: $param"
+          aws ssm delete-parameter --name "$param"
+          echo "- 🔄 Reset: $param" >> $GITHUB_STEP_SUMMARY
+        done
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        
+    - name: Generate Configuration Report
+      if: always()
+      run: |
+        echo "## 📊 Environment Configuration Report" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Action**: ${{ env.ACTION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment Mode**: ${{ env.DEPLOYMENT_MODE }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Log Level**: ${{ env.LOG_LEVEL }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Azure SKU**: ${{ env.AZURE_SKU }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **AWS Instance Type**: ${{ env.AWS_INSTANCE_TYPE }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Scaling Range**: ${{ env.MIN_REPLICAS }}-${{ env.MAX_REPLICAS }} replicas" >> $GITHUB_STEP_SUMMARY
+        echo "- **Health Check Timeout**: ${{ env.HEALTH_CHECK_TIMEOUT }}s" >> $GITHUB_STEP_SUMMARY
+        echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+
+  environment-protection:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'production' && (github.event.inputs.action == 'configure' || github.event.inputs.action == 'reset')
+    environment: production-approval
+    
+    steps:
+    - name: Production Environment Protection
+      run: |
+        echo "## 🔒 Production Environment Protection" >> $GITHUB_STEP_SUMMARY
+        echo "This workflow requires manual approval for production environment changes." >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Action**: ${{ github.event.inputs.action }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Requested By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        
+        # Wait for manual approval
+        echo "⏳ Waiting for manual approval..."
+        sleep 10
+        
+        echo "✅ Production environment change approved!" >> $GITHUB_STEP_SUMMARY

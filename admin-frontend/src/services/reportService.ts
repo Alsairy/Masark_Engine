@@ -237,5 +237,49 @@ export const reportService = {
   async deleteCareerUserRating(ratingId: number) {
     const response = await api.delete(`/api/career_user_ratings/${ratingId}`);
     return response.data;
+  },
+
+  async getMawhibaAnalytics(params?: {
+    startDate?: string;
+    endDate?: string;
+    deploymentMode?: 'STANDARD' | 'MAWHIBA';
+  }): Promise<{ data: any }> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.deploymentMode) queryParams.append('deploymentMode', params.deploymentMode);
+
+    const response = await api.get(`/api/reports/mawhiba-analytics?${queryParams.toString()}`);
+    return response.data;
+  },
+
+  async exportMawhibaReport(params?: {
+    startDate?: string;
+    endDate?: string;
+    deploymentMode?: 'STANDARD' | 'MAWHIBA';
+    format?: 'pdf' | 'excel';
+  }): Promise<{ data: Blob }> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.deploymentMode) queryParams.append('deploymentMode', params.deploymentMode);
+    if (params?.format) queryParams.append('format', params.format);
+
+    const response = await api.get(`/api/reports/mawhiba-export?${queryParams.toString()}`, {
+      responseType: 'blob'
+    });
+    return response;
+  },
+
+  async getPathwayComparisonData(params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{ data: any }> {
+    const queryParams = new URLSearchParams();
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+
+    const response = await api.get(`/api/reports/pathway-comparison?${queryParams.toString()}`);
+    return response.data;
   }
 };

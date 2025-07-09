@@ -1,0 +1,344 @@
+name: Deploy to AWS
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: masark-engine
+
+jobs:
+  deploy-aws:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Download Docker image
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: ci-cd.yml
+        name: docker-image
+        path: .
+      if: github.event_name == 'workflow_run'
+        
+    - name: Download Docker image (manual dispatch)
+      uses: actions/download-artifact@v4
+      with:
+        name: docker-image
+        path: .
+      if: github.event_name == 'workflow_dispatch'
+        
+    - name: Load Docker image
+      run: docker load < masark-engine.tar.gz
+      
+    - name: Set environment variables
+      run: |
+        echo "STACK_NAME=masark-engine-${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_ENV
+        echo "ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+        
+    - name: Create ECR repository if it doesn't exist
+      run: |
+        aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || \
+        aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }}
+      continue-on-error: true
+        
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      
+    - name: Tag and push image to ECR
+      run: |
+        # Tag the image with both commit SHA and latest
+        docker tag masark-engine:${{ env.IMAGE_TAG }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        docker tag masark-engine:${{ env.IMAGE_TAG }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+        docker tag masark-engine:${{ env.IMAGE_TAG }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.event.inputs.environment || 'staging' }}
+        
+        # Push all tags
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.event.inputs.environment || 'staging' }}
+        
+        echo "IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
+        
+    - name: Validate CloudFormation template
+      run: |
+        aws cloudformation validate-template --template-body file://./deploy/aws/cloudformation.yml
+        
+    - name: Deploy CloudFormation Stack
+      run: |
+        STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name ${{ env.STACK_NAME }} --region ${{ env.AWS_REGION }} 2>/dev/null || echo "false")
+        
+        if [ "$STACK_EXISTS" = "false" ]; then
+          echo "Creating new CloudFormation stack: ${{ env.STACK_NAME }}"
+          aws cloudformation create-stack \
+            --stack-name ${{ env.STACK_NAME }} \
+            --template-body file://./deploy/aws/cloudformation.yml \
+            --parameters \
+              ParameterKey=AppName,ParameterValue=masark-engine-${{ github.event.inputs.environment || 'staging' }} \
+              ParameterKey=Environment,ParameterValue=${{ github.event.inputs.environment || 'staging' }} \
+              ParameterKey=VpcId,ParameterValue=${{ secrets.AWS_VPC_ID }} \
+              ParameterKey=SubnetIds,ParameterValue="${{ secrets.AWS_SUBNET_IDS }}" \
+              ParameterKey=DBUsername,ParameterValue=masarkadmin \
+              ParameterKey=DBPassword,ParameterValue=${{ secrets.DB_PASSWORD }} \
+              ParameterKey=JWTSecretKey,ParameterValue=${{ secrets.JWT_SECRET_KEY }} \
+              ParameterKey=DockerImage,ParameterValue=${{ env.IMAGE_URI }} \
+            --capabilities CAPABILITY_IAM \
+            --tags \
+              Key=Environment,Value=${{ github.event.inputs.environment || 'staging' }} \
+              Key=Project,Value=MasarkEngine \
+              Key=ManagedBy,Value=GitHubActions
+        else
+          echo "Updating existing CloudFormation stack: ${{ env.STACK_NAME }}"
+          aws cloudformation update-stack \
+            --stack-name ${{ env.STACK_NAME }} \
+            --template-body file://./deploy/aws/cloudformation.yml \
+            --parameters \
+              ParameterKey=AppName,ParameterValue=masark-engine-${{ github.event.inputs.environment || 'staging' }} \
+              ParameterKey=Environment,ParameterValue=${{ github.event.inputs.environment || 'staging' }} \
+              ParameterKey=VpcId,ParameterValue=${{ secrets.AWS_VPC_ID }} \
+              ParameterKey=SubnetIds,ParameterValue="${{ secrets.AWS_SUBNET_IDS }}" \
+              ParameterKey=DBUsername,ParameterValue=masarkadmin \
+              ParameterKey=DBPassword,ParameterValue=${{ secrets.DB_PASSWORD }} \
+              ParameterKey=JWTSecretKey,ParameterValue=${{ secrets.JWT_SECRET_KEY }} \
+              ParameterKey=DockerImage,ParameterValue=${{ env.IMAGE_URI }} \
+            --capabilities CAPABILITY_IAM \
+            --tags \
+              Key=Environment,Value=${{ github.event.inputs.environment || 'staging' }} \
+              Key=Project,Value=MasarkEngine \
+              Key=ManagedBy,Value=GitHubActions || echo "No changes to deploy"
+        fi
+        
+    - name: Wait for CloudFormation deployment
+      run: |
+        echo "Waiting for CloudFormation stack deployment to complete..."
+        aws cloudformation wait stack-create-complete --stack-name ${{ env.STACK_NAME }} --region ${{ env.AWS_REGION }} 2>/dev/null || \
+        aws cloudformation wait stack-update-complete --stack-name ${{ env.STACK_NAME }} --region ${{ env.AWS_REGION }}
+        
+        echo "CloudFormation deployment completed successfully!"
+        
+    - name: Get stack outputs
+      id: stack-outputs
+      run: |
+        LOAD_BALANCER_DNS=$(aws cloudformation describe-stacks \
+          --stack-name ${{ env.STACK_NAME }} \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDNS`].OutputValue' \
+          --output text)
+        
+        DATABASE_ENDPOINT=$(aws cloudformation describe-stacks \
+          --stack-name ${{ env.STACK_NAME }} \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Stacks[0].Outputs[?OutputKey==`DatabaseEndpoint`].OutputValue' \
+          --output text)
+        
+        REDIS_ENDPOINT=$(aws cloudformation describe-stacks \
+          --stack-name ${{ env.STACK_NAME }} \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Stacks[0].Outputs[?OutputKey==`RedisEndpoint`].OutputValue' \
+          --output text)
+        
+        echo "LOAD_BALANCER_DNS=$LOAD_BALANCER_DNS" >> $GITHUB_OUTPUT
+        echo "DATABASE_ENDPOINT=$DATABASE_ENDPOINT" >> $GITHUB_OUTPUT
+        echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $GITHUB_OUTPUT
+        echo "APP_URL=https://$LOAD_BALANCER_DNS" >> $GITHUB_OUTPUT
+        
+    - name: Update ECS service with new image
+      run: |
+        # Get the ECS service name from CloudFormation outputs
+        ECS_SERVICE=$(aws cloudformation describe-stacks \
+          --stack-name ${{ env.STACK_NAME }} \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Stacks[0].Outputs[?OutputKey==`ECSService`].OutputValue' \
+          --output text 2>/dev/null || echo "")
+        
+        ECS_CLUSTER=$(aws cloudformation describe-stacks \
+          --stack-name ${{ env.STACK_NAME }} \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Stacks[0].Outputs[?OutputKey==`ECSCluster`].OutputValue' \
+          --output text 2>/dev/null || echo "")
+        
+        if [ -n "$ECS_SERVICE" ] && [ -n "$ECS_CLUSTER" ]; then
+          echo "Updating ECS service: $ECS_SERVICE in cluster: $ECS_CLUSTER"
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+            
+          echo "Waiting for ECS service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region ${{ env.AWS_REGION }}
+        else
+          echo "ECS service information not found in stack outputs, skipping service update"
+        fi
+        
+    - name: Health Check
+      run: |
+        APP_URL="${{ steps.stack-outputs.outputs.APP_URL }}"
+        echo "Waiting for application to start at $APP_URL..."
+        sleep 120
+        
+        echo "Testing health endpoint: $APP_URL/health"
+        
+        for i in {1..15}; do
+          if curl -f -s -k "$APP_URL/health" > /dev/null; then
+            echo "✅ Health check passed!"
+            break
+          else
+            echo "⏳ Health check attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+          
+          if [ $i -eq 15 ]; then
+            echo "❌ Health check failed after 15 attempts"
+            exit 1
+          fi
+        done
+        
+    - name: Run Smoke Tests
+      run: |
+        APP_URL="${{ steps.stack-outputs.outputs.APP_URL }}"
+        
+        echo "Running smoke tests against $APP_URL"
+        
+        # Test API endpoints
+        echo "Testing /api/system/health..."
+        curl -f -s -k "$APP_URL/api/system/health" || exit 1
+        
+        echo "Testing /api/assessment/questions..."
+        curl -f -s -k "$APP_URL/api/assessment/questions" || exit 1
+        
+        echo "Testing /api/careers/clusters..."
+        curl -f -s -k "$APP_URL/api/careers/clusters" || exit 1
+        
+        echo "✅ All smoke tests passed!"
+        
+    - name: Run Load Test
+      if: github.event.inputs.environment == 'production'
+      run: |
+        APP_URL="${{ steps.stack-outputs.outputs.APP_URL }}"
+        
+        # Install k6 for load testing
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+        
+        # Run production load test
+        k6 run --vus 50 --duration 2m - <<EOF
+        import http from 'k6/http';
+        import { check, sleep } from 'k6';
+        
+        export default function () {
+          let response = http.get('$APP_URL/health');
+          check(response, {
+            'status is 200': (r) => r.status === 200,
+            'response time < 1000ms': (r) => r.timings.duration < 1000,
+          });
+          sleep(1);
+        }
+        EOF
+        
+    - name: Update Deployment Status
+      if: always()
+      run: |
+        APP_URL="${{ steps.stack-outputs.outputs.APP_URL }}"
+        STATUS="${{ job.status }}"
+        
+        echo "## 🚀 AWS Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Stack Name**: ${{ env.STACK_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Region**: ${{ env.AWS_REGION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Application URL**: [$APP_URL]($APP_URL)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Load Balancer**: ${{ steps.stack-outputs.outputs.LOAD_BALANCER_DNS }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Database**: ${{ steps.stack-outputs.outputs.DATABASE_ENDPOINT }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Redis**: ${{ steps.stack-outputs.outputs.REDIS_ENDPOINT }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Docker Image**: ${{ env.IMAGE_URI }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: $STATUS" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "$STATUS" = "success" ]; then
+          echo "- **Health Check**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Smoke Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.environment }}" = "production" ]; then
+            echo "- **Load Test**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "- **Health Check**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Smoke Tests**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  cleanup-old-deployments:
+    runs-on: ubuntu-latest
+    needs: deploy-aws
+    if: success() && github.event.inputs.environment == 'staging'
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Cleanup Old Staging Deployments
+      run: |
+        echo "Cleaning up old staging deployments..."
+        
+        # List all staging stacks and keep only the 3 most recent
+        STAGING_STACKS=$(aws cloudformation list-stacks \
+          --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+          --query 'StackSummaries[?contains(StackName, `masark-engine-staging`)].{Name:StackName,Time:CreationTime}' \
+          --output text | sort -k2 -r | tail -n +4 | cut -f1)
+        
+        for STACK in $STAGING_STACKS; do
+          echo "Deleting old staging stack: $STACK"
+          aws cloudformation delete-stack --stack-name "$STACK" --region ${{ env.AWS_REGION }}
+        done
+        
+        # Cleanup old ECR images (keep last 10 images)
+        OLD_IMAGES=$(aws ecr list-images \
+          --repository-name ${{ env.ECR_REPOSITORY }} \
+          --filter tagStatus=TAGGED \
+          --query 'imageIds[10:].[imageDigest]' \
+          --output text)
+        
+        if [ -n "$OLD_IMAGES" ]; then
+          echo "Cleaning up old ECR images..."
+          echo "$OLD_IMAGES" | while read -r digest; do
+            if [ -n "$digest" ]; then
+              aws ecr batch-delete-image \
+                --repository-name ${{ env.ECR_REPOSITORY }} \
+                --image-ids imageDigest="$digest" || true
+            fi
+          done
+        fi
+        
+        echo "Cleanup completed!"
