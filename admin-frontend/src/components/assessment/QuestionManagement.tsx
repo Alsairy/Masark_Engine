@@ -155,10 +155,10 @@ const QuestionManagement: React.FC = () => {
     return dimensions.find(d => d.value === dimension) || dimensions[0];
   };
 
-  const filteredQuestions = questions?.filter((question: any) => {
+  const filteredQuestions = questions?.filter((question: Question) => {
     const matchesSearch = !searchTerm || 
       question.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      question.options.some((opt: any) => opt.text.toLowerCase().includes(searchTerm.toLowerCase()));
+      question.options.some((opt: { value: string; text: string }) => opt.text.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesDimension = filterDimension === 'all' || question.dimension === filterDimension;
     
@@ -421,7 +421,7 @@ const QuestionManagement: React.FC = () => {
       )}
 
       <div className="space-y-4">
-        {filteredQuestions.map((question: any) => {
+        {filteredQuestions.map((question: Question) => {
           const dimensionInfo = getDimensionInfo(question.dimension);
           
           return (
@@ -450,7 +450,7 @@ const QuestionManagement: React.FC = () => {
                     </h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {question.options.map((option: any) => (
+                      {question.options.map((option: { value: string; text: string }) => (
                         <div key={option.value} className="p-3 bg-gray-50 rounded-lg">
                           <div className="flex items-center space-x-2">
                             <div className="flex items-center justify-center w-6 h-6 bg-white border border-gray-300 rounded text-sm font-medium">

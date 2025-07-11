@@ -6,16 +6,16 @@ namespace Masark.Domain.Entities
     public class AuditLog : Entity
     {
         public int? AdminUserId { get; private set; }
-        public string Action { get; private set; }
-        public string EntityType { get; private set; }
+        public string Action { get; private set; } = string.Empty;
+        public string EntityType { get; private set; } = string.Empty;
         public int? EntityId { get; private set; }
-        public string OldValues { get; private set; }
-        public string NewValues { get; private set; }
-        public string IpAddress { get; private set; }
-        public string UserAgent { get; private set; }
+        public string? OldValues { get; private set; }
+        public string? NewValues { get; private set; }
+        public string? IpAddress { get; private set; }
+        public string? UserAgent { get; private set; }
         public DateTime Timestamp { get; private set; }
 
-        public virtual AdminUser AdminUser { get; private set; }
+        public virtual AdminUser? AdminUser { get; private set; }
 
         protected AuditLog() { }
 

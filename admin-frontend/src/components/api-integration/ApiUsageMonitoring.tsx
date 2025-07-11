@@ -8,6 +8,40 @@ import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { BarChart3, TrendingUp, Clock, AlertTriangle, Activity } from 'lucide-react';
 
+interface UsageByHour {
+  hour: string;
+  requests: number;
+}
+
+interface TopEndpoint {
+  endpoint: string;
+  count: number;
+  averageResponseTime: number;
+}
+
+interface EndpointUsage {
+  method: string;
+  path: string;
+  totalRequests: number;
+  successfulRequests: number;
+  averageResponseTime: number;
+  errorCount: number;
+}
+
+interface ErrorLog {
+  statusCode: number;
+  method: string;
+  endpoint: string;
+  timestamp: string;
+  message: string;
+  userAgent?: string;
+}
+
+interface ErrorsByType {
+  errorType: string;
+  count: number;
+}
+
 const ApiUsageMonitoring: React.FC = () => {
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedUserId] = useState<number | undefined>();
@@ -160,7 +194,7 @@ const ApiUsageMonitoring: React.FC = () => {
               <CardContent>
                 {usageStats?.usageByHour?.length > 0 ? (
                   <div className="space-y-2">
-                    {usageStats.usageByHour.slice(-12).map((item: any, index: number) => (
+                    {usageStats.usageByHour.slice(-12).map((item: UsageByHour, index: number) => (
                       <div key={index} className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">{item.hour}</span>
                         <div className="flex items-center space-x-2">
@@ -168,7 +202,7 @@ const ApiUsageMonitoring: React.FC = () => {
                             <div
                               className="bg-blue-600 h-2 rounded-full"
                               style={{
-                                width: `${Math.min((item.requests / Math.max(...usageStats.usageByHour.map((h: any) => h.requests))) * 100, 100)}%`
+                                width: `${Math.min((item.requests / Math.max(...usageStats.usageByHour.map((h: UsageByHour) => h.requests))) * 100, 100)}%`
                               }}
                             />
                           </div>
@@ -191,7 +225,7 @@ const ApiUsageMonitoring: React.FC = () => {
               <CardContent>
                 {usageStats?.topEndpoints?.length > 0 ? (
                   <div className="space-y-3">
-                    {usageStats.topEndpoints.slice(0, 8).map((endpoint: any, index: number) => (
+                    {usageStats.topEndpoints.slice(0, 8).map((endpoint: TopEndpoint, index: number) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex-1">
                           <p className="text-sm font-medium truncate">{endpoint.endpoint}</p>
@@ -224,7 +258,7 @@ const ApiUsageMonitoring: React.FC = () => {
                 </div>
               ) : endpointUsage?.length > 0 ? (
                 <div className="space-y-4">
-                  {endpointUsage.map((endpoint: any, index: number) => (
+                  {endpointUsage.map((endpoint: EndpointUsage, index: number) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
@@ -272,7 +306,7 @@ const ApiUsageMonitoring: React.FC = () => {
                 </div>
               ) : errorLogs?.length > 0 ? (
                 <div className="space-y-3">
-                  {errorLogs.map((error: any, index: number) => (
+                  {errorLogs.map((error: ErrorLog, index: number) => (
                     <div key={index} className="border-l-4 border-red-500 bg-red-50 p-4 rounded">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
@@ -304,7 +338,7 @@ const ApiUsageMonitoring: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {usageStats.errorsByType.map((errorType: any, index: number) => (
+                  {usageStats.errorsByType.map((errorType: ErrorsByType, index: number) => (
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-sm">{errorType.errorType}</span>
                       <div className="flex items-center space-x-2">
@@ -312,7 +346,7 @@ const ApiUsageMonitoring: React.FC = () => {
                           <div
                             className="bg-red-500 h-2 rounded-full"
                             style={{
-                              width: `${Math.min((errorType.count / Math.max(...usageStats.errorsByType.map((e: any) => e.count))) * 100, 100)}%`
+                              width: `${Math.min((errorType.count / Math.max(...usageStats.errorsByType.map((e: ErrorsByType) => e.count))) * 100, 100)}%`
                             }}
                           />
                         </div>

@@ -119,7 +119,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ShouldBypassForCiTests(context) || IsHealthCheckEndpoint(context.Request.Path))
                 {
-                    _logger.LogInformation("SQL injection prevention bypassed for request {RequestId} - Path: {Path}", requestId, context.Request.Path);
+                    _logger.LogInformation("SQL injection prevention bypassed for request {RequestId}", requestId);
                     await _next(context);
                     return;
                 }
@@ -390,7 +390,7 @@ namespace Masark.Infrastructure.Middleware
                 (requestPath.StartsWith("/test") || requestPath.StartsWith("/health") || 
                  requestPath.StartsWith("/api/test") || requestPath.StartsWith("/swagger")))
             {
-                _logger.LogInformation("SQL injection bypass: Test/Health path detected ({Path}) - Request: {RequestId}", requestPath, requestId);
+                _logger.LogInformation("SQL injection bypass: Test/Health path detected - Request: {RequestId}", requestId);
                 return true;
             }
 
@@ -402,8 +402,7 @@ namespace Masark.Infrastructure.Middleware
                 return true;
             }
 
-            _logger.LogWarning("SQL injection bypass: No bypass conditions met - Request: {RequestId}, Path: {Path}, Headers: {Headers}", 
-                requestId, context.Request.Path, string.Join(", ", context.Request.Headers.Select(h => $"{h.Key}={h.Value}")));
+            _logger.LogWarning("SQL injection bypass: No bypass conditions met - Request: {RequestId}", requestId);
             return false;
         }
     }
