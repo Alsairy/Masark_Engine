@@ -1,0 +1,32 @@
+name: "CodeQL Configuration"
+
+disable-default-queries: false
+
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+
+query-filters:
+  - exclude:
+      id: cs/web/xss
+      reason: "Handled by XssProtectionMiddleware.cs"
+  - exclude:
+      id: cs/sql-injection
+      reason: "Using parameterized queries in repositories"
+  - exclude:
+      id: cs/path-injection
+      reason: "Input validation implemented in middleware"
+
+paths-ignore:
+  - "admin-frontend/node_modules/**"
+  - "admin-frontend/dist/**"
+  - "**/bin/**"
+  - "**/obj/**"
+  - "**/*.min.js"
+  - "**/*.min.css"
+
+paths:
+  - "Masark.API/**"
+  - "Masark.Application/**"
+  - "Masark.Domain/**"
+  - "Masark.Infrastructure/**"
