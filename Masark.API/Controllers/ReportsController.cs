@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 
 namespace Masark.API.Controllers
 {
@@ -355,7 +356,7 @@ namespace Masark.API.Controllers
                     success = true,
                     report_user_answer = new
                     {
-                        id = new Random().Next(1000, 9999),
+                        id = RandomNumberGenerator.GetInt32(1000, 10000),
                         report_element_question_id = request.QuestionId,
                         assessment_session_id = request.AssessmentSessionId,
                         answer_text = request.AnswerText,
@@ -416,7 +417,7 @@ namespace Masark.API.Controllers
                     success = true,
                     report_element_rating = new
                     {
-                        id = new Random().Next(1000, 9999),
+                        id = RandomNumberGenerator.GetInt32(1000, 10000),
                         report_element_id = elementId,
                         assessment_session_id = request.AssessmentSessionId,
                         rating = request.Rating,
@@ -635,7 +636,7 @@ namespace Masark.API.Controllers
                     success = true,
                     report_user_answer = new
                     {
-                        id = new Random().Next(1000, 9999),
+                        id = RandomNumberGenerator.GetInt32(1000, 10000),
                         report_element_question_id = request.ReportElementQuestionId,
                         assessment_session_id = request.AssessmentSessionId,
                         answer_text = request.AnswerText,
@@ -755,7 +756,7 @@ namespace Masark.API.Controllers
                     success = true,
                     report_element_rating = new
                     {
-                        id = new Random().Next(1000, 9999),
+                        id = RandomNumberGenerator.GetInt32(1000, 10000),
                         report_element_id = request.ReportElementId,
                         assessment_session_id = request.AssessmentSessionId,
                         rating = request.Rating,
@@ -847,7 +848,7 @@ namespace Masark.API.Controllers
                     success = true,
                     career_user_rating = new
                     {
-                        id = new Random().Next(1000, 9999),
+                        id = RandomNumberGenerator.GetInt32(1000, 10000),
                         career_id = request.CareerId,
                         user_id = request.UserId,
                         rating_id = request.RatingId,

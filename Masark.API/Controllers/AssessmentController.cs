@@ -187,7 +187,7 @@ namespace Masark.API.Controllers
 
                 var newQuestion = new
                 {
-                    id = new Random().Next(1000, 9999),
+                    id = RandomNumberGenerator.GetInt32(1000, 10000),
                     questionText = request.QuestionText,
                     dimension = request.Dimension,
                     isActive = true,
