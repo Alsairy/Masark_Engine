@@ -6,12 +6,12 @@ namespace Masark.Domain.Entities
 {
     public class TieBreakerQuestion : Entity, IAggregateRoot
     {
-        public string TextEn { get; private set; }
-        public string TextAr { get; private set; }
-        public string OptionAEn { get; private set; }
-        public string OptionAAr { get; private set; }
-        public string OptionBEn { get; private set; }
-        public string OptionBAr { get; private set; }
+        public string TextEn { get; private set; } = string.Empty;
+        public string TextAr { get; private set; } = string.Empty;
+        public string OptionAEn { get; private set; } = string.Empty;
+        public string OptionAAr { get; private set; } = string.Empty;
+        public string OptionBEn { get; private set; } = string.Empty;
+        public string OptionBAr { get; private set; } = string.Empty;
         public PersonalityDimension Dimension { get; private set; }
         public bool OptionAMapsToFirst { get; private set; }
         public int OrderIndex { get; private set; }

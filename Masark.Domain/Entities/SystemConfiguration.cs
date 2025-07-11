@@ -6,9 +6,9 @@ namespace Masark.Domain.Entities
 {
     public class SystemConfiguration : Entity, IAggregateRoot
     {
-        public string Key { get; private set; }
-        public string Value { get; private set; }
-        public string Description { get; private set; }
+        public string Key { get; private set; } = string.Empty;
+        public string Value { get; private set; } = string.Empty;
+        public string Description { get; private set; } = string.Empty;
         public DeploymentMode? DeploymentMode { get; private set; }
 
         protected SystemConfiguration() { }
