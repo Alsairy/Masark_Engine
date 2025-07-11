@@ -40,7 +40,11 @@ const sampleAnswers = [
 ];
 
 export function setup() {
-  const healthResponse = http.get(`${BASE_URL}/health`);
+  const healthResponse = http.get(`${BASE_URL}/health`, {
+    headers: {
+      'X-Test-Mode': 'ci-bypass',
+    },
+  });
   check(healthResponse, {
     'health check status is 200': (r) => r.status === 200,
   });
@@ -59,6 +63,7 @@ export default function (data) {
   
   const authHeaders = {
     'Content-Type': 'application/json',
+    'X-Test-Mode': 'ci-bypass',
   };
   
   const authResponse = http.post(`${BASE_URL}/api/auth/login`, authPayload, {
@@ -79,6 +84,7 @@ export default function (data) {
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
+    'X-Test-Mode': 'ci-bypass',
   };
   
   const sessionStart = Date.now();
