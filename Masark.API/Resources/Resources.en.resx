@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- System Messages -->
+  <data name="system.welcome" xml:space="preserve">
+    <value>Welcome to Masark</value>
+  </data>
+  <data name="system.loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="system.error" xml:space="preserve">
+    <value>An error occurred</value>
+  </data>
+  <data name="system.success" xml:space="preserve">
+    <value>Operation completed successfully</value>
+  </data>
+  <data name="system.validation_error" xml:space="preserve">
+    <value>Please check your input</value>
+  </data>
+  <data name="system.server_error" xml:space="preserve">
+    <value>Server error occurred</value>
+  </data>
+  <data name="system.not_found" xml:space="preserve">
+    <value>Resource not found</value>
+  </data>
+  <data name="system.unauthorized" xml:space="preserve">
+    <value>Unauthorized access</value>
+  </data>
+  <data name="system.forbidden" xml:space="preserve">
+    <value>Access forbidden</value>
+  </data>
+
+  <!-- Authentication -->
+  <data name="auth.login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="auth.logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="auth.register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="auth.email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="auth.password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="auth.confirm_password" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="auth.forgot_password" xml:space="preserve">
+    <value>Forgot Password?</value>
+  </data>
+  <data name="auth.reset_password" xml:space="preserve">
+    <value>Reset Password</value>
+  </data>
+  <data name="auth.login_success" xml:space="preserve">
+    <value>Login successful</value>
+  </data>
+  <data name="auth.login_failed" xml:space="preserve">
+    <value>Login failed</value>
+  </data>
+  <data name="auth.invalid_credentials" xml:space="preserve">
+    <value>Invalid email or password</value>
+  </data>
+  <data name="auth.account_locked" xml:space="preserve">
+    <value>Account is locked</value>
+  </data>
+  <data name="auth.password_reset_sent" xml:space="preserve">
+    <value>Password reset email sent</value>
+  </data>
+
+  <!-- Assessment -->
+  <data name="assessment.start_assessment" xml:space="preserve">
+    <value>Start Assessment</value>
+  </data>
+  <data name="assessment.continue_assessment" xml:space="preserve">
+    <value>Continue Assessment</value>
+  </data>
+  <data name="assessment.complete_assessment" xml:space="preserve">
+    <value>Complete Assessment</value>
+  </data>
+  <data name="assessment.question" xml:space="preserve">
+    <value>Question</value>
+  </data>
+  <data name="assessment.of" xml:space="preserve">
+    <value>of</value>
+  </data>
+  <data name="assessment.next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="assessment.previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="assessment.submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="assessment.assessment_completed" xml:space="preserve">
+    <value>Assessment completed successfully</value>
+  </data>
+  <data name="assessment.assessment_progress" xml:space="preserve">
+    <value>Assessment Progress</value>
+  </data>
+  <data name="assessment.time_remaining" xml:space="preserve">
+    <value>Time Remaining</value>
+  </data>
+  <data name="assessment.save_progress" xml:space="preserve">
+    <value>Save Progress</value>
+  </data>
+  <data name="assessment.resume_later" xml:space="preserve">
+    <value>Resume Later</value>
+  </data>
+
+  <!-- Careers -->
+  <data name="careers.career_matches" xml:space="preserve">
+    <value>Career Matches</value>
+  </data>
+  <data name="careers.top_matches" xml:space="preserve">
+    <value>Top Matches</value>
+  </data>
+  <data name="careers.match_score" xml:space="preserve">
+    <value>Match Score</value>
+  </data>
+  <data name="careers.career_details" xml:space="preserve">
+    <value>Career Details</value>
+  </data>
+  <data name="careers.job_description" xml:space="preserve">
+    <value>Job Description</value>
+  </data>
+  <data name="careers.required_skills" xml:space="preserve">
+    <value>Required Skills</value>
+  </data>
+  <data name="careers.education_requirements" xml:space="preserve">
+    <value>Education Requirements</value>
+  </data>
+  <data name="careers.salary_range" xml:space="preserve">
+    <value>Salary Range</value>
+  </data>
+  <data name="careers.career_outlook" xml:space="preserve">
+    <value>Career Outlook</value>
+  </data>
+  <data name="careers.related_careers" xml:space="preserve">
+    <value>Related Careers</value>
+  </data>
+  <data name="careers.programs" xml:space="preserve">
+    <value>Programs</value>
+  </data>
+  <data name="careers.pathways" xml:space="preserve">
+    <value>Pathways</value>
+  </data>
+
+  <!-- Reports -->
+  <data name="reports.personality_report" xml:space="preserve">
+    <value>Personality Report</value>
+  </data>
+  <data name="reports.career_report" xml:space="preserve">
+    <value>Career Report</value>
+  </data>
+  <data name="reports.detailed_report" xml:space="preserve">
+    <value>Detailed Report</value>
+  </data>
+  <data name="reports.summary_report" xml:space="preserve">
+    <value>Summary Report</value>
+  </data>
+  <data name="reports.download_pdf" xml:space="preserve">
+    <value>Download PDF</value>
+  </data>
+  <data name="reports.share_report" xml:space="preserve">
+    <value>Share Report</value>
+  </data>
+  <data name="reports.print_report" xml:space="preserve">
+    <value>Print Report</value>
+  </data>
+  <data name="reports.report_generated" xml:space="preserve">
+    <value>Report generated successfully</value>
+  </data>
+  <data name="reports.personality_type" xml:space="preserve">
+    <value>Personality Type</value>
+  </data>
+  <data name="reports.strengths" xml:space="preserve">
+    <value>Strengths</value>
+  </data>
+  <data name="reports.challenges" xml:space="preserve">
+    <value>Challenges</value>
+  </data>
+  <data name="reports.recommendations" xml:space="preserve">
+    <value>Recommendations</value>
+  </data>
+
+  <!-- Admin -->
+  <data name="admin.dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="admin.users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="admin.assessments" xml:space="preserve">
+    <value>Assessments</value>
+  </data>
+  <data name="admin.reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="admin.settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="admin.analytics" xml:space="preserve">
+    <value>Analytics</value>
+  </data>
+  <data name="admin.user_management" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <data name="admin.system_health" xml:space="preserve">
+    <value>System Health</value>
+  </data>
+  <data name="admin.performance_metrics" xml:space="preserve">
+    <value>Performance Metrics</value>
+  </data>
+  <data name="admin.audit_logs" xml:space="preserve">
+    <value>Audit Logs</value>
+  </data>
+</root>

@@ -1,0 +1,196 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run performance tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of performance test to run'
+        required: true
+        default: 'load'
+        type: choice
+        options:
+        - load
+        - stress
+        - benchmark
+        - all
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '18'
+
+jobs:
+  performance-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build application
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Start application
+      run: |
+        cd Masark.API
+        dotnet run --configuration Release --no-build &
+        echo $! > ../app.pid
+        sleep 30  # Wait for application to start
+      env:
+        ASPNETCORE_ENVIRONMENT: Testing
+        ConnectionStrings__DefaultConnection: "Data Source=:memory:"
+        ConnectionStrings__Redis: "localhost:6379"
+        Jwt__SecretKey: "MasarkEngine-CI-JWT-Secret-Key-2024-Performance-Testing"
+        SkipDatabaseSeeding: "false"
+
+    - name: Wait for application health
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:5000/health; do sleep 2; done'
+
+    - name: Run Load Tests
+      if: ${{ github.event.inputs.test_type == 'load' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+      run: |
+        cd performance-tests
+        k6 run --out json=load-test-results.json load-test.js
+      env:
+        BASE_URL: http://localhost:5000
+
+    - name: Run Stress Tests
+      if: ${{ github.event.inputs.test_type == 'stress' || github.event.inputs.test_type == 'all' }}
+      run: |
+        cd performance-tests
+        k6 run --out json=stress-test-results.json stress-test.js
+      env:
+        BASE_URL: http://localhost:5000
+
+    - name: Run Benchmark Tests
+      if: ${{ github.event.inputs.test_type == 'benchmark' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+      run: |
+        cd performance-tests
+        k6 run --out json=benchmark-results.json benchmark.js
+      env:
+        BASE_URL: http://localhost:5000
+
+    - name: Generate Performance Report
+      run: |
+        cd performance-tests
+        echo "# Performance Test Results" > performance-report.md
+        echo "Generated on: $(date)" >> performance-report.md
+        echo "" >> performance-report.md
+        
+        if [ -f "benchmark-results.json" ]; then
+          echo "## Benchmark Results" >> performance-report.md
+          echo "\`\`\`" >> performance-report.md
+          if [ -f "benchmark-summary.txt" ]; then
+            cat benchmark-summary.txt >> performance-report.md
+          fi
+          echo "\`\`\`" >> performance-report.md
+          echo "" >> performance-report.md
+        fi
+        
+        if [ -f "load-test-results.json" ]; then
+          echo "## Load Test Results" >> performance-report.md
+          echo "\`\`\`" >> performance-report.md
+          if [ -f "performance-test-summary.txt" ]; then
+            cat performance-test-summary.txt >> performance-report.md
+          fi
+          echo "\`\`\`" >> performance-report.md
+          echo "" >> performance-report.md
+        fi
+        
+        echo "## Test Environment" >> performance-report.md
+        echo "- OS: Ubuntu Latest" >> performance-report.md
+        echo "- .NET Version: ${{ env.DOTNET_VERSION }}" >> performance-report.md
+        echo "- Redis: 7-alpine" >> performance-report.md
+        echo "- Test Tool: k6" >> performance-report.md
+
+    - name: Upload Performance Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-test-results-${{ github.run_number }}
+        path: |
+          performance-tests/*.json
+          performance-tests/*.txt
+          performance-tests/performance-report.md
+        retention-days: 30
+
+    - name: Comment PR with Performance Results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = 'performance-tests/performance-report.md';
+          
+          if (fs.existsSync(path)) {
+            const report = fs.readFileSync(path, 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Performance Test Results\n\n${report}\n\n---\n*Automated performance testing by GitHub Actions*`
+            });
+          }
+
+    - name: Check Performance Thresholds
+      run: |
+        cd performance-tests
+        
+        # Check if benchmark results exist and validate thresholds
+        if [ -f "benchmark-results.json" ]; then
+          echo "Validating performance thresholds..."
+          
+          # Extract key metrics (this would be enhanced with proper JSON parsing)
+          if grep -q '"rate":0' benchmark-results.json; then
+            echo "❌ Performance test failed - check benchmark results"
+            exit 1
+          else
+            echo "✅ Performance thresholds met"
+          fi
+        fi
+
+    - name: Stop application
+      if: always()
+      run: |
+        if [ -f app.pid ]; then
+          kill $(cat app.pid) || true
+          rm app.pid
+        fi

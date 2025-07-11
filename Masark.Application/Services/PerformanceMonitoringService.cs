@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using System.Runtime.InteropServices;
 using System.IO;
 
@@ -75,6 +77,7 @@ namespace Masark.Application.Services
         Task RecordRequestMetricAsync(string endpoint, TimeSpan responseTime, int statusCode);
         Task RecordDatabaseMetricAsync(string operation, TimeSpan executionTime, bool success);
         Task RecordCacheMetricAsync(string operation, bool hit, TimeSpan? responseTime = null);
+        Task RecordSecurityMetricAsync(string metricName, double value, Dictionary<string, string>? properties = null);
 
         Task<SystemHealth> GetSystemHealthAsync();
         Task<Dictionary<string, object>> GetSystemMetricsAsync();
@@ -101,10 +104,13 @@ namespace Masark.Application.Services
     public class PerformanceMonitoringService : IPerformanceMonitoringService, IHostedService
     {
         private readonly ILogger<PerformanceMonitoringService> _logger;
+        private readonly TelemetryClient _telemetryClient;
         private readonly ConcurrentDictionary<string, List<PerformanceMetrics>> _metrics;
         private readonly ConcurrentDictionary<string, SessionMetrics> _sessionMetrics;
+        private readonly ConcurrentDictionary<string, SecurityMetricData> _securityMetrics;
         private readonly Timer _systemHealthTimer;
         private readonly Timer _cleanupTimer;
+        private readonly Timer _reportingTimer;
         private readonly Process _currentProcess;
         private readonly DateTime _startTime;
         private SystemHealth _lastSystemHealth;
@@ -118,17 +124,20 @@ namespace Masark.Application.Services
             ["error_rate_percent"] = 5.0
         };
 
-        public PerformanceMonitoringService(ILogger<PerformanceMonitoringService> logger)
+        public PerformanceMonitoringService(ILogger<PerformanceMonitoringService> logger, TelemetryClient telemetryClient)
         {
             _logger = logger;
+            _telemetryClient = telemetryClient;
             _metrics = new ConcurrentDictionary<string, List<PerformanceMetrics>>();
             _sessionMetrics = new ConcurrentDictionary<string, SessionMetrics>();
+            _securityMetrics = new ConcurrentDictionary<string, SecurityMetricData>();
             _currentProcess = Process.GetCurrentProcess();
             _startTime = DateTime.UtcNow;
             _lastSystemHealth = new SystemHealth();
 
             _systemHealthTimer = new Timer(CollectSystemHealth, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
             _cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromHours(1), TimeSpan.FromHours(6));
+            _reportingTimer = new Timer(ReportMetricsToApplicationInsights, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
         }
 
         public async Task RecordMetricAsync(string name, double value, string unit = "", Dictionary<string, object>? tags = null)
@@ -159,6 +168,32 @@ namespace Masark.Application.Services
                         return existingList;
                     });
 
+                var telemetryMetric = _telemetryClient.GetMetric(name);
+                if (tags != null && tags.Any())
+                {
+                    var stringTags = tags.Where(kvp => kvp.Value != null)
+                                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+                    
+                    if (stringTags.Count == 1)
+                    {
+                        var firstTag = stringTags.First();
+                        telemetryMetric.TrackValue(value, firstTag.Value);
+                    }
+                    else if (stringTags.Count >= 2)
+                    {
+                        var tagArray = stringTags.Take(2).ToArray();
+                        telemetryMetric.TrackValue(value, tagArray[0].Value, tagArray[1].Value);
+                    }
+                    else
+                    {
+                        telemetryMetric.TrackValue(value);
+                    }
+                }
+                else
+                {
+                    telemetryMetric.TrackValue(value);
+                }
+
                 _logger.LogDebug("Recorded metric {MetricName}: {Value} {Unit}", name, value, unit);
                 await Task.CompletedTask;
             }
@@ -184,6 +219,17 @@ namespace Masark.Application.Services
             {
                 await RecordMetricAsync("error_count", 1, "count", tags);
             }
+
+            var requestTelemetry = new RequestTelemetry(
+                endpoint, 
+                DateTimeOffset.UtcNow.Subtract(responseTime), 
+                responseTime, 
+                statusCode.ToString(), 
+                statusCode >= 200 && statusCode < 400);
+            
+            requestTelemetry.Properties["endpoint"] = endpoint;
+            requestTelemetry.Properties["status_code"] = statusCode.ToString();
+            _telemetryClient.TrackRequest(requestTelemetry);
         }
 
         public async Task RecordDatabaseMetricAsync(string operation, TimeSpan executionTime, bool success)
@@ -713,11 +759,127 @@ namespace Masark.Application.Services
             return Task.CompletedTask;
         }
 
+        public async Task RecordSecurityMetricAsync(string metricName, double value, Dictionary<string, string>? properties = null)
+        {
+            try
+            {
+                var securityMetric = new SecurityMetricData
+                {
+                    MetricName = metricName,
+                    Value = value,
+                    Timestamp = DateTime.UtcNow,
+                    Properties = properties
+                };
+
+                _securityMetrics.AddOrUpdate(metricName, securityMetric, (key, existing) => securityMetric);
+
+                if (IsCriticalSecurityMetric(metricName))
+                {
+                    _telemetryClient.TrackMetric($"security_{metricName}", value);
+                    
+                    if (properties != null)
+                    {
+                        var eventTelemetry = new EventTelemetry($"CriticalSecurityMetric_{metricName}");
+                        foreach (var prop in properties)
+                        {
+                            eventTelemetry.Properties[prop.Key] = prop.Value;
+                        }
+                        _telemetryClient.TrackEvent(eventTelemetry);
+                    }
+                }
+
+                _logger.LogDebug("Security metric recorded: {MetricName} = {Value}", metricName, value);
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error recording security metric {MetricName}", metricName);
+            }
+        }
+
+        private bool IsCriticalSecurityMetric(string metricName)
+        {
+            var criticalMetrics = new[]
+            {
+                "authentication_failure_count",
+                "authorization_failure_count",
+                "suspicious_activity_count",
+                "xss_attack_count",
+                "sql_injection_count",
+                "rate_limit_exceeded_count",
+                "invalid_token_count",
+                "brute_force_attempt_count"
+            };
+
+            return criticalMetrics.Any(cm => metricName.Contains(cm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void ReportMetricsToApplicationInsights(object? state)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    foreach (var metricGroup in _metrics)
+                    {
+                        var recentMetrics = metricGroup.Value
+                            .Where(m => m.Timestamp >= DateTime.UtcNow.AddMinutes(-5))
+                            .ToList();
+
+                        if (recentMetrics.Any())
+                        {
+                            var avgValue = recentMetrics.Average(m => m.Value);
+                            _telemetryClient.TrackMetric($"performance_{metricGroup.Key}_avg", avgValue);
+                            _telemetryClient.TrackMetric($"performance_{metricGroup.Key}_count", recentMetrics.Count);
+                        }
+                    }
+
+                    foreach (var securityMetric in _securityMetrics.Values)
+                    {
+                        if (securityMetric.Timestamp >= DateTime.UtcNow.AddMinutes(-5))
+                        {
+                            _telemetryClient.TrackMetric($"security_{securityMetric.MetricName}", securityMetric.Value);
+                            
+                            if (securityMetric.Properties != null)
+                            {
+                                var eventTelemetry = new EventTelemetry($"SecurityMetric_{securityMetric.MetricName}");
+                                foreach (var prop in securityMetric.Properties)
+                                {
+                                    eventTelemetry.Properties[prop.Key] = prop.Value;
+                                }
+                                _telemetryClient.TrackEvent(eventTelemetry);
+                            }
+                        }
+                    }
+
+                    var systemHealth = await GetSystemHealthAsync();
+                    _telemetryClient.TrackMetric("system_cpu_usage", systemHealth.CpuUsagePercent);
+                    _telemetryClient.TrackMetric("system_memory_usage", systemHealth.MemoryUsagePercent);
+                    _telemetryClient.TrackMetric("system_disk_usage", systemHealth.DiskUsagePercent);
+                    _telemetryClient.TrackMetric("system_active_sessions", systemHealth.ActiveConnections);
+
+                    if (systemHealth.Status != "healthy")
+                    {
+                        var healthEvent = new EventTelemetry("SystemHealthAlert");
+                        healthEvent.Properties["status"] = systemHealth.Status;
+                        healthEvent.Properties["warnings_count"] = systemHealth.Warnings.Count.ToString();
+                        healthEvent.Properties["errors_count"] = systemHealth.Errors.Count.ToString();
+                        _telemetryClient.TrackEvent(healthEvent);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error reporting metrics to Application Insights");
+                }
+            });
+        }
+
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Performance Monitoring Service stopping");
             _systemHealthTimer?.Dispose();
             _cleanupTimer?.Dispose();
+            _reportingTimer?.Dispose();
             return Task.CompletedTask;
         }
 
@@ -725,8 +887,17 @@ namespace Masark.Application.Services
         {
             _systemHealthTimer?.Dispose();
             _cleanupTimer?.Dispose();
+            _reportingTimer?.Dispose();
             _currentProcess?.Dispose();
         }
+    }
+
+    public class SecurityMetricData
+    {
+        public string MetricName { get; set; } = string.Empty;
+        public double Value { get; set; }
+        public DateTime Timestamp { get; set; }
+        public Dictionary<string, string>? Properties { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Method)]

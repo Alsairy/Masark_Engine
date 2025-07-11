@@ -59,6 +59,29 @@ export const LocalizationProvider: React.FC<LocalizationProviderProps> = ({ chil
       const response = await localizationService.getTranslations(lang, categories);
       if (response.success) {
         setTranslations(response.translations);
+        
+        const config = await localizationService.getLanguageConfig(lang);
+        if (config.success) {
+          const isRtlLang = config.language_config.direction === 'rtl';
+          document.documentElement.dir = config.language_config.direction;
+          document.documentElement.lang = lang;
+          
+          if (isRtlLang && lang.startsWith('ar')) {
+            document.body.classList.add('font-arabic');
+            document.body.style.fontFamily = config.language_config.font_family;
+          } else {
+            document.body.classList.remove('font-arabic');
+            document.body.style.fontFamily = '';
+          }
+          
+          if (isRtlLang) {
+            document.body.classList.add('rtl-support');
+            document.body.classList.remove('ltr-support');
+          } else {
+            document.body.classList.add('ltr-support');
+            document.body.classList.remove('rtl-support');
+          }
+        }
       }
     } catch (err) {
       setError('Failed to load translations');

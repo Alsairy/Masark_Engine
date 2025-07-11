@@ -34,7 +34,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             switchLanguage(nextLang);
           }}
           disabled={isLoading}
-          className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}
+          className={`btn-rtl space-x-rtl ${isRTL ? 'flex-row-reverse space-x-reverse font-arabic' : ''}`}
         >
           <Globe className="h-4 w-4" />
           <span className="text-sm font-medium">
@@ -47,7 +47,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   }
 
   return (
-    <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''} ${className}`}>
+    <div className={`nav-rtl space-x-rtl ${isRTL ? 'flex-row-reverse space-x-reverse font-arabic' : ''} ${className}`}>
       <Globe className="h-4 w-4 text-gray-500" />
       <Select
         value={currentLanguage}
@@ -62,7 +62,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         <SelectContent>
           {languages.map((language) => (
             <SelectItem key={language.code} value={language.code}>
-              <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
+              <div className={`nav-rtl space-x-rtl ${isRTL ? 'flex-row-reverse space-x-reverse font-arabic' : ''}`}>
                 <span className="font-medium">{language.native_name}</span>
                 <span className="text-sm text-gray-500">({language.name})</span>
               </div>

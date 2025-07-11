@@ -55,6 +55,55 @@ namespace Masark.Infrastructure.Repositories
             return answer;
         }
 
+        public async Task<List<AssessmentAnswer>> SaveAnswersBulkAsync(List<AssessmentAnswer> answers)
+        {
+            if (answers == null || !answers.Any())
+                return new List<AssessmentAnswer>();
+
+            _context.AssessmentAnswers.AddRange(answers);
+            await _context.SaveChangesAsync();
+            return answers;
+        }
+
+        public async Task<List<Question>> CreateQuestionsBulkAsync(List<Question> questions)
+        {
+            if (questions == null || !questions.Any())
+                return new List<Question>();
+
+            _context.Questions.AddRange(questions);
+            await _context.SaveChangesAsync();
+            return questions;
+        }
+
+        public async Task<List<PersonalityCareerMatch>> CreateCareerMatchesBulkAsync(List<PersonalityCareerMatch> matches)
+        {
+            if (matches == null || !matches.Any())
+                return new List<PersonalityCareerMatch>();
+
+            _context.PersonalityCareerMatches.AddRange(matches);
+            await _context.SaveChangesAsync();
+            return matches;
+        }
+
+        public async Task<List<Career>> CreateCareersBulkAsync(List<Career> careers)
+        {
+            if (careers == null || !careers.Any())
+                return new List<Career>();
+
+            _context.Careers.AddRange(careers);
+            await _context.SaveChangesAsync();
+            return careers;
+        }
+
+        public async Task UpdateAssessmentSessionsBulkAsync(List<AssessmentSession> sessions)
+        {
+            if (sessions == null || !sessions.Any())
+                return;
+
+            _context.AssessmentSessions.UpdateRange(sessions);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<PersonalityType>> GetPersonalityTypesAsync()
         {
             return await _context.PersonalityTypes.ToListAsync();

@@ -1,0 +1,33 @@
+# ZAP Scanning Rules for Masark Engine
+# Format: RULE_ID	THRESHOLD	IGNORE	DESCRIPTION
+
+# Ignore false positives for development
+10021	OFF	false	X-Content-Type-Options Header Missing
+10020	OFF	false	X-Frame-Options Header Not Set
+10016	OFF	false	Web Browser XSS Protection Not Enabled
+10017	OFF	false	Cross-Domain JavaScript Source File Inclusion
+
+# Security rules to enforce
+40012	MEDIUM	false	Cross Site Scripting (Reflected)
+40014	HIGH	false	Cross Site Scripting (Persistent)
+40016	HIGH	false	Cross Site Scripting (Persistent) - Prime
+40017	HIGH	false	Cross Site Scripting (Persistent) - Spider
+40018	HIGH	false	Cross Site Scripting (Persistent) - OTG-INPVAL-002
+90019	MEDIUM	false	Code Injection
+90020	HIGH	false	Remote OS Command Injection
+40003	MEDIUM	false	CRLF Injection
+16001	MEDIUM	false	Cross-Domain Misconfiguration
+10105	LOW	false	Weak Authentication Method
+10108	MEDIUM	false	Reverse Tabnabbing
+10202	LOW	false	Absence of Anti-CSRF Tokens
+40008	MEDIUM	false	Parameter Tampering
+40009	MEDIUM	false	Server Side Include
+40013	MEDIUM	false	Session Fixation
+40015	MEDIUM	false	LDAP Injection
+40018	HIGH	false	SQL Injection
+40019	HIGH	false	SQL Injection - MySQL
+40020	HIGH	false	SQL Injection - Hypersonic SQL
+40021	HIGH	false	SQL Injection - Oracle
+40022	HIGH	false	SQL Injection - PostgreSQL
+40023	HIGH	false	SQL Injection - SQLite
+90018	MEDIUM	false	SQL Injection - Fingerprinting
