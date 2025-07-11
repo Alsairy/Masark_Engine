@@ -543,7 +543,10 @@ namespace Masark.API.Controllers
                     });
                 }
 
-                await _userManager.AddToRoleAsync(user, role);
+                if (!string.IsNullOrEmpty(role))
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
 
                 return StatusCode(201, new
                 {
