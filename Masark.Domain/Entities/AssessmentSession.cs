@@ -8,11 +8,11 @@ namespace Masark.Domain.Entities
 {
     public class AssessmentSession : Entity, IAggregateRoot
     {
-        public string SessionToken { get; private set; }
+        public string SessionToken { get; private set; } = string.Empty;
         
-        public string StudentName { get; private set; }
-        public string StudentEmail { get; private set; }
-        public string StudentId { get; private set; }
+        public string? StudentName { get; private set; }
+        public string? StudentEmail { get; private set; }
+        public string? StudentId { get; private set; }
         
         public int? PersonalityTypeId { get; private set; }
         public virtual PersonalityType PersonalityType { get; private set; }

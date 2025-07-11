@@ -67,9 +67,10 @@ const MawhibaReportSection: React.FC<MawhibaReportSectionProps> = ({
       });
       
       setStats(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch Mawhiba statistics:', err);
-      setError(err.response?.data?.message || 'Failed to load Mawhiba analytics');
+      const errorMessage = (err as any)?.response?.data?.message || 'Failed to load Mawhiba analytics';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

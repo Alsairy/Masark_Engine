@@ -7,11 +7,11 @@ namespace Masark.Domain.Entities
     {
         public int SessionId { get; private set; }
         public int QuestionId { get; private set; }
-        public string SelectedOption { get; private set; }
+        public string SelectedOption { get; private set; } = string.Empty;
         public DateTime AnsweredAt { get; private set; }
 
-        public virtual AssessmentSession Session { get; private set; }
-        public virtual Question Question { get; private set; }
+        public virtual AssessmentSession? Session { get; private set; }
+        public virtual Question? Question { get; private set; }
 
         protected AssessmentAnswer() { }
 

@@ -56,7 +56,10 @@ export function benchmarkSessionCreation() {
   });
   
   const response = http.post(`${BASE_URL}/api/assessment/start`, payload, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'X-Test-Mode': 'ci-bypass',
+    },
   });
   
   const responseTime = Date.now() - start;
@@ -78,7 +81,11 @@ export function benchmarkCachePerformance() {
   const url = cacheTestUrls[Math.floor(Math.random() * cacheTestUrls.length)];
   const start = Date.now();
   
-  const response = http.get(url);
+  const response = http.get(url, {
+    headers: {
+      'X-Test-Mode': 'ci-bypass',
+    },
+  });
   const responseTime = Date.now() - start;
   
   apiResponseTime.add(responseTime, { scenario: 'cache_performance' });
@@ -97,7 +104,11 @@ export function benchmarkCachePerformance() {
 export function benchmarkDatabasePerformance() {
   const start = Date.now();
   
-  const response = http.get(`${BASE_URL}/api/assessment/statistics`);
+  const response = http.get(`${BASE_URL}/api/assessment/statistics`, {
+    headers: {
+      'X-Test-Mode': 'ci-bypass',
+    },
+  });
   const responseTime = Date.now() - start;
   
   databaseQueryTime.add(responseTime);

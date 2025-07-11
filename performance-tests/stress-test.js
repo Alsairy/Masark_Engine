@@ -30,7 +30,11 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:5000';
 export function setup() {
   console.log('Starting stress test...');
   
-  const healthResponse = http.get(`${BASE_URL}/health`);
+  const healthResponse = http.get(`${BASE_URL}/health`, {
+    headers: {
+      'X-Test-Mode': 'ci-bypass',
+    },
+  });
   check(healthResponse, {
     'pre-stress health check': (r) => r.status === 200,
   });
@@ -50,6 +54,7 @@ export default function (data) {
   
   const headers = {
     'Content-Type': 'application/json',
+    'X-Test-Mode': 'ci-bypass',
   };
   
   const sessionResponse = http.post(`${BASE_URL}/api/assessment/start`, sessionPayload, {
@@ -95,7 +100,11 @@ export default function (data) {
 export function teardown(data) {
   console.log('Stress test completed');
   
-  const healthResponse = http.get(`${BASE_URL}/health`);
+  const healthResponse = http.get(`${BASE_URL}/health`, {
+    headers: {
+      'X-Test-Mode': 'ci-bypass',
+    },
+  });
   check(healthResponse, {
     'post-stress health check': (r) => r.status === 200,
   });

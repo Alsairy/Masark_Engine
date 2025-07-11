@@ -31,7 +31,15 @@ const PathwayList: React.FC<PathwayListProps> = ({
       setLoading(true);
       setError(null);
 
-      const params: any = {
+      interface FetchParams {
+        page?: number;
+        limit?: number;
+        source?: 'MAWHIBA' | 'MOE';
+        isActive?: boolean;
+        search?: string;
+      }
+
+      const params: FetchParams = {
         page: currentPage,
         limit: 10,
       };
@@ -51,7 +59,7 @@ const PathwayList: React.FC<PathwayListProps> = ({
       const response = await pathwayService.getPathways(params);
       setPathways(response.pathways);
       setTotalPages(Math.ceil(response.total / 10));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch pathways:', err);
       setError('Failed to load pathways');
     } finally {
@@ -67,7 +75,7 @@ const PathwayList: React.FC<PathwayListProps> = ({
     try {
       await pathwayService.deletePathway(pathway.id);
       fetchPathways();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete pathway:', err);
       alert('Failed to delete pathway. Please try again.');
     }
@@ -149,7 +157,7 @@ const PathwayList: React.FC<PathwayListProps> = ({
           <div className="flex gap-2">
             <select
               value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value as any)}
+              onChange={(e) => setSourceFilter(e.target.value as 'ALL' | 'MOE' | 'MAWHIBA')}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="ALL">All Sources</option>
@@ -159,7 +167,7 @@ const PathwayList: React.FC<PathwayListProps> = ({
 
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE')}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="ALL">All Status</option>
