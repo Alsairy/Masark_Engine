@@ -7,6 +7,7 @@ using Masark.Application.Queries.Assessment;
 using Masark.Application.Services;
 using Masark.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 
 namespace Masark.API.Controllers
 {

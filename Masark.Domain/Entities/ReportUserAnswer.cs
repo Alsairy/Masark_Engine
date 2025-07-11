@@ -6,15 +6,15 @@ namespace Masark.Domain.Entities
     public class ReportUserAnswer : Entity, IAggregateRoot
     {
         public int ReportElementQuestionId { get; private set; }
-        public virtual ReportElementQuestion ReportElementQuestion { get; private set; }
+        public virtual ReportElementQuestion ReportElementQuestion { get; private set; } = null!;
 
         public int AssessmentSessionId { get; private set; }
-        public virtual AssessmentSession AssessmentSession { get; private set; }
+        public virtual AssessmentSession AssessmentSession { get; private set; } = null!;
 
-        public string AnswerText { get; private set; }
+        public string AnswerText { get; private set; } = string.Empty;
         public int? AnswerRating { get; private set; } // For rating questions (1-5)
         public bool? AnswerBoolean { get; private set; } // For yes/no questions
-        public string AnswerChoice { get; private set; } // For multiple choice questions
+        public string AnswerChoice { get; private set; } = string.Empty; // For multiple choice questions
         public DateTime AnsweredAt { get; private set; }
 
         protected ReportUserAnswer() { }
