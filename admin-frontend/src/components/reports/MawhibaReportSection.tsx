@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { GraduationCap, TrendingUp, Users, Award, Filter, Download, Calendar } from 'lucide-react';
+import { GraduationCap, TrendingUp, Users, Award, Download, Calendar } from 'lucide-react';
 import { reportService } from '../../services/reportService';
 
 interface MawhibaStats {
@@ -284,7 +284,7 @@ const MawhibaReportSection: React.FC<MawhibaReportSectionProps> = ({
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {stats.mawhibaPathwayDistribution.map((entry, index) => (
+                  {stats.mawhibaPathwayDistribution.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -307,7 +307,7 @@ const MawhibaReportSection: React.FC<MawhibaReportSectionProps> = ({
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {stats.moePathwayDistribution.map((entry, index) => (
+                  {stats.moePathwayDistribution.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

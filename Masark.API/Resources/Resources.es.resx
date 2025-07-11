@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- System Messages -->
+  <data name="system.welcome" xml:space="preserve">
+    <value>Bienvenido a Masark</value>
+  </data>
+  <data name="system.loading" xml:space="preserve">
+    <value>Cargando...</value>
+  </data>
+  <data name="system.error" xml:space="preserve">
+    <value>Ocurrió un error</value>
+  </data>
+  <data name="system.success" xml:space="preserve">
+    <value>Operación completada exitosamente</value>
+  </data>
+  <data name="system.validation_error" xml:space="preserve">
+    <value>Por favor verifica tu entrada</value>
+  </data>
+  <data name="system.server_error" xml:space="preserve">
+    <value>Ocurrió un error del servidor</value>
+  </data>
+  <data name="system.not_found" xml:space="preserve">
+    <value>Recurso no encontrado</value>
+  </data>
+  <data name="system.unauthorized" xml:space="preserve">
+    <value>Acceso no autorizado</value>
+  </data>
+  <data name="system.forbidden" xml:space="preserve">
+    <value>Acceso prohibido</value>
+  </data>
+
+  <!-- Authentication -->
+  <data name="auth.login" xml:space="preserve">
+    <value>Iniciar sesión</value>
+  </data>
+  <data name="auth.logout" xml:space="preserve">
+    <value>Cerrar sesión</value>
+  </data>
+  <data name="auth.register" xml:space="preserve">
+    <value>Registrarse</value>
+  </data>
+  <data name="auth.email" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="auth.password" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="auth.confirm_password" xml:space="preserve">
+    <value>Confirmar contraseña</value>
+  </data>
+  <data name="auth.forgot_password" xml:space="preserve">
+    <value>¿Olvidaste tu contraseña?</value>
+  </data>
+  <data name="auth.reset_password" xml:space="preserve">
+    <value>Restablecer contraseña</value>
+  </data>
+  <data name="auth.login_success" xml:space="preserve">
+    <value>Inicio de sesión exitoso</value>
+  </data>
+  <data name="auth.login_failed" xml:space="preserve">
+    <value>Error al iniciar sesión</value>
+  </data>
+  <data name="auth.invalid_credentials" xml:space="preserve">
+    <value>Correo electrónico o contraseña inválidos</value>
+  </data>
+  <data name="auth.account_locked" xml:space="preserve">
+    <value>La cuenta está bloqueada</value>
+  </data>
+  <data name="auth.password_reset_sent" xml:space="preserve">
+    <value>Correo de restablecimiento de contraseña enviado</value>
+  </data>
+
+  <!-- Assessment -->
+  <data name="assessment.start_assessment" xml:space="preserve">
+    <value>Iniciar evaluación</value>
+  </data>
+  <data name="assessment.continue_assessment" xml:space="preserve">
+    <value>Continuar evaluación</value>
+  </data>
+  <data name="assessment.complete_assessment" xml:space="preserve">
+    <value>Completar evaluación</value>
+  </data>
+  <data name="assessment.question" xml:space="preserve">
+    <value>Pregunta</value>
+  </data>
+  <data name="assessment.of" xml:space="preserve">
+    <value>de</value>
+  </data>
+  <data name="assessment.next" xml:space="preserve">
+    <value>Siguiente</value>
+  </data>
+  <data name="assessment.previous" xml:space="preserve">
+    <value>Anterior</value>
+  </data>
+  <data name="assessment.submit" xml:space="preserve">
+    <value>Enviar</value>
+  </data>
+  <data name="assessment.assessment_completed" xml:space="preserve">
+    <value>Evaluación completada exitosamente</value>
+  </data>
+  <data name="assessment.assessment_progress" xml:space="preserve">
+    <value>Progreso de la evaluación</value>
+  </data>
+  <data name="assessment.time_remaining" xml:space="preserve">
+    <value>Tiempo restante</value>
+  </data>
+  <data name="assessment.save_progress" xml:space="preserve">
+    <value>Guardar progreso</value>
+  </data>
+  <data name="assessment.resume_later" xml:space="preserve">
+    <value>Continuar más tarde</value>
+  </data>
+
+  <!-- Careers -->
+  <data name="careers.career_matches" xml:space="preserve">
+    <value>Coincidencias de carrera</value>
+  </data>
+  <data name="careers.top_matches" xml:space="preserve">
+    <value>Mejores coincidencias</value>
+  </data>
+  <data name="careers.match_score" xml:space="preserve">
+    <value>Puntuación de coincidencia</value>
+  </data>
+  <data name="careers.career_details" xml:space="preserve">
+    <value>Detalles de carrera</value>
+  </data>
+  <data name="careers.job_description" xml:space="preserve">
+    <value>Descripción del trabajo</value>
+  </data>
+  <data name="careers.required_skills" xml:space="preserve">
+    <value>Habilidades requeridas</value>
+  </data>
+  <data name="careers.education_requirements" xml:space="preserve">
+    <value>Requisitos educativos</value>
+  </data>
+  <data name="careers.salary_range" xml:space="preserve">
+    <value>Rango salarial</value>
+  </data>
+  <data name="careers.career_outlook" xml:space="preserve">
+    <value>Perspectivas de carrera</value>
+  </data>
+  <data name="careers.related_careers" xml:space="preserve">
+    <value>Carreras relacionadas</value>
+  </data>
+  <data name="careers.programs" xml:space="preserve">
+    <value>Programas</value>
+  </data>
+  <data name="careers.pathways" xml:space="preserve">
+    <value>Rutas</value>
+  </data>
+
+  <!-- Reports -->
+  <data name="reports.personality_report" xml:space="preserve">
+    <value>Informe de personalidad</value>
+  </data>
+  <data name="reports.career_report" xml:space="preserve">
+    <value>Informe de carrera</value>
+  </data>
+  <data name="reports.detailed_report" xml:space="preserve">
+    <value>Informe detallado</value>
+  </data>
+  <data name="reports.summary_report" xml:space="preserve">
+    <value>Informe resumen</value>
+  </data>
+  <data name="reports.download_pdf" xml:space="preserve">
+    <value>Descargar PDF</value>
+  </data>
+  <data name="reports.share_report" xml:space="preserve">
+    <value>Compartir informe</value>
+  </data>
+  <data name="reports.print_report" xml:space="preserve">
+    <value>Imprimir informe</value>
+  </data>
+  <data name="reports.report_generated" xml:space="preserve">
+    <value>Informe generado exitosamente</value>
+  </data>
+  <data name="reports.personality_type" xml:space="preserve">
+    <value>Tipo de personalidad</value>
+  </data>
+  <data name="reports.strengths" xml:space="preserve">
+    <value>Fortalezas</value>
+  </data>
+  <data name="reports.challenges" xml:space="preserve">
+    <value>Desafíos</value>
+  </data>
+  <data name="reports.recommendations" xml:space="preserve">
+    <value>Recomendaciones</value>
+  </data>
+
+  <!-- Admin -->
+  <data name="admin.dashboard" xml:space="preserve">
+    <value>Panel de control</value>
+  </data>
+  <data name="admin.users" xml:space="preserve">
+    <value>Usuarios</value>
+  </data>
+  <data name="admin.assessments" xml:space="preserve">
+    <value>Evaluaciones</value>
+  </data>
+  <data name="admin.reports" xml:space="preserve">
+    <value>Informes</value>
+  </data>
+  <data name="admin.settings" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="admin.analytics" xml:space="preserve">
+    <value>Analíticas</value>
+  </data>
+  <data name="admin.user_management" xml:space="preserve">
+    <value>Gestión de usuarios</value>
+  </data>
+  <data name="admin.system_health" xml:space="preserve">
+    <value>Salud del sistema</value>
+  </data>
+  <data name="admin.performance_metrics" xml:space="preserve">
+    <value>Métricas de rendimiento</value>
+  </data>
+  <data name="admin.audit_logs" xml:space="preserve">
+    <value>Registros de auditoría</value>
+  </data>
+</root>

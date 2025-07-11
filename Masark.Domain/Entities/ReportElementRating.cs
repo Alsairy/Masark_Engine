@@ -6,13 +6,13 @@ namespace Masark.Domain.Entities
     public class ReportElementRating : Entity, IAggregateRoot
     {
         public int ReportElementId { get; private set; }
-        public virtual ReportElement ReportElement { get; private set; }
+        public virtual ReportElement ReportElement { get; private set; } = null!;
 
         public int AssessmentSessionId { get; private set; }
-        public virtual AssessmentSession AssessmentSession { get; private set; }
+        public virtual AssessmentSession AssessmentSession { get; private set; } = null!;
 
         public int Rating { get; private set; } // 1-5 scale
-        public string Comment { get; private set; }
+        public string Comment { get; private set; } = string.Empty;
         public DateTime RatedAt { get; private set; }
 
         protected ReportElementRating() { }

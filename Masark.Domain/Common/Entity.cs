@@ -25,7 +25,7 @@ namespace Masark.Domain.Common
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is not Entity other)
                 return false;

@@ -6,12 +6,12 @@ namespace Masark.Domain.Entities
     public class ReportElementQuestion : Entity, IAggregateRoot
     {
         public int ReportElementId { get; private set; }
-        public virtual ReportElement ReportElement { get; private set; }
+        public virtual ReportElement? ReportElement { get; private set; }
 
-        public string QuestionTextEn { get; private set; }
-        public string QuestionTextAr { get; private set; }
-        public string QuestionType { get; private set; } // "text", "rating", "multiple_choice", "yes_no"
-        public string OptionsJson { get; private set; } // JSON array of options for multiple choice
+        public string QuestionTextEn { get; private set; } = string.Empty;
+        public string QuestionTextAr { get; private set; } = string.Empty;
+        public string QuestionType { get; private set; } = string.Empty; // "text", "rating", "multiple_choice", "yes_no"
+        public string OptionsJson { get; private set; } = string.Empty; // JSON array of options for multiple choice
         public bool IsRequired { get; private set; }
         public int OrderIndex { get; private set; }
 

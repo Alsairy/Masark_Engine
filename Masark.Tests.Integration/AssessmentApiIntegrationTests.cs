@@ -31,12 +31,18 @@ public class AssessmentApiIntegrationTests : IClassFixture<WebApplicationFactory
                 {
                     {"ConnectionStrings:DefaultConnection", "DataSource=:memory:"},
                     {"ConnectionStrings:Redis", "localhost:6379"},
-                    {"SkipDatabaseSeeding", "true"}
+                    {"SkipDatabaseSeeding", "true"},
+                    {"Jwt:SecretKey", "TestSecretKeyForIntegrationTestsThatMeetsMinimumRequirements123456789"},
+                    {"Jwt:Issuer", "Masark.API.Test"},
+                    {"Jwt:Audience", "Masark.Client.Test"},
+                    {"Jwt:ExpirationMinutes", "60"}
                 });
             });
         });
 
         _client = _factory.CreateClient();
+        _client.DefaultRequestHeaders.Add("User-Agent", "Masark-Integration-Tests/1.0");
+        _client.DefaultRequestHeaders.Add("X-Test-Environment", "true");
         
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

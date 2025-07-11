@@ -7,6 +7,7 @@ using Masark.Application.Queries.Assessment;
 using Masark.Application.Services;
 using Masark.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 
 namespace Masark.API.Controllers
 {
@@ -187,7 +188,7 @@ namespace Masark.API.Controllers
 
                 var newQuestion = new
                 {
-                    id = new Random().Next(1000, 9999),
+                    id = RandomNumberGenerator.GetInt32(1000, 10000),
                     questionText = request.QuestionText,
                     dimension = request.Dimension,
                     isActive = true,
@@ -340,7 +341,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to start assessment session",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -398,7 +399,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get assessment questions",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -459,7 +460,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to submit answer",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -514,7 +515,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to complete assessment",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -581,7 +582,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get assessment results",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

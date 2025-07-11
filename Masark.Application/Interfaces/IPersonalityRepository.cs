@@ -12,6 +12,12 @@ namespace Masark.Application.Interfaces
         Task<PersonalityType> GetPersonalityTypeByCodeAsync(string code);
         Task UpdateSessionWithResultsAsync(AssessmentSession session);
         Task<List<Question>> GetQuestionsOrderedAsync();
+
+        Task<List<AssessmentAnswer>> SaveAnswersBulkAsync(List<AssessmentAnswer> answers);
+        Task<List<Question>> CreateQuestionsBulkAsync(List<Question> questions);
+        Task<List<PersonalityCareerMatch>> CreateCareerMatchesBulkAsync(List<PersonalityCareerMatch> matches);
+        Task<List<Career>> CreateCareersBulkAsync(List<Career> careers);
+        Task UpdateAssessmentSessionsBulkAsync(List<AssessmentSession> sessions);
         
         Task<List<PersonalityCareerMatch>> GetCareerMatchesAsync(string personalityTypeCode);
         Task<List<Career>> GetCareersAsync();

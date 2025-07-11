@@ -5,8 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using Masark.Application.Options;
+using System.Text.Json;
 
 namespace Masark.Application.Services
 {
@@ -171,6 +174,8 @@ namespace Masark.Application.Services
 
     public class CachingService : ICachingService
     {
+        private readonly IDistributedCache? _distributedCache;
+        private readonly IMemoryCache _memoryCache;
         private readonly InMemoryCache<List<Dictionary<string, object>>> _questionCache;
         private readonly InMemoryCache<List<Dictionary<string, object>>> _careerCache;
         private readonly InMemoryCache<List<Dictionary<string, object>>> _personalityCache;
@@ -178,33 +183,90 @@ namespace Masark.Application.Services
         private readonly InMemoryCache<Dictionary<string, object>> _reportCache;
         private readonly InMemoryCache<object> _genericCache;
         private readonly ILogger<CachingService> _logger;
+        private readonly JsonSerializerOptions _jsonOptions;
+        private readonly bool _enableDistributedCache;
 
-        public CachingService(ILogger<CachingService> logger)
+        public CachingService(
+            IDistributedCache? distributedCache,
+            IMemoryCache memoryCache,
+            IOptions<CachingOptions> cachingOptions,
+            ILogger<CachingService> logger)
         {
+            _distributedCache = distributedCache;
+            _memoryCache = memoryCache;
+            _enableDistributedCache = cachingOptions.Value.EnableDistributedCache;
             _logger = logger;
+            
             _questionCache = new InMemoryCache<List<Dictionary<string, object>>>(500, logger);
             _careerCache = new InMemoryCache<List<Dictionary<string, object>>>(1000, logger);
             _personalityCache = new InMemoryCache<List<Dictionary<string, object>>>(100, logger);
             _sessionCache = new InMemoryCache<Dictionary<string, object>>(5000, logger);
             _reportCache = new InMemoryCache<Dictionary<string, object>>(2000, logger);
             _genericCache = new InMemoryCache<object>(10000, logger);
+            
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = false
+            };
         }
 
         public async Task<List<Dictionary<string, object>>?> GetQuestionsAsync(string language = "en")
         {
-            var cacheKey = $"questions_{language}";
-            var result = _questionCache.Get(cacheKey);
+            var cacheKey = $"masark:questions:{language}";
+            
+            if (_enableDistributedCache && _distributedCache != null)
+            {
+                try
+                {
+                    var distributedResult = await GetFromDistributedCacheAsync<List<Dictionary<string, object>>>(cacheKey);
+                    if (distributedResult != null)
+                    {
+                        _logger.LogDebug("Questions Redis cache HIT for language {Language}", language);
+                        _memoryCache.Set(cacheKey, distributedResult, TimeSpan.FromMinutes(5));
+                        return distributedResult;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Redis cache failed for questions, falling back to memory cache");
+                }
+            }
+
+            var memoryResult = _memoryCache.Get<List<Dictionary<string, object>>>(cacheKey);
+            if (memoryResult != null)
+            {
+                _logger.LogDebug("Questions memory cache HIT for language {Language}", language);
+                return memoryResult;
+            }
+
+            var fallbackResult = _questionCache.Get(cacheKey);
             _logger.LogDebug("Questions cache {Status} for language {Language}", 
-                result != null ? "HIT" : "MISS", language);
-            return await Task.FromResult(result);
+                fallbackResult != null ? "FALLBACK HIT" : "MISS", language);
+            return fallbackResult;
         }
 
         public async Task CacheQuestionsAsync(List<Dictionary<string, object>> questions, string language = "en")
         {
-            var cacheKey = $"questions_{language}";
-            _questionCache.Set(cacheKey, questions, TimeSpan.FromHours(2));
+            var cacheKey = $"masark:questions:{language}";
+            var ttl = TimeSpan.FromHours(2);
+            
+            if (_enableDistributedCache && _distributedCache != null)
+            {
+                try
+                {
+                    await SetInDistributedCacheAsync(cacheKey, questions, ttl);
+                    _logger.LogDebug("Cached {Count} questions in Redis for language {Language}", questions.Count, language);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to cache questions in Redis, using memory cache");
+                }
+            }
+
+            _memoryCache.Set(cacheKey, questions, TimeSpan.FromMinutes(30));
+            _questionCache.Set(cacheKey, questions, ttl);
             _logger.LogDebug("Cached {Count} questions for language {Language}", questions.Count, language);
-            await Task.CompletedTask;
         }
 
         public async Task<List<Dictionary<string, object>>?> GetCareersAsync(string language = "en")
@@ -327,60 +389,6 @@ namespace Masark.Application.Services
             await Task.CompletedTask;
         }
 
-        public async Task WarmCacheAsync()
-        {
-            try
-            {
-                _logger.LogInformation("Starting cache warm-up");
-
-                var questionsEn = Enumerable.Range(1, 36).Select(i => new Dictionary<string, object>
-                {
-                    ["id"] = i,
-                    ["text"] = $"Question {i}",
-                    ["dimension"] = GetDimensionForQuestion(i)
-                }).ToList();
-
-                var questionsAr = Enumerable.Range(1, 36).Select(i => new Dictionary<string, object>
-                {
-                    ["id"] = i,
-                    ["text"] = $"سؤال {i}",
-                    ["dimension"] = GetDimensionForQuestion(i)
-                }).ToList();
-
-                await CacheQuestionsAsync(questionsEn, "en");
-                await CacheQuestionsAsync(questionsAr, "ar");
-
-                var careers = Enumerable.Range(1, 20).Select(i => new Dictionary<string, object>
-                {
-                    ["id"] = i,
-                    ["name"] = $"Career {i}",
-                    ["cluster"] = $"Cluster {(i % 5) + 1}"
-                }).ToList();
-
-                await CacheCareersAsync(careers, "en");
-                await CacheCareersAsync(careers, "ar");
-
-                var personalityTypes = new[] { "INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP",
-                                             "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP" }
-                    .Select(type => new Dictionary<string, object>
-                    {
-                        ["code"] = type,
-                        ["name"] = $"{type} Personality",
-                        ["description"] = $"Description for {type}"
-                    }).ToList();
-
-                await CachePersonalityTypesAsync(personalityTypes, "en");
-                await CachePersonalityTypesAsync(personalityTypes, "ar");
-
-                _logger.LogInformation("Cache warm-up completed successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during cache warm-up");
-            }
-
-            await Task.CompletedTask;
-        }
 
         public Dictionary<string, object> GetCacheStats()
         {
@@ -393,7 +401,10 @@ namespace Masark.Application.Services
                 ["reports_cache"] = _reportCache.GetStats(),
                 ["generic_cache"] = _genericCache.GetStats(),
                 ["total_memory_usage"] = GC.GetTotalMemory(false),
-                ["cache_implementation"] = "InMemoryCache with TTL and LRU eviction"
+                ["cache_implementation"] = "Redis-first with Memory and InMemory fallback",
+                ["distributed_cache_type"] = "Redis",
+                ["memory_cache_type"] = "ASP.NET Core IMemoryCache",
+                ["fallback_cache_type"] = "Custom InMemoryCache with TTL and LRU"
             };
         }
 
@@ -412,17 +423,141 @@ namespace Masark.Application.Services
 
         public async Task<T> CacheAsync<T>(string key, Func<Task<T>> factory, TimeSpan? ttl = null)
         {
-            var cachedValue = _genericCache.Get(key);
-            if (cachedValue is T result)
+            var cacheKey = $"masark:generic:{key}";
+            var defaultTtl = ttl ?? TimeSpan.FromMinutes(30);
+            
+            if (_enableDistributedCache && _distributedCache != null)
             {
-                _logger.LogDebug("Generic cache HIT for key {Key}", key);
-                return result;
+                try
+                {
+                    var distributedResult = await GetFromDistributedCacheAsync<T>(cacheKey);
+                    if (distributedResult != null)
+                    {
+                        _logger.LogDebug("Generic Redis cache HIT for key {Key}", key);
+                        _memoryCache.Set(cacheKey, distributedResult, TimeSpan.FromMinutes(5));
+                        return distributedResult;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Redis cache failed for key {Key}, falling back", key);
+                }
+            }
+
+            var memoryResult = _memoryCache.Get<T>(cacheKey);
+            if (memoryResult != null)
+            {
+                _logger.LogDebug("Generic memory cache HIT for key {Key}", key);
+                return memoryResult;
+            }
+
+            var cachedValue = _genericCache.Get(key);
+            if (cachedValue is T fallbackResult)
+            {
+                _logger.LogDebug("Generic fallback cache HIT for key {Key}", key);
+                return fallbackResult;
             }
 
             _logger.LogDebug("Generic cache MISS for key {Key}, executing factory", key);
             var value = await factory();
-            _genericCache.Set(key, value!, ttl ?? TimeSpan.FromMinutes(30));
+            
+            if (_enableDistributedCache && _distributedCache != null)
+            {
+                try
+                {
+                    await SetInDistributedCacheAsync(cacheKey, value, defaultTtl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to cache in Redis for key {Key}", key);
+                }
+            }
+
+            _memoryCache.Set(cacheKey, value, TimeSpan.FromMinutes(5));
+            _genericCache.Set(key, value!, defaultTtl);
             return value;
+        }
+
+        private async Task<T?> GetFromDistributedCacheAsync<T>(string key)
+        {
+            if (_distributedCache == null) return default;
+            
+            var cachedBytes = await _distributedCache.GetAsync(key);
+            if (cachedBytes == null) return default;
+
+            var cachedJson = System.Text.Encoding.UTF8.GetString(cachedBytes);
+            return JsonSerializer.Deserialize<T>(cachedJson, _jsonOptions);
+        }
+
+        private async Task SetInDistributedCacheAsync<T>(string key, T value, TimeSpan ttl)
+        {
+            if (_distributedCache == null) return;
+            
+            var json = JsonSerializer.Serialize(value, _jsonOptions);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+            
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = ttl
+            };
+            
+            await _distributedCache.SetAsync(key, bytes, options);
+        }
+
+        public async Task WarmCacheAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Starting distributed cache warm-up");
+
+                var warmupTasks = new List<Task>();
+
+                var questionsEn = Enumerable.Range(1, 36).Select(i => new Dictionary<string, object>
+                {
+                    ["id"] = i,
+                    ["text"] = $"Question {i}",
+                    ["dimension"] = GetDimensionForQuestion(i)
+                }).ToList();
+
+                var questionsAr = Enumerable.Range(1, 36).Select(i => new Dictionary<string, object>
+                {
+                    ["id"] = i,
+                    ["text"] = $"سؤال {i}",
+                    ["dimension"] = GetDimensionForQuestion(i)
+                }).ToList();
+
+                warmupTasks.Add(CacheQuestionsAsync(questionsEn, "en"));
+                warmupTasks.Add(CacheQuestionsAsync(questionsAr, "ar"));
+
+                var careers = Enumerable.Range(1, 20).Select(i => new Dictionary<string, object>
+                {
+                    ["id"] = i,
+                    ["name"] = $"Career {i}",
+                    ["cluster"] = $"Cluster {(i % 5) + 1}"
+                }).ToList();
+
+                warmupTasks.Add(CacheCareersAsync(careers, "en"));
+                warmupTasks.Add(CacheCareersAsync(careers, "ar"));
+
+                var personalityTypes = new[] { "INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP",
+                                             "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP" }
+                    .Select(type => new Dictionary<string, object>
+                    {
+                        ["code"] = type,
+                        ["name"] = $"{type} Personality",
+                        ["description"] = $"Description for {type}"
+                    }).ToList();
+
+                warmupTasks.Add(CachePersonalityTypesAsync(personalityTypes, "en"));
+                warmupTasks.Add(CachePersonalityTypesAsync(personalityTypes, "ar"));
+
+                await Task.WhenAll(warmupTasks);
+                _logger.LogInformation("Distributed cache warm-up completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during distributed cache warm-up");
+            }
         }
 
         private string GenerateCareerCacheKey(string personalityType, Dictionary<string, object>? filters)

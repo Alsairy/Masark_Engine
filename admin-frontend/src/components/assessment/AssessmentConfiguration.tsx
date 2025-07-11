@@ -71,21 +71,21 @@ const AssessmentConfiguration: React.FC = () => {
     },
   });
 
-  const handleConfigChange = (key: string, value: any) => {
+  const handleConfigChange = (key: string, value: string | number | boolean) => {
     if (!config) return;
     
     const newConfig = { ...config };
     if (key.includes('.')) {
       const [parent, child] = key.split('.');
-      const parentObj = newConfig[parent as keyof SystemConfig] as any;
+      const parentObj = newConfig[parent as keyof SystemConfig] as Record<string, unknown>;
       if (parentObj && typeof parentObj === 'object') {
-        (newConfig as any)[parent] = {
+        (newConfig as Record<string, unknown>)[parent] = {
           ...parentObj,
           [child]: value
         };
       }
     } else {
-      (newConfig as any)[key] = value;
+      (newConfig as Record<string, unknown>)[key] = value;
     }
     
     setConfig(newConfig);

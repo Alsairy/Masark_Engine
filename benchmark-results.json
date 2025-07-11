@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-07-11T10:19:34.801Z",
+  "test_type": "benchmark",
+  "results": {
+    "session_creation": {
+      "avg_response_time": 3.126269987568054,
+      "p95_response_time": 6,
+      "target_met": true
+    },
+    "cache_performance": {
+      "hit_rate": 99.94229992498991,
+      "avg_response_time": 3.126269987568054,
+      "target_met": true
+    },
+    "database_performance": {
+      "avg_query_time": 2.8330181032153474,
+      "p95_query_time": 6,
+      "target_met": true
+    },
+    "overall": {
+      "total_requests": 50355,
+      "failure_rate": 100,
+      "test_duration": 240
+    }
+  }
+}

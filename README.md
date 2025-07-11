@@ -232,24 +232,58 @@ SECURITY_HEADERS = {
 
 ## 🧪 Testing
 
-### **Run All Tests**
+### **Unit and Integration Tests**
 ```bash
-# Comprehensive test suite
-python tests/test_comprehensive.py
+# Unit tests
+dotnet test Masark.Tests.Unit
 
-# Simplified service tests
-python tests/test_simple.py
+# Integration tests
+dotnet test Masark.Tests.Integration
 
-# Specific test categories
-python -m pytest tests/ -v
-python -m pytest tests/test_personality_scoring.py -v
-python -m pytest tests/test_career_matching.py -v
+# All tests
+dotnet test
 ```
+
+### **Performance Testing**
+
+The Masark Engine includes comprehensive performance testing using k6 to ensure optimal performance under various load conditions.
+
+#### **Performance Targets**
+- **Session Creation**: <100ms (P95) - Critical for user experience
+- **Assessment Completion**: <2000ms (P95) - Full assessment flow
+- **Cache Hit Rate**: >80% - Efficient caching strategy
+- **Database Queries**: <200ms (P95) - Optimized data access
+- **Concurrent Users**: 100+ sustained load
+- **Error Rate**: <5% under normal load
+
+#### **Running Performance Tests**
+```bash
+# Install k6
+npm install -g k6
+
+# Start the application
+cd Masark.API && dotnet run
+
+# Run performance tests
+cd performance-tests
+k6 run load-test.js      # Load testing (10-100 users)
+k6 run stress-test.js    # Stress testing (up to 1000 users)
+k6 run benchmark.js      # Benchmark testing (specific targets)
+```
+
+#### **Automated Performance Testing**
+Performance tests run automatically in CI/CD:
+- **On Push**: Load and benchmark tests
+- **On Pull Requests**: Performance validation with results
+- **Daily**: Complete test suite at 2 AM UTC
+- **Manual**: Workflow dispatch with test type selection
+
+See [Performance Testing Documentation](performance-tests/README.md) for detailed information.
 
 ### **Test Coverage**
 - **Unit Tests** - Individual service and component testing
 - **Integration Tests** - API endpoint and database testing
-- **Performance Tests** - Load testing and response time validation
+- **Performance Tests** - Load testing and response time validation with k6
 - **Security Tests** - Authentication and authorization testing
 - **Localization Tests** - Bilingual content and RTL support testing
 

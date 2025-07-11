@@ -9,20 +9,20 @@ namespace Masark.Domain.Entities
     public class ReportElement : Entity, IAggregateRoot
     {
         public int? ParentElementId { get; private set; }
-        public virtual ReportElement ParentElement { get; private set; }
+        public virtual ReportElement? ParentElement { get; private set; }
 
         public int AssessmentSessionId { get; private set; }
-        public virtual AssessmentSession AssessmentSession { get; private set; }
+        public virtual AssessmentSession? AssessmentSession { get; private set; }
 
         public ReportElementType ElementType { get; private set; }
-        public string Title { get; private set; }
-        public string TitleAr { get; private set; }
-        public string Content { get; private set; }
-        public string ContentAr { get; private set; }
+        public string Title { get; private set; } = string.Empty;
+        public string TitleAr { get; private set; } = string.Empty;
+        public string Content { get; private set; } = string.Empty;
+        public string ContentAr { get; private set; } = string.Empty;
         public int OrderIndex { get; private set; }
         public bool IsInteractive { get; private set; }
-        public string GraphData { get; private set; } // JSON data for graphs
-        public string ActivityData { get; private set; } // JSON data for activities
+        public string GraphData { get; private set; } = string.Empty; // JSON data for graphs
+        public string ActivityData { get; private set; } = string.Empty; // JSON data for activities
 
         public virtual ICollection<ReportElement> ChildElements { get; private set; }
         public virtual ICollection<ReportElementQuestion> Questions { get; private set; }

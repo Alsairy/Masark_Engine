@@ -76,7 +76,7 @@ public class ApiDocumentationController : ControllerBase
                         new
                         {
                             title = "Login Request",
-                            request = new { username = "admin", password = "password123" },
+                            request = new { username = "your_username", password = "your_password" },
                             response = new { token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", user = new { id = 1, username = "admin", role = "Administrator" } }
                         }
                     }

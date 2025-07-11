@@ -47,7 +47,7 @@ const ApiKeyManagement: React.FC<ApiKeyManagementProps> = ({ userId }) => {
       });
       toast.success('API key created successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to create API key: ${error.message}`);
     }
   });
@@ -58,7 +58,7 @@ const ApiKeyManagement: React.FC<ApiKeyManagementProps> = ({ userId }) => {
       queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
       toast.success('API key deleted successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to delete API key: ${error.message}`);
     }
   });
@@ -70,7 +70,7 @@ const ApiKeyManagement: React.FC<ApiKeyManagementProps> = ({ userId }) => {
       queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
       toast.success('API key status updated');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to update API key: ${error.message}`);
     }
   });
@@ -81,7 +81,7 @@ const ApiKeyManagement: React.FC<ApiKeyManagementProps> = ({ userId }) => {
       queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
       toast.success('API key regenerated successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to regenerate API key: ${error.message}`);
     }
   });

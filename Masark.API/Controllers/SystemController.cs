@@ -86,7 +86,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get system information",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -181,7 +181,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get system configuration",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -214,7 +214,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get personality types",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -247,7 +247,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career clusters",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -287,7 +287,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get pathways",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

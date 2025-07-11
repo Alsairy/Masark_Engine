@@ -14,8 +14,11 @@ import { toast } from 'sonner';
 
 const ApiDocumentation: React.FC = () => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<ApiEndpoint | null>(null);
-  const [testRequest, setTestRequest] = useState<any>({});
-  const [testResponse, setTestResponse] = useState<any>(null);
+  const [testRequest, setTestRequest] = useState<Record<string, unknown>>({});
+  const [testResponse, setTestResponse] = useState<{
+    error?: string;
+    [key: string]: unknown;
+  } | null>(null);
   const [testLoading, setTestLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('all');
@@ -56,10 +59,11 @@ const ApiDocumentation: React.FC = () => {
       );
       setTestResponse(response);
       toast.success('API test completed successfully');
-    } catch (error: any) {
-      setTestResponse({ error: error.message });
-      toast.error(`API test failed: ${error.message}`);
-    } finally {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setTestResponse({ error: errorMessage });
+      toast.error(`API test failed: ${errorMessage}`);
+    }finally {
       setTestLoading(false);
     }
   };
@@ -330,7 +334,8 @@ const ApiDocumentation: React.FC = () => {
                         onChange={(e) => {
                           try {
                             setTestRequest(JSON.parse(e.target.value || '{}'));
-                          } catch {
+                          } catch (error) {
+                            console.warn('Invalid JSON in request body:', error);
                           }
                         }}
                         placeholder="Enter request body as JSON"
