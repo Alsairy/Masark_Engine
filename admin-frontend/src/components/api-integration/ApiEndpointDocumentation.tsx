@@ -13,14 +13,21 @@ interface ApiEndpointDocumentationProps {
 }
 
 export const ApiEndpointDocumentation: React.FC<ApiEndpointDocumentationProps> = ({ className }) => {
-  const [documentation, setDocumentation] = useState<any | null>(null);
+  const [documentation, setDocumentation] = useState<{
+    description: string;
+    baseUrl: string;
+    version: string;
+  } | null>(null);
   const [endpoints, setEndpoints] = useState<ApiEndpoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedEndpoint, setSelectedEndpoint] = useState<ApiEndpoint | null>(null);
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<{
+    error?: string;
+    [key: string]: unknown;
+  } | null>(null);
   const [testLoading, setTestLoading] = useState(false);
 
   const fetchDocumentation = async () => {

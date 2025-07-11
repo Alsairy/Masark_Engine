@@ -154,7 +154,7 @@ export const LocalizationProvider: React.FC<LocalizationProviderProps> = ({ chil
     };
 
     initializeLocalization();
-  }, []);
+  }, [switchLanguage]);
 
   const value: LocalizationContextType = {
     currentLanguage,
