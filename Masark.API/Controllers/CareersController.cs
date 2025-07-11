@@ -98,7 +98,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career matches",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -141,7 +141,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to search careers",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -170,7 +170,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career details",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -199,7 +199,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get careers for cluster",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -230,7 +230,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career clusters",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -260,7 +260,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career statistics",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -300,7 +300,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career cluster ratings",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -358,7 +358,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to rate career cluster",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -383,7 +383,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career cluster ratings",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

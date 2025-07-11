@@ -75,7 +75,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get users",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -155,7 +155,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to create user",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -219,7 +219,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get user",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -367,7 +367,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to update user",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -441,7 +441,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to delete user",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -530,7 +530,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to assign role",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -607,7 +607,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to remove role",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -664,7 +664,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get user roles",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

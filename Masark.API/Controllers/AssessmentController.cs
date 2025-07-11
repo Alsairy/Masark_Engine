@@ -340,7 +340,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to start assessment session",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -398,7 +398,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get assessment questions",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -459,7 +459,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to submit answer",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -514,7 +514,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to complete assessment",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -581,7 +581,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get assessment results",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

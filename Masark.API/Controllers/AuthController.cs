@@ -118,7 +118,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Login failed",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -196,7 +196,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Registration failed",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -255,7 +255,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Token refresh failed",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -280,7 +280,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Logout failed",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -333,7 +333,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get user information",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -394,7 +394,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Password change failed",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -467,7 +467,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to list users",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -574,7 +574,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to create user",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -636,7 +636,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to deactivate user",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -675,7 +675,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Token validation failed",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -736,7 +736,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get authentication statistics",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

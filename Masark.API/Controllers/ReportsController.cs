@@ -78,7 +78,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to generate report",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -110,7 +110,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to download report",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -137,7 +137,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to list reports",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -169,7 +169,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to delete report",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -205,7 +205,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get session reports",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -237,7 +237,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get report statistics",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -321,7 +321,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get report elements",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -373,7 +373,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to submit report answer",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -432,7 +432,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to rate report element",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -460,7 +460,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get report feedback",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -508,7 +508,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get AchieveWorks report",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -540,7 +540,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get report careers",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -572,7 +572,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career program matches",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -598,7 +598,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get report element ratings",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -653,7 +653,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to create report user answer",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -694,7 +694,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to update report user answer",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -718,7 +718,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to delete report user answer",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -771,7 +771,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to create report element rating",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -810,7 +810,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to update report element rating",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -863,7 +863,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to create career user rating",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -894,7 +894,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get career user rating",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -933,7 +933,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to update career user rating",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -957,7 +957,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to delete career user rating",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }

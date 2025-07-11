@@ -55,7 +55,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get supported languages",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -106,7 +106,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get language configuration",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -169,7 +169,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get translations",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -222,7 +222,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to translate text",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -280,7 +280,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to format content",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -356,7 +356,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to localize content",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
@@ -438,7 +438,7 @@ namespace Masark.API.Controllers
                 {
                     success = false,
                     error = "Failed to get localization statistics",
-                    message = ex.Message
+                    message = "An internal server error occurred"
                 });
             }
         }
