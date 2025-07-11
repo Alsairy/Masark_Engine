@@ -145,9 +145,6 @@ const PathwayForm: React.FC<PathwayFormProps> = ({
     }
   };
 
-  const sourceInfo = getSourceInfo(formData.source);
-  const SourceIcon = sourceInfo.icon;
-
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}

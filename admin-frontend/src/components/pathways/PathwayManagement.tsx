@@ -39,7 +39,7 @@ const PathwayManagement: React.FC = () => {
     setActiveTab('create');
   };
 
-  const handlePathwaySaved = (pathway: Pathway) => {
+  const handlePathwaySaved = (_pathway: Pathway) => {
     setShowEditModal(false);
     setSelectedPathway(null);
     fetchStats();

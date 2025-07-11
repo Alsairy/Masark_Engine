@@ -19,7 +19,7 @@ export const LocalizedText: React.FC<LocalizedTextProps> = ({
   children,
   as: Component = 'span'
 }) => {
-  const { t, isRTL } = useLocalization();
+  const { t } = useLocalization();
   const { getRTLClasses } = useRTL();
 
   const translatedText = t(translationKey, category) || fallback || translationKey;

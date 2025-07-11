@@ -32,7 +32,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-        include-prerelease: false
         
     - name: Setup Node.js
       uses: actions/setup-node@v4
