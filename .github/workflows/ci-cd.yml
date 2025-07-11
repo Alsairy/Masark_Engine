@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, devin/1752222660-2025-enhancements ]
   release:
     types: [ published ]
 
