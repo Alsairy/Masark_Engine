@@ -8,8 +8,8 @@ namespace Masark.Domain.Entities
         public int CareerId { get; private set; }
         public int PathwayId { get; private set; }
 
-        public virtual Career Career { get; private set; }
-        public virtual Pathway Pathway { get; private set; }
+        public virtual Career? Career { get; private set; }
+        public virtual Pathway? Pathway { get; private set; }
 
         protected CareerPathway() { }
 

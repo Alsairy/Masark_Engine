@@ -6,8 +6,8 @@ namespace Masark.Domain.Entities
     public class CareerClusterRating : Entity, IAggregateRoot
     {
         public int Value { get; private set; }
-        public string DescriptionEn { get; private set; }
-        public string DescriptionAr { get; private set; }
+        public string DescriptionEn { get; private set; } = string.Empty;
+        public string DescriptionAr { get; private set; } = string.Empty;
 
         protected CareerClusterRating() { }
 
