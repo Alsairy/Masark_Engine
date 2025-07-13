@@ -37,7 +37,7 @@ namespace Masark.Domain.Entities
             UpdateTimestamp();
         }
 
-        public T GetValueAs<T>() where T : IConvertible
+        public T? GetValueAs<T>() where T : IConvertible
         {
             if (string.IsNullOrWhiteSpace(Value))
                 return default(T);
