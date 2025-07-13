@@ -25,8 +25,15 @@ import {
 import { Checkbox } from '../ui/checkbox';
 import { reportService, GenerateReportRequest } from '../../services/reportService';
 
+interface GeneratedReport {
+  filename: string;
+  student_name: string;
+  personality_type: string;
+  generated_at: string;
+}
+
 interface ReportGeneratorProps {
-  onReportGenerated?: (report: any) => void;
+  onReportGenerated?: (report: GeneratedReport) => void;
   defaultSessionToken?: string;
 }
 
@@ -38,7 +45,7 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
   const [language, setLanguage] = useState('en');
   const [reportType, setReportType] = useState('comprehensive');
   const [includeCareerDetails, setIncludeCareerDetails] = useState(true);
-  const [generatedReport, setGeneratedReport] = useState<any>(null);
+  const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);
 
   const queryClient = useQueryClient();
 
