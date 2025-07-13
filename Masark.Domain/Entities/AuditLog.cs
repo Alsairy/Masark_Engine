@@ -20,7 +20,7 @@ namespace Masark.Domain.Entities
         protected AuditLog() { }
 
         public AuditLog(string action, string entityType, int? entityId, 
-                       string oldValues, string newValues, string ipAddress, 
+                       string? oldValues, string? newValues, string ipAddress, 
                        string userAgent, int? adminUserId, int tenantId) : base(tenantId)
         {
             Action = action ?? throw new ArgumentNullException(nameof(action));

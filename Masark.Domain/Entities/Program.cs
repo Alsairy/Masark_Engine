@@ -6,10 +6,10 @@ namespace Masark.Domain.Entities
 {
     public class Program : Entity, IAggregateRoot
     {
-        public string NameEn { get; private set; }
-        public string NameAr { get; private set; }
-        public string DescriptionEn { get; private set; }
-        public string DescriptionAr { get; private set; }
+        public string NameEn { get; private set; } = string.Empty;
+        public string NameAr { get; private set; } = string.Empty;
+        public string DescriptionEn { get; private set; } = string.Empty;
+        public string DescriptionAr { get; private set; } = string.Empty;
 
         public virtual ICollection<CareerProgram> CareerPrograms { get; private set; }
 

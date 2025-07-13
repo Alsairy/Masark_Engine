@@ -6,19 +6,19 @@ namespace Masark.Domain.Entities
 {
     public class PersonalityType : Entity, IAggregateRoot
     {
-        public string Code { get; private set; }
+        public string Code { get; private set; } = string.Empty;
         
-        public string NameEn { get; private set; }
-        public string NameAr { get; private set; }
+        public string NameEn { get; private set; } = string.Empty;
+        public string NameAr { get; private set; } = string.Empty;
         
-        public string DescriptionEn { get; private set; }
-        public string DescriptionAr { get; private set; }
+        public string DescriptionEn { get; private set; } = string.Empty;
+        public string DescriptionAr { get; private set; } = string.Empty;
         
-        public string StrengthsEn { get; private set; }
-        public string StrengthsAr { get; private set; }
+        public string StrengthsEn { get; private set; } = string.Empty;
+        public string StrengthsAr { get; private set; } = string.Empty;
         
-        public string ChallengesEn { get; private set; }
-        public string ChallengesAr { get; private set; }
+        public string ChallengesEn { get; private set; } = string.Empty;
+        public string ChallengesAr { get; private set; } = string.Empty;
 
         public virtual ICollection<AssessmentSession> Sessions { get; private set; }
         public virtual ICollection<PersonalityCareerMatch> CareerMatches { get; private set; }
