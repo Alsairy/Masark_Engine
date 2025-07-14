@@ -231,7 +231,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error building career match for career {CareerId}", match.CareerId);
+                _logger.LogError(ex, "Error building career match for career");
                 return null;
             }
         }
@@ -253,7 +253,7 @@ namespace Masark.Application.Services
                     matches.Add(match);
                 }
 
-                _logger.LogInformation("Created {Count} default career matches", matches.Count);
+                _logger.LogInformation("Created default career matches");
                 return matches;
             }
             catch (Exception ex)
@@ -321,7 +321,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting career details for {CareerId}", careerId);
+                _logger.LogError(ex, "Error getting career details");
                 return null;
             }
         }
@@ -363,7 +363,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error searching careers with query '{Query}'", query);
+                _logger.LogError(ex, "Error searching careers with query");
                 return new List<Dictionary<string, object>>();
             }
         }
@@ -391,7 +391,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting careers for cluster {ClusterId}", clusterId);
+                _logger.LogError(ex, "Error getting careers for cluster");
                 return new List<Dictionary<string, object>>();
             }
         }

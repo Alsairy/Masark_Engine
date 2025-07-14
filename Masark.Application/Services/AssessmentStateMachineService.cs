@@ -118,8 +118,7 @@ namespace Masark.Application.Services
                 var stateInfo = await GetCurrentStateInfoAsync(sessionId);
                 var allowedActions = await GetAllowedActionsForStateAsync(targetState);
 
-                _logger.LogInformation("Session {SessionId} transitioned from {FromState} to {ToState}", 
-                    sessionId, currentState, targetState);
+                _logger.LogInformation("Session transitioned from state to state");
 
                 return new StateTransitionResult
                 {
@@ -135,7 +134,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error transitioning session {SessionId} to state {TargetState}", sessionId, targetState);
+                _logger.LogError(ex, "Error transitioning session to state");
                 return new StateTransitionResult
                 {
                     Success = false,
@@ -172,7 +171,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting state info for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error getting state info for session");
                 throw;
             }
         }
@@ -188,7 +187,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error checking transition possibility for session {SessionId} to state {TargetState}", sessionId, targetState);
+                _logger.LogError(ex, "Error checking transition possibility for session to state");
                 return false;
             }
         }
@@ -215,7 +214,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting allowed transitions for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error getting allowed transitions for session");
                 return new List<AssessmentState>();
             }
         }
@@ -259,7 +258,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing answer submission for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error processing answer submission for session");
                 return new StateTransitionResult
                 {
                     Success = false,
@@ -310,7 +309,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing cluster rating submission for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error processing cluster rating submission for session");
                 return new StateTransitionResult
                 {
                     Success = false,
@@ -349,7 +348,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing tie-breaker resolution for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error processing tie-breaker resolution for session");
                 return new StateTransitionResult
                 {
                     Success = false,
@@ -390,7 +389,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing assessment rating for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error processing assessment rating for session");
                 return new StateTransitionResult
                 {
                     Success = false,
@@ -421,7 +420,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error validating state transition for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error validating state transition for session");
                 return false;
             }
         }
@@ -554,7 +553,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error validating state requirements for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error validating state requirements for session");
                 return new StateTransitionResult
                 {
                     Success = false,
@@ -666,7 +665,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting tie-breaker questions for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error getting tie-breaker questions for session");
                 return new List<TieBreakerQuestion>();
             }
         }

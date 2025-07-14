@@ -59,8 +59,7 @@ namespace Masark.Application.Handlers.Commands
 
                 await _mediator.Publish(new AssessmentCompletedEvent(session, result.PersonalityType, result.PreferenceStrengths), cancellationToken);
 
-                _logger.LogInformation("Assessment {SessionId} completed with personality type {PersonalityType}", 
-                    request.SessionId, result.PersonalityType);
+                _logger.LogInformation("Assessment completed with personality type");
 
                 return new CompleteAssessmentResult
                 {
@@ -72,7 +71,7 @@ namespace Masark.Application.Handlers.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to complete assessment {SessionId}", request.SessionId);
+                _logger.LogError(ex, "Failed to complete assessment");
                 return new CompleteAssessmentResult
                 {
                     Success = false,

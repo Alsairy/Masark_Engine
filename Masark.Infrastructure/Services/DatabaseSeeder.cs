@@ -73,7 +73,7 @@ namespace Masark.Infrastructure.Services
                     };
                     
                     await _roleManager.CreateAsync(role);
-                    _logger.LogInformation("Created role: {RoleName}", roleName);
+                    _logger.LogInformation("Created role");
                 }
             }
         }
@@ -108,8 +108,7 @@ namespace Masark.Infrastructure.Services
             }
             else
             {
-                _logger.LogError("Failed to create Identity admin user: {Errors}", 
-                    string.Join(", ", result.Errors.Select(e => e.Description)));
+                _logger.LogError("Failed to create Identity admin user");
             }
 
             if (!await _context.AdminUsers.AnyAsync())
@@ -317,7 +316,7 @@ namespace Masark.Infrastructure.Services
             personalityTypes.Add(esfp);
 
             await _context.PersonalityTypes.AddRangeAsync(personalityTypes);
-            _logger.LogInformation($"Added {personalityTypes.Count} personality types");
+            _logger.LogInformation("Added personality types");
         }
 
         private async Task SeedQuestionsAsync()
@@ -553,7 +552,7 @@ namespace Masark.Infrastructure.Services
             ));
 
             await _context.Questions.AddRangeAsync(questions);
-            _logger.LogInformation($"Added {questions.Count} comprehensive MBTI assessment questions");
+            _logger.LogInformation("Added comprehensive MBTI assessment questions");
         }
 
         private async Task SeedCareerClustersAsync()
@@ -619,7 +618,7 @@ namespace Masark.Infrastructure.Services
 
             await _context.CareerClusters.AddRangeAsync(careerClusters);
             await _context.SaveChangesAsync(); // Save immediately to ensure they're available for careers seeding
-            _logger.LogInformation($"Added {careerClusters.Count} career clusters");
+            _logger.LogInformation("Added career clusters");
         }
 
         private async Task SeedCareersAsync()
@@ -683,7 +682,7 @@ namespace Masark.Infrastructure.Services
             careers.Add(teacher);
 
             await _context.Careers.AddRangeAsync(careers);
-            _logger.LogInformation($"Added {careers.Count} careers");
+            _logger.LogInformation("Added careers");
         }
 
         private async Task SeedPathwaysAsync()
@@ -826,7 +825,7 @@ namespace Masark.Infrastructure.Services
 
             await _context.Pathways.AddRangeAsync(pathways);
             await _context.SaveChangesAsync(); // Save immediately to ensure they're available for career mappings
-            _logger.LogInformation($"Added {pathways.Count} pathways (5 MOE + 4 Mawhiba)");
+            _logger.LogInformation("Added pathways (MOE + Mawhiba)");
         }
 
         private async Task SeedCareerPathwayMappingsAsync()
@@ -865,7 +864,7 @@ namespace Masark.Infrastructure.Services
             }
 
             await _context.CareerPathways.AddRangeAsync(careerPathwayMappings);
-            _logger.LogInformation($"Added {careerPathwayMappings.Count} career pathway mappings");
+            _logger.LogInformation("Added career pathway mappings");
         }
 
         private static decimal CalculateCareerPathwayScore(string careerName, string pathwayName, PathwaySource pathwaySource)
@@ -959,7 +958,7 @@ namespace Masark.Infrastructure.Services
             }
 
             await _context.PersonalityCareerMatches.AddRangeAsync(matches);
-            _logger.LogInformation($"Added {matches.Count} personality career matches");
+            _logger.LogInformation("Added personality career matches");
         }
 
         private static decimal CalculateMatchScore(string personalityCode, string careerTitle)
@@ -1013,7 +1012,7 @@ namespace Masark.Infrastructure.Services
             };
 
             await _context.CareerClusterRatings.AddRangeAsync(careerClusterRatings);
-            _logger.LogInformation("Seeded {Count} career cluster ratings", careerClusterRatings.Length);
+            _logger.LogInformation("Seeded career cluster ratings");
         }
 
         private async Task SeedReportElementsAsync()
@@ -1085,7 +1084,7 @@ namespace Masark.Infrastructure.Services
             };
 
             await _context.TieBreakerQuestions.AddRangeAsync(tieBreakerQuestions);
-            _logger.LogInformation("Seeded {Count} tie-breaker questions", tieBreakerQuestions.Length);
+            _logger.LogInformation("Seeded tie-breaker questions");
         }
     }
 }

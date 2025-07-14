@@ -504,7 +504,7 @@ namespace Masark.Application.Services
                 var parts = key.Split('.');
                 if (parts.Length != 2)
                 {
-                    _logger.LogWarning("Invalid translation key format: {Key}", key);
+                    _logger.LogWarning("Invalid translation key format");
                     return key;
                 }
 
@@ -515,7 +515,7 @@ namespace Masark.Application.Services
                     !_translations[category].ContainsKey(language) ||
                     !_translations[category][language].ContainsKey(textKey))
                 {
-                    _logger.LogWarning("Translation not found: {Key} for language {Language}", key, language);
+                    _logger.LogWarning("Translation not found for requested key and language");
                     
                     if (language != "en" && _translations.ContainsKey(category) &&
                         _translations[category].ContainsKey("en") &&
@@ -541,7 +541,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting translation for key {Key}", key);
+                _logger.LogError(ex, "Error getting translation for key");
                 return key;
             }
         }
@@ -555,12 +555,12 @@ namespace Masark.Application.Services
                     return await Task.FromResult(_translations[category][language]);
                 }
 
-                _logger.LogWarning("Translations not found for category {Category} and language {Language}", category, language);
+                _logger.LogWarning("Translations not found for requested category and language");
                 return new Dictionary<string, string>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting translations for category {Category}", category);
+                _logger.LogError(ex, "Error getting translations for category");
                 return new Dictionary<string, string>();
             }
         }
@@ -577,7 +577,7 @@ namespace Masark.Application.Services
                 return await Task.FromResult(_languageConfigs[languageCode]);
             }
 
-            _logger.LogWarning("Language config not found for code {LanguageCode}", languageCode);
+            _logger.LogWarning("Language config not found for code");
             return await Task.FromResult(_languageConfigs["en"]); // Default to English
         }
 
@@ -657,7 +657,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error formatting number {Number} for language {Language}", number, languageCode);
+                _logger.LogError(ex, "Error formatting number for language");
                 return number.ToString("N2");
             }
         }
@@ -683,7 +683,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error formatting currency {Amount} for language {Language}", amount, languageCode);
+                _logger.LogError(ex, "Error formatting currency for language");
                 return amount.ToString("C");
             }
         }
@@ -709,7 +709,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error formatting date {Date} for language {Language}", date, languageCode);
+                _logger.LogError(ex, "Error formatting date for language");
                 return date.ToString("d");
             }
         }
@@ -761,7 +761,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting language metadata for {LanguageCode}", languageCode);
+                _logger.LogError(ex, "Error getting language metadata");
                 return new Dictionary<string, object>();
             }
         }
