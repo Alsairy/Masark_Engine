@@ -608,7 +608,7 @@ namespace Masark.Application.Services
                     break;
 
                 case AssessmentState.RateAssessment:
-                    data["personality_type"] = await GetDeterminedPersonalityTypeAsync(sessionId);
+                    data["personality_type"] = await GetDeterminedPersonalityTypeAsync(sessionId) ?? string.Empty;
                     data["assessment_accuracy"] = await GetAssessmentAccuracyAsync(sessionId);
                     break;
 

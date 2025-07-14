@@ -169,9 +169,9 @@ namespace Masark.Application.Services
                 var programs = await _personalityRepository.GetCareerProgramsAsync(career.Id);
                 var programDtos = programs.Select(cp => new ProgramDto
                 {
-                    Id = cp.Program.Id,
-                    Name = language == "en" ? cp.Program.NameEn : cp.Program.NameAr,
-                    Description = language == "en" ? cp.Program.DescriptionEn : cp.Program.DescriptionAr
+                    Id = cp.Program?.Id ?? 0,
+                    Name = language == "en" ? (cp.Program?.NameEn ?? string.Empty) : (cp.Program?.NameAr ?? string.Empty),
+                    Description = language == "en" ? (cp.Program?.DescriptionEn ?? string.Empty) : (cp.Program?.DescriptionAr ?? string.Empty)
                 }).ToList();
 
                 var pathways = await _personalityRepository.GetCareerPathwaysAsync(career.Id);
@@ -180,6 +180,8 @@ namespace Masark.Application.Services
                 foreach (var cp in pathways)
                 {
                     var pathway = cp.Pathway;
+                    if (pathway == null) continue;
+                    
                     if (deploymentMode == DeploymentMode.STANDARD)
                     {
                         if (pathway.Source == PathwaySource.MOE)
@@ -187,9 +189,9 @@ namespace Masark.Application.Services
                             pathwayDtos.Add(new PathwayDto
                             {
                                 Id = pathway.Id,
-                                Name = language == "en" ? pathway.NameEn : pathway.NameAr,
+                                Name = language == "en" ? (pathway.NameEn ?? string.Empty) : (pathway.NameAr ?? string.Empty),
                                 Source = pathway.Source.ToString(),
-                                Description = language == "en" ? pathway.DescriptionEn : pathway.DescriptionAr
+                                Description = language == "en" ? (pathway.DescriptionEn ?? string.Empty) : (pathway.DescriptionAr ?? string.Empty)
                             });
                         }
                     }
@@ -198,9 +200,9 @@ namespace Masark.Application.Services
                         pathwayDtos.Add(new PathwayDto
                         {
                             Id = pathway.Id,
-                            Name = language == "en" ? pathway.NameEn : pathway.NameAr,
+                            Name = language == "en" ? (pathway.NameEn ?? string.Empty) : (pathway.NameAr ?? string.Empty),
                             Source = pathway.Source.ToString(),
-                            Description = language == "en" ? pathway.DescriptionEn : pathway.DescriptionAr
+                            Description = language == "en" ? (pathway.DescriptionEn ?? string.Empty) : (pathway.DescriptionAr ?? string.Empty)
                         });
                     }
                 }
@@ -279,38 +281,38 @@ namespace Masark.Application.Services
 
                 var programList = programs.Select(cp => new
                 {
-                    id = cp.Program.Id,
-                    name = language == "en" ? cp.Program.NameEn : cp.Program.NameAr,
-                    description = language == "en" ? cp.Program.DescriptionEn : cp.Program.DescriptionAr
+                    id = cp.Program?.Id ?? 0,
+                    name = language == "en" ? (cp.Program?.NameEn ?? string.Empty) : (cp.Program?.NameAr ?? string.Empty),
+                    description = language == "en" ? (cp.Program?.DescriptionEn ?? string.Empty) : (cp.Program?.DescriptionAr ?? string.Empty)
                 }).ToList();
 
                 var pathwayList = pathways.Select(cp => new
                 {
-                    id = cp.Pathway.Id,
-                    name = language == "en" ? cp.Pathway.NameEn : cp.Pathway.NameAr,
-                    source = cp.Pathway.Source.ToString(),
-                    description = language == "en" ? cp.Pathway.DescriptionEn : cp.Pathway.DescriptionAr
+                    id = cp.Pathway?.Id ?? 0,
+                    name = language == "en" ? (cp.Pathway?.NameEn ?? string.Empty) : (cp.Pathway?.NameAr ?? string.Empty),
+                    source = cp.Pathway?.Source.ToString() ?? string.Empty,
+                    description = language == "en" ? (cp.Pathway?.DescriptionEn ?? string.Empty) : (cp.Pathway?.DescriptionAr ?? string.Empty)
                 }).ToList();
 
                 return new Dictionary<string, object>
                 {
                     ["id"] = career.Id,
-                    ["name"] = language == "en" ? career.NameEn : career.NameAr,
-                    ["description"] = language == "en" ? career.DescriptionEn : career.DescriptionAr,
+                    ["name"] = language == "en" ? (career.NameEn ?? string.Empty) : (career.NameAr ?? string.Empty),
+                    ["description"] = language == "en" ? (career.DescriptionEn ?? string.Empty) : (career.DescriptionAr ?? string.Empty),
                     ["ssoc_code"] = career.SsocCode ?? string.Empty,
                     ["onet_id"] = career.OnetId ?? string.Empty,
                     ["onet_job_zone"] = career.OnetJobZone,
-                    ["annual_salary"] = career.AnnualSalary,
-                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage,
+                    ["annual_salary"] = career.AnnualSalary ?? 0,
+                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage ?? 0,
                     ["work_context"] = career.WorkContext ?? string.Empty,
                     ["skills_required"] = career.SkillsRequired ?? string.Empty,
                     ["education_level"] = career.EducationLevel ?? string.Empty,
-                    ["cluster"] = cluster != null ? new
+                    ["cluster"] = cluster != null ? (object)new
                     {
                         id = cluster.Id,
-                        name = language == "en" ? cluster.NameEn : cluster.NameAr,
-                        description = language == "en" ? cluster.DescriptionEn : cluster.DescriptionAr
-                    } : null,
+                        name = language == "en" ? (cluster.NameEn ?? string.Empty) : (cluster.NameAr ?? string.Empty),
+                        description = language == "en" ? (cluster.DescriptionEn ?? string.Empty) : (cluster.DescriptionAr ?? string.Empty)
+                    } : (object?)null,
                     ["programs"] = programList,
                     ["pathways"] = pathwayList,
                     ["created_at"] = career.CreatedAt.ToString("O"),
@@ -347,15 +349,15 @@ namespace Masark.Application.Services
                 return filteredCareers.Take(limit).Select(career => new Dictionary<string, object>
                 {
                     ["id"] = career.Id,
-                    ["name"] = language == "en" ? career.NameEn : career.NameAr,
-                    ["description"] = language == "en" ? career.DescriptionEn : career.DescriptionAr,
+                    ["name"] = language == "en" ? (career.NameEn ?? string.Empty) : (career.NameAr ?? string.Empty),
+                    ["description"] = language == "en" ? (career.DescriptionEn ?? string.Empty) : (career.DescriptionAr ?? string.Empty),
                     ["cluster"] = career.Cluster != null ? 
-                        (language == "en" ? career.Cluster.NameEn : career.Cluster.NameAr) : null,
+                        (object)(language == "en" ? (career.Cluster.NameEn ?? string.Empty) : (career.Cluster.NameAr ?? string.Empty)) : (object?)null,
                     ["ssoc_code"] = career.SsocCode ?? string.Empty,
                     ["onet_id"] = career.OnetId ?? string.Empty,
                     ["onet_job_zone"] = career.OnetJobZone,
-                    ["annual_salary"] = career.AnnualSalary,
-                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage,
+                    ["annual_salary"] = career.AnnualSalary ?? 0,
+                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage ?? 0,
                     ["education_level"] = career.EducationLevel ?? string.Empty
                 }).ToList();
             }
@@ -377,13 +379,13 @@ namespace Masark.Application.Services
                 return clusterCareers.Select(career => new Dictionary<string, object>
                 {
                     ["id"] = career.Id,
-                    ["name"] = language == "en" ? career.NameEn : career.NameAr,
-                    ["description"] = language == "en" ? career.DescriptionEn : career.DescriptionAr,
+                    ["name"] = language == "en" ? (career.NameEn ?? string.Empty) : (career.NameAr ?? string.Empty),
+                    ["description"] = language == "en" ? (career.DescriptionEn ?? string.Empty) : (career.DescriptionAr ?? string.Empty),
                     ["ssoc_code"] = career.SsocCode ?? string.Empty,
                     ["onet_id"] = career.OnetId ?? string.Empty,
                     ["onet_job_zone"] = career.OnetJobZone,
-                    ["annual_salary"] = career.AnnualSalary,
-                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage,
+                    ["annual_salary"] = career.AnnualSalary ?? 0,
+                    ["outlook_growth_percentage"] = career.OutlookGrowthPercentage ?? 0,
                     ["education_level"] = career.EducationLevel ?? string.Empty
                 }).ToList();
             }

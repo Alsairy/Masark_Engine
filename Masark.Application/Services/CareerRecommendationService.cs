@@ -495,21 +495,21 @@ namespace Masark.Application.Services
                 {
                     var pathway = careerPathway.Pathway;
                     
-                    if (deploymentMode == DeploymentMode.STANDARD && pathway.Source != PathwaySource.MOE)
+                    if (deploymentMode == DeploymentMode.STANDARD && pathway?.Source != PathwaySource.MOE)
                     {
                         continue;
                     }
                     
                     var recommendation = new Dictionary<string, object>
                     {
-                        ["pathway_id"] = pathway.Id,
-                        ["name"] = language == "en" ? pathway.NameEn : pathway.NameAr,
-                        ["description"] = language == "en" ? pathway.DescriptionEn : pathway.DescriptionAr,
-                        ["source"] = pathway.Source.ToString(),
-                        ["recommendation_score"] = CalculatePathwayRecommendationScore(pathway),
-                        ["estimated_duration"] = EstimatePathwayDuration(pathway),
-                        ["difficulty_level"] = AssessPathwayDifficulty(pathway),
-                        ["prerequisites"] = ExtractPathwayPrerequisites(pathway, language)
+                        ["pathway_id"] = pathway?.Id ?? 0,
+                        ["name"] = language == "en" ? (pathway?.NameEn ?? string.Empty) : (pathway?.NameAr ?? string.Empty),
+                        ["description"] = language == "en" ? (pathway?.DescriptionEn ?? string.Empty) : (pathway?.DescriptionAr ?? string.Empty),
+                        ["source"] = pathway?.Source.ToString() ?? "Unknown",
+                        ["recommendation_score"] = CalculatePathwayRecommendationScore(pathway!),
+                        ["estimated_duration"] = EstimatePathwayDuration(pathway!),
+                        ["difficulty_level"] = AssessPathwayDifficulty(pathway!),
+                        ["prerequisites"] = ExtractPathwayPrerequisites(pathway!, language)
                     };
                     
                     recommendations.Add(recommendation);
