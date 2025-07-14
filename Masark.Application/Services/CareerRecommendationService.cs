@@ -153,14 +153,13 @@ namespace Masark.Application.Services
                 };
                 _memoryCache.Set(cacheKey, result, cacheOptions);
 
-                _logger.LogInformation("Generated {Count} personalized career recommendations for {PersonalityType}", 
-                    topRecommendations.Count, personalityType);
+                _logger.LogInformation("Generated personalized career recommendations");
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating personalized recommendations for {PersonalityType}", personalityType);
+                _logger.LogError(ex, "Error generating personalized recommendations");
                 throw;
             }
         }
@@ -227,7 +226,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calculating recommendation for career {CareerId}", career.Id);
+                _logger.LogError(ex, "Error calculating recommendation for career");
                 return null;
             }
         }
@@ -382,7 +381,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting similar careers for {CareerId}", careerId);
+                _logger.LogError(ex, "Error getting similar careers");
                 return new List<CareerRecommendation>();
             }
         }
@@ -476,7 +475,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error analyzing career compatibility for {CareerId}", careerId);
+                _logger.LogError(ex, "Error analyzing career compatibility");
                 return new Dictionary<string, object> { ["error"] = "Analysis failed" };
             }
         }
@@ -495,21 +494,21 @@ namespace Masark.Application.Services
                 {
                     var pathway = careerPathway.Pathway;
                     
-                    if (deploymentMode == DeploymentMode.STANDARD && pathway.Source != PathwaySource.MOE)
+                    if (deploymentMode == DeploymentMode.STANDARD && pathway?.Source != PathwaySource.MOE)
                     {
                         continue;
                     }
                     
                     var recommendation = new Dictionary<string, object>
                     {
-                        ["pathway_id"] = pathway.Id,
-                        ["name"] = language == "en" ? pathway.NameEn : pathway.NameAr,
-                        ["description"] = language == "en" ? pathway.DescriptionEn : pathway.DescriptionAr,
-                        ["source"] = pathway.Source.ToString(),
-                        ["recommendation_score"] = CalculatePathwayRecommendationScore(pathway),
-                        ["estimated_duration"] = EstimatePathwayDuration(pathway),
-                        ["difficulty_level"] = AssessPathwayDifficulty(pathway),
-                        ["prerequisites"] = ExtractPathwayPrerequisites(pathway, language)
+                        ["pathway_id"] = pathway?.Id ?? 0,
+                        ["name"] = language == "en" ? (pathway?.NameEn ?? string.Empty) : (pathway?.NameAr ?? string.Empty),
+                        ["description"] = language == "en" ? (pathway?.DescriptionEn ?? string.Empty) : (pathway?.DescriptionAr ?? string.Empty),
+                        ["source"] = pathway?.Source.ToString() ?? "Unknown",
+                        ["recommendation_score"] = CalculatePathwayRecommendationScore(pathway!),
+                        ["estimated_duration"] = EstimatePathwayDuration(pathway!),
+                        ["difficulty_level"] = AssessPathwayDifficulty(pathway!),
+                        ["prerequisites"] = ExtractPathwayPrerequisites(pathway!, language)
                     };
                     
                     recommendations.Add(recommendation);
@@ -519,7 +518,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting pathway recommendations for career {CareerId}", careerId);
+                _logger.LogError(ex, "Error getting pathway recommendations for career");
                 return new List<Dictionary<string, object>>();
             }
         }

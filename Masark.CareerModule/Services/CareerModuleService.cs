@@ -36,49 +36,47 @@ namespace Masark.CareerModule.Services
 
         public async Task<IEnumerable<Career>> GetCareersAsync(string language)
         {
-            _logger.LogInformation("Retrieving careers for language {Language}", language);
+            _logger.LogInformation("Retrieving careers for language");
 
             var cacheKey = $"careers_{language}";
             var cachedCareers = await _cachingService.GetAsync<IEnumerable<Career>>(cacheKey);
             
             if (cachedCareers != null)
             {
-                _logger.LogDebug("Careers retrieved from cache for language {Language}", language);
+                _logger.LogDebug("Careers retrieved from cache for language");
                 return cachedCareers;
             }
 
             var careers = await _personalityRepository.GetCareersAsync(language);
             await _cachingService.SetAsync(cacheKey, careers, TimeSpan.FromHours(6));
 
-            _logger.LogInformation("Retrieved {Count} careers for language {Language}", careers.Count(), language);
+            _logger.LogInformation("Retrieved careers for language");
             return careers;
         }
 
         public async Task<IEnumerable<CareerMatch>> GetCareerMatchesAsync(string personalityType, string language)
         {
-            _logger.LogInformation("Getting career matches for personality type {PersonalityType} in language {Language}", 
-                personalityType, language);
+            _logger.LogInformation("Getting career matches for personality type in language");
 
             var cacheKey = $"career_matches_{personalityType}_{language}";
             var cachedMatches = await _cachingService.GetAsync<IEnumerable<CareerMatch>>(cacheKey);
             
             if (cachedMatches != null)
             {
-                _logger.LogDebug("Career matches retrieved from cache for {PersonalityType}", personalityType);
+                _logger.LogDebug("Career matches retrieved from cache for personality type");
                 return cachedMatches;
             }
 
             var matches = await _careerMatchingService.GetCareerMatchesAsync(personalityType, language);
             await _cachingService.SetAsync(cacheKey, matches, TimeSpan.FromHours(2));
 
-            _logger.LogInformation("Found {Count} career matches for personality type {PersonalityType}", 
-                matches.Count(), personalityType);
+            _logger.LogInformation("Found career matches for personality type");
             return matches;
         }
 
         public async Task<IEnumerable<CareerCluster>> GetCareerClustersAsync(string language)
         {
-            _logger.LogInformation("Retrieving career clusters for language {Language}", language);
+            _logger.LogInformation("Retrieving career clusters for language");
 
             var cacheKey = $"career_clusters_{language}";
             var cachedClusters = await _cachingService.GetAsync<IEnumerable<CareerCluster>>(cacheKey);
@@ -96,8 +94,7 @@ namespace Masark.CareerModule.Services
 
         public async Task<CareerRecommendation> GetPersonalizedRecommendationsAsync(string userId, string personalityType)
         {
-            _logger.LogInformation("Getting personalized career recommendations for user {UserId} with personality type {PersonalityType}", 
-                userId, personalityType);
+            _logger.LogInformation("Getting personalized career recommendations for user with personality type");
 
             var userSessions = await _personalityRepository.GetUserSessionsAsync(userId);
             var latestSession = userSessions.OrderByDescending(s => s.CreatedAt).FirstOrDefault();
@@ -120,15 +117,14 @@ namespace Masark.CareerModule.Services
                 LanguagePreference = latestSession.LanguagePreference
             };
 
-            _logger.LogInformation("Generated personalized recommendations for user {UserId} with {Count} top matches", 
-                userId, recommendation.TopMatches.Count);
+            _logger.LogInformation("Generated personalized recommendations for user with top matches");
 
             return recommendation;
         }
 
         public async Task<bool> UpdateCareerDataAsync(Career career)
         {
-            _logger.LogInformation("Updating career data for career {CareerId}", career.Id);
+            _logger.LogInformation("Updating career data for career");
 
             try
             {
@@ -137,19 +133,19 @@ namespace Masark.CareerModule.Services
                 await _cachingService.RemoveByPatternAsync("careers_*");
                 await _cachingService.RemoveByPatternAsync("career_matches_*");
                 
-                _logger.LogInformation("Career data updated successfully for career {CareerId}", career.Id);
+                _logger.LogInformation("Career data updated successfully for career");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to update career data for career {CareerId}", career.Id);
+                _logger.LogError(ex, "Failed to update career data for career");
                 return false;
             }
         }
 
         public async Task<CareerAnalytics> GetCareerAnalyticsAsync(string tenantId)
         {
-            _logger.LogInformation("Retrieving career analytics for tenant {TenantId}", tenantId);
+            _logger.LogInformation("Retrieving career analytics for tenant");
 
             var sessions = await _personalityRepository.GetCompletedSessionsAsync(tenantId);
             var careerMatches = new List<CareerMatch>();

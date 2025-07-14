@@ -199,7 +199,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error recording metric {MetricName}", name);
+                _logger.LogError(ex, "Error recording metric");
             }
         }
 
@@ -390,8 +390,7 @@ namespace Masark.Application.Services
                     ["completion_percentage"] = session.CompletionPercentage
                 });
                 
-                _logger.LogInformation("Session {SessionId} completed in {Duration} with {Completion}% completion", 
-                    sessionId, session.Duration, session.CompletionPercentage);
+                _logger.LogInformation("Session completed");
             }
         }
 
@@ -634,8 +633,7 @@ namespace Masark.Application.Services
                 _sessionMetrics.TryRemove(sessionId, out _);
             }
 
-            _logger.LogInformation("Cleaned up {MetricsCount} old metrics and {SessionsCount} old sessions", 
-                totalRemoved, oldSessions.Count);
+            _logger.LogInformation("Cleaned up old metrics and sessions");
 
             await Task.CompletedTask;
         }
@@ -793,7 +791,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error recording security metric {MetricName}", metricName);
+                _logger.LogError(ex, "Error recording security metric");
             }
         }
 

@@ -34,7 +34,7 @@ namespace Masark.ReportingModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating report for session {SessionToken}", sessionToken);
+                _logger.LogError(ex, "Error generating report for session");
                 return StatusCode(500, new { error = "Failed to generate report" });
             }
         }
@@ -53,7 +53,7 @@ namespace Masark.ReportingModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating PDF report for session {SessionToken}", sessionToken);
+                _logger.LogError(ex, "Error generating PDF report for session");
                 return StatusCode(500, new { error = "Failed to generate PDF report" });
             }
         }
@@ -118,7 +118,7 @@ namespace Masark.ReportingModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting report {ReportId}", reportId);
+                _logger.LogError(ex, "Error deleting report");
                 return StatusCode(500, new { error = "Failed to delete report" });
             }
         }
@@ -136,7 +136,7 @@ namespace Masark.ReportingModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving report template {TemplateName}", templateName);
+                _logger.LogError(ex, "Error retrieving report template");
                 return StatusCode(500, new { error = "Failed to retrieve report template" });
             }
         }

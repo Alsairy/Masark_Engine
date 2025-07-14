@@ -29,7 +29,7 @@ namespace Masark.Application.Handlers.Queries
                     questions = questions.Where(q => q.IsActive).ToList();
                 }
 
-                _logger.LogInformation("Retrieved {Count} questions for tenant {TenantId}", questions.Count, request.TenantId);
+                _logger.LogInformation("Retrieved questions for tenant");
 
                 return new GetQuestionsResult
                 {
@@ -40,7 +40,7 @@ namespace Masark.Application.Handlers.Queries
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to retrieve questions for tenant {TenantId}", request.TenantId);
+                _logger.LogError(ex, "Failed to retrieve questions for tenant");
                 return new GetQuestionsResult
                 {
                     Success = false,

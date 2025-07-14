@@ -66,8 +66,7 @@ namespace Masark.Application.Handlers.Commands
                 var totalQuestions = questions.Count;
                 var isComplete = totalAnswers >= totalQuestions;
 
-                _logger.LogInformation("Answer submitted for session {SessionId}, question {QuestionId}", 
-                    request.SessionId, request.QuestionId);
+                _logger.LogInformation("Answer submitted for session and question");
 
                 return new SubmitAnswerResult
                 {
@@ -79,7 +78,7 @@ namespace Masark.Application.Handlers.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to submit answer for session {SessionId}", request.SessionId);
+                _logger.LogError(ex, "Failed to submit answer for session");
                 return new SubmitAnswerResult
                 {
                     Success = false,

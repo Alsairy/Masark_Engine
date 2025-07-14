@@ -440,7 +440,7 @@ namespace Masark.Application.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Redis cache failed for key {Key}, falling back", key);
+                    _logger.LogWarning(ex, "Redis cache failed for key, falling back");
                 }
             }
 
@@ -469,7 +469,7 @@ namespace Masark.Application.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to cache in Redis for key {Key}", key);
+                    _logger.LogWarning(ex, "Failed to cache in Redis for key");
                 }
             }
 

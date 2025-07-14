@@ -46,7 +46,7 @@ namespace Masark.Application.Handlers.Commands
 
                 await _mediator.Publish(new AssessmentSessionStartedEvent(session), cancellationToken);
 
-                _logger.LogInformation("Assessment session {SessionId} started with token {SessionToken}", session.Id, request.SessionToken);
+                _logger.LogInformation("Assessment session started with token");
 
                 return new StartAssessmentSessionResult
                 {
@@ -57,7 +57,7 @@ namespace Masark.Application.Handlers.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to start assessment session for token {SessionToken}", request.SessionToken);
+                _logger.LogError(ex, "Failed to start assessment session for token");
                 return new StartAssessmentSessionResult
                 {
                     Success = false,

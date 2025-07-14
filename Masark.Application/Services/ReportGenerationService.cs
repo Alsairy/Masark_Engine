@@ -195,8 +195,7 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Generating personality report for session {SessionId} using template {Template}", 
-                    reportData.SessionId, templateName);
+                _logger.LogInformation("Generating personality report using template");
 
                 using var memoryStream = new MemoryStream();
                 using var writer = new PdfWriter(memoryStream);
@@ -227,7 +226,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating personality report for session {SessionId}", reportData.SessionId);
+                _logger.LogError(ex, "Error generating personality report");
                 throw;
             }
         }
@@ -236,7 +235,7 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Generating career report for session {SessionId}", reportData.SessionId);
+                _logger.LogInformation("Generating career report");
 
                 using var memoryStream = new MemoryStream();
                 using var writer = new PdfWriter(memoryStream);
@@ -264,7 +263,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating career report for session {SessionId}", reportData.SessionId);
+                _logger.LogError(ex, "Error generating career report");
                 throw;
             }
         }
@@ -273,7 +272,7 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Generating detailed report for session {SessionId}", reportData.SessionId);
+                _logger.LogInformation("Generating detailed report");
 
                 using var memoryStream = new MemoryStream();
                 using var writer = new PdfWriter(memoryStream);
@@ -299,7 +298,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating detailed report for session {SessionId}", reportData.SessionId);
+                _logger.LogError(ex, "Error generating detailed report");
                 throw;
             }
         }
@@ -308,7 +307,7 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Generating summary report for session {SessionId}", reportData.SessionId);
+                _logger.LogInformation("Generating summary report");
 
                 using var memoryStream = new MemoryStream();
                 using var writer = new PdfWriter(memoryStream);
@@ -330,7 +329,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating summary report for session {SessionId}", reportData.SessionId);
+                _logger.LogError(ex, "Error generating summary report");
                 throw;
             }
         }
@@ -365,12 +364,12 @@ namespace Masark.Application.Services
                 var filePath = Path.Combine(sessionDirectory, fileName);
                 await File.WriteAllBytesAsync(filePath, reportData);
 
-                _logger.LogInformation("Saved report {FileName} for session {SessionId}", fileName, sessionId);
+                _logger.LogInformation("Saved report for session");
                 return filePath;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving report {FileName} for session {SessionId}", fileName, sessionId);
+                _logger.LogError(ex, "Error saving report for session");
                 throw;
             }
         }
@@ -387,7 +386,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving saved report {FileName}", fileName);
+                _logger.LogError(ex, "Error retrieving saved report");
                 return null;
             }
         }
@@ -399,14 +398,14 @@ namespace Masark.Application.Services
                 if (File.Exists(fileName))
                 {
                     File.Delete(fileName);
-                    _logger.LogInformation("Deleted report {FileName}", fileName);
+                    _logger.LogInformation("Deleted report");
                     return true;
                 }
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting report {FileName}", fileName);
+                _logger.LogError(ex, "Error deleting report");
                 return false;
             }
         }
@@ -429,7 +428,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting report history for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error getting report history for session");
                 return new List<string>();
             }
         }

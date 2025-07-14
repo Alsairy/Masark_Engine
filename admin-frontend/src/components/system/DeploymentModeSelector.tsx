@@ -81,9 +81,9 @@ const DeploymentModeSelector: React.FC<DeploymentModeSelectorProps> = ({
       onModeChange?.(newMode);
 
       setTimeout(() => setSuccess(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update deployment mode:', err);
-      setError(err.response?.data?.message || 'Failed to update deployment mode');
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update deployment mode');
     } finally {
       setSaving(false);
     }

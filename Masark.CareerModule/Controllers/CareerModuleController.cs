@@ -32,7 +32,7 @@ namespace Masark.CareerModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving careers for language {Language}", language);
+                _logger.LogError(ex, "Error retrieving careers for language");
                 return StatusCode(500, new { error = "Failed to retrieve careers" });
             }
         }
@@ -50,7 +50,7 @@ namespace Masark.CareerModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving career matches for personality type {PersonalityType}", personalityType);
+                _logger.LogError(ex, "Error retrieving career matches for personality type");
                 return StatusCode(500, new { error = "Failed to retrieve career matches" });
             }
         }
@@ -66,7 +66,7 @@ namespace Masark.CareerModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving career clusters for language {Language}", language);
+                _logger.LogError(ex, "Error retrieving career clusters for language");
                 return StatusCode(500, new { error = "Failed to retrieve career clusters" });
             }
         }
@@ -91,7 +91,7 @@ namespace Masark.CareerModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving personalized recommendations for user {UserId}", userId);
+                _logger.LogError(ex, "Error retrieving personalized recommendations for user");
                 return StatusCode(500, new { error = "Failed to retrieve personalized recommendations" });
             }
         }
@@ -126,7 +126,7 @@ namespace Masark.CareerModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating career {CareerId}", careerId);
+                _logger.LogError(ex, "Error updating career");
                 return StatusCode(500, new { error = "Failed to update career" });
             }
         }

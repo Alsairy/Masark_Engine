@@ -9,8 +9,8 @@ namespace Masark.Domain.Entities
         public int CareerId { get; private set; }
         public decimal MatchScore { get; private set; }
 
-        public virtual PersonalityType PersonalityType { get; private set; }
-        public virtual Career Career { get; private set; }
+        public virtual PersonalityType? PersonalityType { get; private set; }
+        public virtual Career? Career { get; private set; }
 
         protected PersonalityCareerMatch() { }
 

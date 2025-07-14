@@ -66,13 +66,13 @@ namespace Masark.Application.Handlers.Queries
                     };
                 }
 
-                _logger.LogInformation("Retrieved assessment results for session {SessionId}", request.SessionId);
+                _logger.LogInformation("Retrieved assessment results for session");
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to retrieve assessment results for session {SessionId}", request.SessionId);
+                _logger.LogError(ex, "Failed to retrieve assessment results for session");
                 return new GetAssessmentResultsResult
                 {
                     Success = false,

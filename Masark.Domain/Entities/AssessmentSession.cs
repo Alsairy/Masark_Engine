@@ -8,14 +8,14 @@ namespace Masark.Domain.Entities
 {
     public class AssessmentSession : Entity, IAggregateRoot
     {
-        public string SessionToken { get; private set; }
+        public string SessionToken { get; private set; } = string.Empty;
         
-        public string StudentName { get; private set; }
-        public string StudentEmail { get; private set; }
-        public string StudentId { get; private set; }
+        public string? StudentName { get; private set; }
+        public string? StudentEmail { get; private set; }
+        public string? StudentId { get; private set; }
         
         public int? PersonalityTypeId { get; private set; }
-        public virtual PersonalityType PersonalityType { get; private set; }
+        public virtual PersonalityType? PersonalityType { get; private set; }
         
         public decimal? EStrength { get; private set; }
         public decimal? SStrength { get; private set; }
@@ -28,9 +28,9 @@ namespace Masark.Domain.Entities
         public PreferenceStrength? JpClarity { get; private set; }
         
         public DeploymentMode DeploymentMode { get; private set; }
-        public string LanguagePreference { get; private set; }
-        public string IpAddress { get; private set; }
-        public string UserAgent { get; private set; }
+        public string LanguagePreference { get; private set; } = string.Empty;
+        public string IpAddress { get; private set; } = string.Empty;
+        public string UserAgent { get; private set; } = string.Empty;
         
         public DateTime StartedAt { get; private set; }
         public DateTime? CompletedAt { get; private set; }

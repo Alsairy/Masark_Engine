@@ -57,12 +57,12 @@ namespace Masark.Domain.Entities
             UpdateTimestamp();
         }
 
-        public object GetAnswerValue()
+        public object? GetAnswerValue()
         {
-            if (AnswerText != null) return AnswerText;
+            if (!string.IsNullOrEmpty(AnswerText)) return AnswerText;
             if (AnswerRating.HasValue) return AnswerRating.Value;
             if (AnswerBoolean.HasValue) return AnswerBoolean.Value;
-            if (AnswerChoice != null) return AnswerChoice;
+            if (!string.IsNullOrEmpty(AnswerChoice)) return AnswerChoice;
             return null;
         }
     }

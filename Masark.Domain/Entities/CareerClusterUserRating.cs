@@ -6,13 +6,13 @@ namespace Masark.Domain.Entities
     public class CareerClusterUserRating : Entity, IAggregateRoot
     {
         public int AssessmentSessionId { get; private set; }
-        public virtual AssessmentSession AssessmentSession { get; private set; }
+        public virtual AssessmentSession? AssessmentSession { get; private set; }
 
         public int CareerClusterId { get; private set; }
-        public virtual CareerCluster CareerCluster { get; private set; }
+        public virtual CareerCluster? CareerCluster { get; private set; }
 
         public int CareerClusterRatingId { get; private set; }
-        public virtual CareerClusterRating CareerClusterRating { get; private set; }
+        public virtual CareerClusterRating? CareerClusterRating { get; private set; }
 
         public DateTime RatedAt { get; private set; }
 

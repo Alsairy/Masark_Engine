@@ -105,9 +105,9 @@ const PathwayForm: React.FC<PathwayFormProps> = ({
       }
 
       setTimeout(() => setSuccess(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save pathway:', err);
-      setError(err.response?.data?.message || 'Failed to save pathway');
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save pathway');
     } finally {
       setSaving(false);
     }

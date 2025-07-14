@@ -129,7 +129,7 @@ const AssessmentPage: React.FC = () => {
             </div>
             <div className="mt-4 flex items-center text-sm">
               <span className="text-green-600 font-medium">
-                +{(assessmentStats as any)?.newSessionsToday || 0}
+                +{assessmentStats?.newSessionsToday || 0}
               </span>
               <span className="text-gray-600 ml-1">today</span>
             </div>

@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const token = localStorage.getItem('authToken');
     if (token) {
       authApi.getCurrentUser()
-        .then((response: any) => {
+        .then((response: { success: boolean; user?: User }) => {
           if (response.success && response.user) {
             setUser(response.user);
           } else {

@@ -2,15 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { User } from '../../types/auth';
 
+interface UserData {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  isActive: boolean;
+}
+
 interface UserEditModalProps {
   user: User;
-  onSubmit: (userData: any) => Promise<boolean>;
+  onSubmit: (userData: UserData) => Promise<boolean>;
   onCancel: () => void;
 }
 
 const UserEditModal: React.FC<UserEditModalProps> = ({ user, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
-    id: user.id,
+    id: Number(user.id),
     username: user.username,
     email: user.email,
     firstName: user.firstName || '',
@@ -29,7 +39,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, onSubmit, onCancel 
 
   useEffect(() => {
     setFormData({
-      id: user.id,
+      id: Number(user.id),
       username: user.username,
       email: user.email,
       firstName: user.firstName || '',

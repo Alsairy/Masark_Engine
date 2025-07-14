@@ -74,7 +74,7 @@ namespace Masark.AssessmentModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error submitting answer for session {SessionToken}", sessionToken);
+                _logger.LogError(ex, "Error submitting answer for session");
                 return StatusCode(500, new { error = "Failed to submit answer" });
             }
         }
@@ -98,7 +98,7 @@ namespace Masark.AssessmentModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error completing assessment for session {SessionToken}", sessionToken);
+                _logger.LogError(ex, "Error completing assessment for session");
                 return StatusCode(500, new { error = "Failed to complete assessment" });
             }
         }
@@ -114,7 +114,7 @@ namespace Masark.AssessmentModule.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving questions for language {Language}", language);
+                _logger.LogError(ex, "Error retrieving questions for language");
                 return StatusCode(500, new { error = "Failed to retrieve questions" });
             }
         }

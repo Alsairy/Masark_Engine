@@ -54,7 +54,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to encrypt data for purpose: {Purpose}", purpose);
+                _logger.LogError(ex, "Failed to encrypt data for purpose");
                 throw new InvalidOperationException("Encryption failed", ex);
             }
         }
@@ -76,7 +76,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to decrypt data for purpose: {Purpose}", purpose);
+                _logger.LogError(ex, "Failed to decrypt data for purpose");
                 throw new InvalidOperationException("Decryption failed", ex);
             }
         }
@@ -182,7 +182,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to encrypt personal data for user: {UserId}", userId);
+                _logger.LogError(ex, "Failed to encrypt personal data for user");
                 throw new InvalidOperationException("Personal data encryption failed", ex);
             }
         }
@@ -202,7 +202,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to decrypt personal data for user: {UserId}", userId);
+                _logger.LogError(ex, "Failed to decrypt personal data for user");
                 throw new InvalidOperationException("Personal data decryption failed", ex);
             }
         }

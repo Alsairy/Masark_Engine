@@ -39,8 +39,7 @@ namespace Masark.ReportingModule.Services
 
         public async Task<ReportGenerationResult> GenerateAssessmentReportAsync(string sessionToken, string language)
         {
-            _logger.LogInformation("Generating assessment report for session {SessionToken} in language {Language}", 
-                sessionToken, language);
+            _logger.LogInformation("Generating assessment report for session in language");
 
             var session = await _personalityRepository.GetSessionByTokenAsync(sessionToken);
             if (session == null)
@@ -83,23 +82,21 @@ namespace Masark.ReportingModule.Services
             var cacheKey = $"report_{sessionToken}_{language}";
             await _cachingService.SetAsync(cacheKey, result, TimeSpan.FromHours(24));
 
-            _logger.LogInformation("Assessment report generated successfully for session {SessionToken}, size: {FileSize} bytes", 
-                sessionToken, result.FileSize);
+            _logger.LogInformation("Assessment report generated successfully for session");
 
             return result;
         }
 
         public async Task<byte[]> GeneratePdfReportAsync(string sessionToken, string language)
         {
-            _logger.LogInformation("Generating PDF report for session {SessionToken} in language {Language}", 
-                sessionToken, language);
+            _logger.LogInformation("Generating PDF report for session in language");
 
             var cacheKey = $"pdf_report_{sessionToken}_{language}";
             var cachedPdf = await _cachingService.GetAsync<byte[]>(cacheKey);
             
             if (cachedPdf != null)
             {
-                _logger.LogDebug("PDF report retrieved from cache for session {SessionToken}", sessionToken);
+                _logger.LogDebug("PDF report retrieved from cache for session");
                 return cachedPdf;
             }
 
@@ -108,16 +105,14 @@ namespace Masark.ReportingModule.Services
 
             await _cachingService.SetAsync(cacheKey, pdfBytes, TimeSpan.FromHours(24));
 
-            _logger.LogInformation("PDF report generated successfully for session {SessionToken}, size: {Size} bytes", 
-                sessionToken, pdfBytes.Length);
+            _logger.LogInformation("PDF report generated successfully for session");
 
             return pdfBytes;
         }
 
         public async Task<IEnumerable<ReportSummary>> GetReportsAsync(string tenantId, int page = 1, int pageSize = 20)
         {
-            _logger.LogInformation("Retrieving reports for tenant {TenantId}, page {Page}, pageSize {PageSize}", 
-                tenantId, page, pageSize);
+            _logger.LogInformation("Retrieving reports for tenant");
 
             var sessions = await _personalityRepository.GetCompletedSessionsAsync(tenantId);
             var pagedSessions = sessions
@@ -141,13 +136,13 @@ namespace Masark.ReportingModule.Services
                 reports.Add(summary);
             }
 
-            _logger.LogInformation("Retrieved {Count} report summaries for tenant {TenantId}", reports.Count, tenantId);
+            _logger.LogInformation("Retrieved report summaries for tenant");
             return reports;
         }
 
         public async Task<ReportMetrics> GetReportMetricsAsync(string tenantId)
         {
-            _logger.LogInformation("Calculating report metrics for tenant {TenantId}", tenantId);
+            _logger.LogInformation("Calculating report metrics for tenant");
 
             var sessions = await _personalityRepository.GetCompletedSessionsAsync(tenantId);
             var totalSessions = await _personalityRepository.GetTotalSessionsAsync(tenantId);
@@ -173,27 +168,26 @@ namespace Masark.ReportingModule.Services
 
         public async Task<bool> DeleteReportAsync(Guid reportId)
         {
-            _logger.LogInformation("Deleting report {ReportId}", reportId);
+            _logger.LogInformation("Deleting report");
 
             try
             {
                 await _cachingService.RemoveByPatternAsync($"report_*");
                 await _cachingService.RemoveByPatternAsync($"pdf_report_*");
 
-                _logger.LogInformation("Report {ReportId} deleted successfully", reportId);
+                _logger.LogInformation("Report deleted successfully");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to delete report {ReportId}", reportId);
+                _logger.LogError(ex, "Failed to delete report");
                 return false;
             }
         }
 
         public async Task<ReportTemplate> GetReportTemplateAsync(string templateName, string language)
         {
-            _logger.LogInformation("Retrieving report template {TemplateName} for language {Language}", 
-                templateName, language);
+            _logger.LogInformation("Retrieving report template for language");
 
             var cacheKey = $"template_{templateName}_{language}";
             var cachedTemplate = await _cachingService.GetAsync<ReportTemplate>(cacheKey);

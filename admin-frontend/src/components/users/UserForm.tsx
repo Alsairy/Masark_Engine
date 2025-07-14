@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
+interface UserData {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
 interface UserFormProps {
-  onSubmit: (userData: any) => Promise<boolean>;
+  onSubmit: (userData: UserData) => Promise<boolean>;
   onCancel: () => void;
 }
 

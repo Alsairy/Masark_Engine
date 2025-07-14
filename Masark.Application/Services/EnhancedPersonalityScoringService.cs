@@ -20,7 +20,7 @@ namespace Masark.Application.Services
 
     public class DimensionAnalysis
     {
-        public string Dimension { get; set; }
+        public string Dimension { get; set; } = string.Empty;
         public int RawScore { get; set; }
         public int TotalQuestions { get; set; }
         public double Percentage { get; set; }
@@ -54,6 +54,9 @@ namespace Masark.Application.Services
 
         public EnhancedPersonalityResult()
         {
+            PersonalityType = string.Empty;
+            TypeCode = string.Empty;
+            StatisticalMetrics = new StatisticalMetrics();
             DimensionAnalyses = new Dictionary<string, DimensionAnalysis>();
             BorderlineDimensions = new List<string>();
             AreasForExploration = new List<string>();
@@ -112,13 +115,13 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Starting enhanced personality type calculation for session {SessionId}", sessionId);
+                _logger.LogInformation("Starting enhanced personality type calculation for session");
 
                 throw new NotImplementedException("Data access layer integration needed for enhanced personality scoring");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in enhanced personality type calculation for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error in enhanced personality type calculation for session");
                 throw;
             }
         }
@@ -130,7 +133,7 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Calculating personality type for session {SessionId}", session.Id);
+                _logger.LogInformation("Calculating personality type for session");
 
                 var dimensionAnalyses = CalculateDimensionalAnalyses(answers, questions);
                 var (typeCode, confidence) = DetermineTypeWithConfidence(dimensionAnalyses);
@@ -157,7 +160,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calculating personality type for session {SessionId}", session.Id);
+                _logger.LogError(ex, "Error calculating personality type for session");
                 throw;
             }
         }
@@ -409,7 +412,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating quality assessment report for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error generating quality assessment report for session");
                 throw;
             }
         }

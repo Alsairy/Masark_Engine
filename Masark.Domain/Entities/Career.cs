@@ -6,11 +6,11 @@ namespace Masark.Domain.Entities
 {
     public class Career : Entity, IAggregateRoot
     {
-        public string NameEn { get; private set; }
-        public string NameAr { get; private set; }
-        public string DescriptionEn { get; private set; }
-        public string DescriptionAr { get; private set; }
-        public string SsocCode { get; private set; }
+        public string NameEn { get; private set; } = string.Empty;
+        public string NameAr { get; private set; } = string.Empty;
+        public string DescriptionEn { get; private set; } = string.Empty;
+        public string DescriptionAr { get; private set; } = string.Empty;
+        public string SsocCode { get; private set; } = string.Empty;
         public string? OnetId { get; private set; }
         public int OnetJobZone { get; private set; }
         public decimal? AnnualSalary { get; private set; }
@@ -21,7 +21,7 @@ namespace Masark.Domain.Entities
         public bool IsActive { get; private set; }
 
         public int ClusterId { get; private set; }
-        public virtual CareerCluster Cluster { get; private set; }
+        public virtual CareerCluster? Cluster { get; private set; }
 
         public virtual ICollection<CareerProgram> CareerPrograms { get; private set; }
         public virtual ICollection<CareerPathway> CareerPathways { get; private set; }

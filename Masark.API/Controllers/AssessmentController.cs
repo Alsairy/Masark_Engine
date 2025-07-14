@@ -248,7 +248,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating question {QuestionId}", id);
+                _logger.LogError(ex, "Error updating question");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -270,7 +270,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting question {QuestionId}", id);
+                _logger.LogError(ex, "Error deleting question");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -577,7 +577,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting assessment results for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error getting assessment results for session");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -637,7 +637,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting assessment state for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error getting assessment state for session");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -701,7 +701,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error transitioning assessment state for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error transitioning assessment state for session");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -752,7 +752,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error submitting career cluster ratings for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error submitting career cluster ratings for session");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -793,7 +793,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calculating assessment for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error calculating assessment for session");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -844,7 +844,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error submitting tie-breaker answers for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error submitting tie-breaker answers for session");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -895,7 +895,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error rating assessment for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error rating assessment for session");
                 return StatusCode(500, new
                 {
                     success = false,

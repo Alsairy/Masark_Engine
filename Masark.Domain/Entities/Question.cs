@@ -10,21 +10,21 @@ namespace Masark.Domain.Entities
         public int OrderNumber { get; private set; }
         public PersonalityDimension Dimension { get; private set; }
         
-        public string TextEn { get; private set; }
-        public string TextAr { get; private set; }
-        public string TextEs { get; private set; }
-        public string TextZh { get; private set; }
+        public string TextEn { get; private set; } = string.Empty;
+        public string TextAr { get; private set; } = string.Empty;
+        public string TextEs { get; private set; } = string.Empty;
+        public string TextZh { get; private set; } = string.Empty;
         
-        public string OptionATextEn { get; private set; }
-        public string OptionATextAr { get; private set; }
-        public string OptionATextEs { get; private set; }
-        public string OptionATextZh { get; private set; }
+        public string OptionATextEn { get; private set; } = string.Empty;
+        public string OptionATextAr { get; private set; } = string.Empty;
+        public string OptionATextEs { get; private set; } = string.Empty;
+        public string OptionATextZh { get; private set; } = string.Empty;
         public bool OptionAMapsToFirst { get; private set; }
         
-        public string OptionBTextEn { get; private set; }
-        public string OptionBTextAr { get; private set; }
-        public string OptionBTextEs { get; private set; }
-        public string OptionBTextZh { get; private set; }
+        public string OptionBTextEn { get; private set; } = string.Empty;
+        public string OptionBTextAr { get; private set; } = string.Empty;
+        public string OptionBTextEs { get; private set; } = string.Empty;
+        public string OptionBTextZh { get; private set; } = string.Empty;
         
         public bool IsActive { get; private set; }
         

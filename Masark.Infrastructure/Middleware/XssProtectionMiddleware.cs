@@ -85,7 +85,7 @@ namespace Masark.Infrastructure.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "XSS Protection: Error processing request {RequestId}", requestId);
+                _logger.LogError(ex, "XSS Protection: Error processing request");
                 await HandleXssDetectedAsync(context, requestId);
             }
         }
@@ -119,7 +119,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ContainsXssPattern(param.Key) || param.Value.Any(ContainsXssPattern))
                 {
-                    _logger.LogWarning("XSS detected in query parameter: {Key}", param.Key);
+                    _logger.LogWarning("XSS detected in query parameter");
                     return true;
                 }
             }
@@ -137,7 +137,7 @@ namespace Masark.Infrastructure.Middleware
                     var headerValue = headers[headerName].ToString();
                     if (ContainsXssPattern(headerValue))
                     {
-                        _logger.LogWarning("XSS detected in header: {Header}", headerName);
+                        _logger.LogWarning("XSS detected in header");
                         return true;
                     }
                 }
@@ -151,7 +151,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ContainsXssPattern(field.Key) || field.Value.Any(ContainsXssPattern))
                 {
-                    _logger.LogWarning("XSS detected in form field: {Field}", field.Key);
+                    _logger.LogWarning("XSS detected in form field");
                     return true;
                 }
             }
@@ -244,8 +244,7 @@ namespace Masark.Infrastructure.Middleware
             var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var userAgent = context.Request.Headers["User-Agent"].ToString();
             
-            _logger.LogWarning("XSS attack detected - Request: {RequestId}, IP: {ClientIp}, UserAgent: {UserAgent}, Path: {Path}",
-                requestId, clientIp, userAgent, context.Request.Path);
+            _logger.LogWarning("XSS attack detected");
 
             context.Response.StatusCode = 400;
             context.Response.ContentType = "application/json";
