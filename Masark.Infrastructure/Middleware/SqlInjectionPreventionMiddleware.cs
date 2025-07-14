@@ -168,7 +168,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ContainsSqlInjectionPattern(param.Key) || param.Value.Any(ContainsSqlInjectionPattern))
                 {
-                    _logger.LogWarning("SQL injection detected in query parameter: {Key}", param.Key);
+                    _logger.LogWarning("SQL injection detected in query parameter: {Key}", SanitizeForLogging(param.Key));
                     return true;
                 }
             }
@@ -186,7 +186,7 @@ namespace Masark.Infrastructure.Middleware
                     var headerValue = headers[headerName].ToString();
                     if (ContainsSqlInjectionPattern(headerValue))
                     {
-                        _logger.LogWarning("SQL injection detected in header: {Header}", headerName);
+                        _logger.LogWarning("SQL injection detected in header: {Header}", SanitizeForLogging(headerName));
                         return true;
                     }
                 }
@@ -200,7 +200,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ContainsSqlInjectionPattern(field.Key) || field.Value.Any(ContainsSqlInjectionPattern))
                 {
-                    _logger.LogWarning("SQL injection detected in form field: {Field}", field.Key);
+                    _logger.LogWarning("SQL injection detected in form field: {Field}", SanitizeForLogging(field.Key));
                     return true;
                 }
             }
@@ -342,7 +342,7 @@ namespace Masark.Infrastructure.Middleware
             var userAgent = context.Request.Headers["User-Agent"].ToString();
             
             _logger.LogWarning("SQL injection attack detected - Request: {RequestId}, IP: {ClientIp}, UserAgent: {UserAgent}, Path: {Path}",
-                requestId, clientIp, userAgent, context.Request.Path);
+                requestId, SanitizeForLogging(clientIp), SanitizeForLogging(userAgent), SanitizeForLogging(context.Request.Path));
 
             context.Response.StatusCode = 400;
             context.Response.ContentType = "application/json";
@@ -356,6 +356,14 @@ namespace Masark.Infrastructure.Middleware
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+
+        private static string SanitizeForLogging(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return "[empty]";
+            
+            return input.Length > 100 ? $"{input[..97]}..." : input;
         }
 
         private bool ShouldBypassForCiTests(HttpContext context)

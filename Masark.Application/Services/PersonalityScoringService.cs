@@ -27,8 +27,8 @@ namespace Masark.Application.Services
 
     public class PersonalityResult
     {
-        public string PersonalityType { get; set; }
-        public string TypeCode { get; set; }
+        public string PersonalityType { get; set; } = string.Empty;
+        public string TypeCode { get; set; } = string.Empty;
         public PersonalityScores DimensionScores { get; set; }
         public Dictionary<string, double> PreferenceStrengths { get; set; }  // Human eSources scale: -1.0 to +1.0
         public Dictionary<string, PreferenceStrength> PreferenceClarity { get; set; }

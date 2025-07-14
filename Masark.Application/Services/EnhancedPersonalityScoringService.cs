@@ -20,7 +20,7 @@ namespace Masark.Application.Services
 
     public class DimensionAnalysis
     {
-        public string Dimension { get; set; }
+        public string Dimension { get; set; } = string.Empty;
         public int RawScore { get; set; }
         public int TotalQuestions { get; set; }
         public double Percentage { get; set; }
@@ -54,6 +54,9 @@ namespace Masark.Application.Services
 
         public EnhancedPersonalityResult()
         {
+            PersonalityType = string.Empty;
+            TypeCode = string.Empty;
+            StatisticalMetrics = new StatisticalMetrics();
             DimensionAnalyses = new Dictionary<string, DimensionAnalysis>();
             BorderlineDimensions = new List<string>();
             AreasForExploration = new List<string>();
