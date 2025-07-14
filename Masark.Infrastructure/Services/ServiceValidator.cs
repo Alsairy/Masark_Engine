@@ -52,10 +52,10 @@ namespace Masark.Infrastructure.Services
                 }
                 else
                 {
-                    _logger.LogError("Service validation failed with {ErrorCount} errors", result.Errors.Count);
+                    _logger.LogError("Service validation failed with errors");
                     foreach (var error in result.Errors)
                     {
-                        _logger.LogError("Validation error: {Error}", error);
+                        _logger.LogError("Validation error occurred");
                     }
                 }
             }

@@ -106,7 +106,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error downloading report {Filename}", filename);
+                _logger.LogError(ex, "Error downloading report");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -165,7 +165,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting report {Filename}", filename);
+                _logger.LogError(ex, "Error deleting report");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -201,7 +201,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting session reports for {SessionToken}", sessionToken);
+                _logger.LogError(ex, "Error getting session reports");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -317,7 +317,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting report elements for assessment {AssessmentId}", assessmentId);
+                _logger.LogError(ex, "Error getting report elements for assessment");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -369,7 +369,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error submitting report answer for element {ElementId}", elementId);
+                _logger.LogError(ex, "Error submitting report answer for element");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -428,7 +428,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error rating report element {ElementId}", elementId);
+                _logger.LogError(ex, "Error rating report element");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -456,7 +456,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting report feedback for assessment {AssessmentId}", assessmentId);
+                _logger.LogError(ex, "Error getting report feedback for assessment");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -504,7 +504,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting AchieveWorks report {ReportId}", reportId);
+                _logger.LogError(ex, "Error getting AchieveWorks report");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -536,7 +536,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting careers for report {ReportId}", reportId);
+                _logger.LogError(ex, "Error getting careers for report");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -568,7 +568,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting program matches for report {ReportId}", reportId);
+                _logger.LogError(ex, "Error getting program matches for report");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -594,7 +594,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting element ratings for report {ReportId}", reportId);
+                _logger.LogError(ex, "Error getting element ratings for report");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -690,7 +690,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating report user answer {AnswerId}", answerId);
+                _logger.LogError(ex, "Error updating report user answer");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -714,7 +714,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting report user answer {AnswerId}", answerId);
+                _logger.LogError(ex, "Error deleting report user answer");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -806,7 +806,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating report element rating {RatingId}", ratingId);
+                _logger.LogError(ex, "Error updating report element rating");
                 return StatusCode(500, new
                 {
                     success = false,

@@ -214,7 +214,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting user {UserId}", userId);
+                _logger.LogError(ex, "Error getting user");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -362,7 +362,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating user {UserId}", userId);
+                _logger.LogError(ex, "Error updating user");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -436,7 +436,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting user {UserId}", userId);
+                _logger.LogError(ex, "Error deleting user");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -525,7 +525,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error assigning role to user {UserId}", userId);
+                _logger.LogError(ex, "Error assigning role to user");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -602,7 +602,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error removing role from user {UserId}", userId);
+                _logger.LogError(ex, "Error removing role from user");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -659,7 +659,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting user roles {UserId}", userId);
+                _logger.LogError(ex, "Error getting user roles");
                 return StatusCode(500, new
                 {
                     success = false,

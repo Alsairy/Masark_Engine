@@ -63,7 +63,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to retrieve secret: {SecretName}", secretName);
+                _logger.LogError(ex, "Failed to retrieve secret");
                 return null;
             }
         }
@@ -74,16 +74,16 @@ namespace Masark.Infrastructure.Services
             {
                 if (!_isEnabled)
                 {
-                    _logger.LogWarning("Key Vault not enabled, cannot set secret: {SecretName}", secretName);
+                    _logger.LogWarning("Key Vault not enabled, cannot set secret");
                     return;
                 }
 
                 await _secretClient.SetSecretAsync(secretName, secretValue);
-                _logger.LogInformation("Successfully set secret: {SecretName}", secretName);
+                _logger.LogInformation("Successfully set secret");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to set secret: {SecretName}", secretName);
+                _logger.LogError(ex, "Failed to set secret");
                 throw;
             }
         }
@@ -110,16 +110,16 @@ namespace Masark.Infrastructure.Services
             {
                 if (!_isEnabled)
                 {
-                    _logger.LogWarning("Key Vault not enabled, cannot delete secret: {SecretName}", secretName);
+                    _logger.LogWarning("Key Vault not enabled, cannot delete secret");
                     return;
                 }
 
                 await _secretClient.StartDeleteSecretAsync(secretName);
-                _logger.LogInformation("Successfully deleted secret: {SecretName}", secretName);
+                _logger.LogInformation("Successfully deleted secret");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to delete secret: {SecretName}", secretName);
+                _logger.LogError(ex, "Failed to delete secret");
                 throw;
             }
         }
@@ -142,11 +142,11 @@ namespace Masark.Infrastructure.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, "Failed to retrieve secret: {SecretName}", secretProperties.Name);
+                        _logger.LogWarning(ex, "Failed to retrieve secret");
                     }
                 }
 
-                _logger.LogInformation("Retrieved {Count} secrets from Key Vault", secrets.Count);
+                _logger.LogInformation("Retrieved secrets from Key Vault");
             }
             catch (Exception ex)
             {

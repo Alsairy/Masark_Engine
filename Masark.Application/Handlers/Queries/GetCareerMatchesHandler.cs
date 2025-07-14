@@ -35,8 +35,7 @@ namespace Masark.Application.Handlers.Queries
 
                 var matches = new List<PersonalityCareerMatch>();
 
-                _logger.LogInformation("Retrieved {Count} career matches for personality type {PersonalityType}", 
-                    matches.Count, request.PersonalityType);
+                _logger.LogInformation("Retrieved career matches for personality type");
 
                 return new GetCareerMatchesResult
                 {
@@ -47,7 +46,7 @@ namespace Masark.Application.Handlers.Queries
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to retrieve career matches for personality type {PersonalityType}", request.PersonalityType);
+                _logger.LogError(ex, "Failed to retrieve career matches for personality type");
                 return new GetCareerMatchesResult
                 {
                     Success = false,

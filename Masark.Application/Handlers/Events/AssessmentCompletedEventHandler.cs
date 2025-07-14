@@ -22,8 +22,7 @@ namespace Masark.Application.Handlers.Events
         {
             try
             {
-                _logger.LogInformation("Processing assessment completion for session {SessionId} with personality type {PersonalityType}", 
-                    notification.SessionId, notification.PersonalityType);
+                _logger.LogInformation("Processing assessment completion for session");
 
                 var careerMatchQuery = new GetCareerMatchesQuery
                 {
@@ -48,11 +47,11 @@ namespace Masark.Application.Handlers.Events
                     await _mediator.Publish(careerMatchingEvent, cancellationToken);
                 }
 
-                _logger.LogInformation("Assessment completion processing finished for session {SessionId}", notification.SessionId);
+                _logger.LogInformation("Assessment completion processing finished for session");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to process assessment completion for session {SessionId}", notification.SessionId);
+                _logger.LogError(ex, "Failed to process assessment completion for session");
             }
         }
     }

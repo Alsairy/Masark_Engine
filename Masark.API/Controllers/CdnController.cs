@@ -60,7 +60,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error uploading asset to CDN: {FileName}", file.FileName);
+                _logger.LogError(ex, "Error uploading asset to CDN");
                 return StatusCode(500, new { error = "Failed to upload asset to CDN" });
             }
         }
@@ -86,7 +86,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error invalidating CDN cache for: {AssetPath}", assetPath);
+                _logger.LogError(ex, "Error invalidating CDN cache");
                 return StatusCode(500, new { error = "Failed to invalidate CDN cache" });
             }
         }
@@ -111,7 +111,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating CDN URL for: {AssetPath}", assetPath);
+                _logger.LogError(ex, "Error generating CDN URL");
                 return StatusCode(500, new { error = "Failed to generate CDN URL" });
             }
         }
@@ -146,7 +146,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating optimized image URL for: {ImagePath}", imagePath);
+                _logger.LogError(ex, "Error generating optimized image URL");
                 return StatusCode(500, new { error = "Failed to generate optimized image URL" });
             }
         }

@@ -119,7 +119,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ShouldBypassForCiTests(context) || IsHealthCheckEndpoint(context.Request.Path))
                 {
-                    _logger.LogInformation("SQL injection prevention bypassed for request {RequestId}", requestId);
+                    _logger.LogInformation("SQL injection prevention bypassed for request");
                     await _next(context);
                     return;
                 }
@@ -134,7 +134,7 @@ namespace Masark.Infrastructure.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "SQL Injection Prevention: Error processing request {RequestId}", requestId);
+                _logger.LogError(ex, "SQL Injection Prevention: Error processing request");
                 await HandleSqlInjectionDetectedAsync(context, requestId);
             }
         }
@@ -168,7 +168,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ContainsSqlInjectionPattern(param.Key) || param.Value.Any(ContainsSqlInjectionPattern))
                 {
-                    _logger.LogWarning("SQL injection detected in query parameter: {Key}", SanitizeForLogging(param.Key));
+                    _logger.LogWarning("SQL injection detected in query parameter");
                     return true;
                 }
             }
@@ -186,7 +186,7 @@ namespace Masark.Infrastructure.Middleware
                     var headerValue = headers[headerName].ToString();
                     if (ContainsSqlInjectionPattern(headerValue))
                     {
-                        _logger.LogWarning("SQL injection detected in header: {Header}", SanitizeForLogging(headerName));
+                        _logger.LogWarning("SQL injection detected in header");
                         return true;
                     }
                 }
@@ -200,7 +200,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (ContainsSqlInjectionPattern(field.Key) || field.Value.Any(ContainsSqlInjectionPattern))
                 {
-                    _logger.LogWarning("SQL injection detected in form field: {Field}", SanitizeForLogging(field.Key));
+                    _logger.LogWarning("SQL injection detected in form field");
                     return true;
                 }
             }
@@ -341,8 +341,7 @@ namespace Masark.Infrastructure.Middleware
             var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var userAgent = context.Request.Headers["User-Agent"].ToString();
             
-            _logger.LogWarning("SQL injection attack detected - Request: {RequestId}, IP: {ClientIp}, UserAgent: {UserAgent}, Path: {Path}",
-                requestId, SanitizeForLogging(clientIp), SanitizeForLogging(userAgent), SanitizeForLogging(context.Request.Path));
+            _logger.LogWarning("SQL injection attack detected");
 
             context.Response.StatusCode = 400;
             context.Response.ContentType = "application/json";
@@ -373,14 +372,14 @@ namespace Masark.Infrastructure.Middleware
             if (context.Request.Headers.TryGetValue("X-Test-Mode", out var testHeader) && 
                 testHeader.ToString().Equals("ci-bypass", StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogInformation("SQL injection bypass: X-Test-Mode header detected - Request: {RequestId}", requestId);
+                _logger.LogInformation("SQL injection bypass: X-Test-Mode header detected");
                 return true;
             }
 
             if (context.Request.Headers.TryGetValue("ZAP-Scan", out var zapHeader) && 
                 zapHeader.ToString().Equals("true", StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogInformation("SQL injection bypass: ZAP-Scan header detected - Request: {RequestId}", requestId);
+                _logger.LogInformation("SQL injection bypass: ZAP-Scan header detected");
                 return true;
             }
 
@@ -389,7 +388,7 @@ namespace Masark.Infrastructure.Middleware
                 (environment.Equals("Development", StringComparison.OrdinalIgnoreCase) ||
                  environment.Equals("Test", StringComparison.OrdinalIgnoreCase)))
             {
-                _logger.LogInformation("SQL injection bypass: Test/Development environment detected ({Environment}) - Request: {RequestId}", environment, requestId);
+                _logger.LogInformation("SQL injection bypass: Test/Development environment detected");
                 return true;
             }
 
@@ -398,7 +397,7 @@ namespace Masark.Infrastructure.Middleware
                 (requestPath.StartsWith("/test") || requestPath.StartsWith("/health") || 
                  requestPath.StartsWith("/api/test") || requestPath.StartsWith("/swagger")))
             {
-                _logger.LogInformation("SQL injection bypass: Test/Health path detected - Request: {RequestId}", requestId);
+                _logger.LogInformation("SQL injection bypass: Test/Health path detected");
                 return true;
             }
 
@@ -406,11 +405,11 @@ namespace Masark.Infrastructure.Middleware
             if (!string.IsNullOrEmpty(testModeEnv) && 
                 testModeEnv.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogInformation("SQL injection bypass: TEST_MODE environment variable detected - Request: {RequestId}", requestId);
+                _logger.LogInformation("SQL injection bypass: TEST_MODE environment variable detected");
                 return true;
             }
 
-            _logger.LogWarning("SQL injection bypass: No bypass conditions met - Request: {RequestId}", requestId);
+            _logger.LogWarning("SQL injection bypass: No bypass conditions met");
             return false;
         }
     }

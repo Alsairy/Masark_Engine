@@ -113,7 +113,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login for user {Username}", request.Username);
+                _logger.LogError(ex, "Error during login for user");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -191,7 +191,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during registration for user {Username}", request.Username);
+                _logger.LogError(ex, "Error during registration for user");
                 return StatusCode(500, new
                 {
                     success = false,

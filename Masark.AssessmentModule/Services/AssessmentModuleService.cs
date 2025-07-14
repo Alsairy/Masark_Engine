@@ -36,7 +36,7 @@ namespace Masark.AssessmentModule.Services
 
         public async Task<AssessmentSession> CreateSessionAsync(string userId, string languagePreference, string tenantId)
         {
-            _logger.LogInformation("Creating assessment session for user {UserId} in tenant {TenantId}", userId, tenantId);
+            _logger.LogInformation("Creating assessment session for user in tenant");
 
             var session = new AssessmentSession
             {
@@ -51,18 +51,18 @@ namespace Masark.AssessmentModule.Services
 
             await _personalityRepository.CreateSessionAsync(session);
             
-            _logger.LogInformation("Assessment session created with token {SessionToken}", session.SessionToken);
+            _logger.LogInformation("Assessment session created with token");
             return session;
         }
 
         public async Task<bool> SubmitAnswerAsync(string sessionToken, int questionId, string selectedOption, PreferenceStrength strength)
         {
-            _logger.LogInformation("Submitting answer for session {SessionToken}, question {QuestionId}", sessionToken, questionId);
+            _logger.LogInformation("Submitting answer for session");
 
             var session = await _personalityRepository.GetSessionByTokenAsync(sessionToken);
             if (session == null)
             {
-                _logger.LogWarning("Session not found for token {SessionToken}", sessionToken);
+                _logger.LogWarning("Session not found for token");
                 return false;
             }
 
@@ -79,13 +79,13 @@ namespace Masark.AssessmentModule.Services
             await _personalityRepository.SaveAnswerAsync(answer);
             await _stateMachineService.ProcessAnswerAsync(session, answer);
 
-            _logger.LogInformation("Answer submitted successfully for session {SessionToken}", sessionToken);
+            _logger.LogInformation("Answer submitted successfully for session");
             return true;
         }
 
         public async Task<AssessmentResult> CompleteAssessmentAsync(string sessionToken)
         {
-            _logger.LogInformation("Completing assessment for session {SessionToken}", sessionToken);
+            _logger.LogInformation("Completing assessment for session");
 
             var session = await _personalityRepository.GetSessionByTokenAsync(sessionToken);
             if (session == null)
@@ -111,21 +111,20 @@ namespace Masark.AssessmentModule.Services
                 CompletedAt = session.CompletedAt.Value
             };
 
-            _logger.LogInformation("Assessment completed for session {SessionToken}, personality type: {PersonalityType}", 
-                sessionToken, result.PersonalityType);
+            _logger.LogInformation("Assessment completed for session");
 
             return result;
         }
 
         public async Task<IEnumerable<Question>> GetQuestionsAsync(string language)
         {
-            _logger.LogInformation("Retrieving questions for language {Language}", language);
+            _logger.LogInformation("Retrieving questions for language");
             return await _personalityRepository.GetQuestionsAsync(language);
         }
 
         public async Task<AssessmentStatistics> GetStatisticsAsync(string tenantId)
         {
-            _logger.LogInformation("Retrieving assessment statistics for tenant {TenantId}", tenantId);
+            _logger.LogInformation("Retrieving assessment statistics for tenant");
             return await _personalityRepository.GetAssessmentStatisticsAsync(tenantId);
         }
 

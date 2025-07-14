@@ -166,7 +166,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting career details for {CareerId}", careerId);
+                _logger.LogError(ex, "Error getting career details");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -195,7 +195,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting careers for cluster {ClusterId}", clusterId);
+                _logger.LogError(ex, "Error getting careers for cluster");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -354,7 +354,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error rating career cluster for assessment {AssessmentId}", assessmentId);
+                _logger.LogError(ex, "Error rating career cluster for assessment");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -379,7 +379,7 @@ namespace Masark.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting career cluster ratings for assessment {AssessmentId}", assessmentId);
+                _logger.LogError(ex, "Error getting career cluster ratings for assessment");
                 return StatusCode(500, new
                 {
                     success = false,

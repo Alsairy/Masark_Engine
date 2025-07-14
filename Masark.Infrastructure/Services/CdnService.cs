@@ -40,7 +40,7 @@ namespace Masark.Infrastructure.Services
             var cleanPath = assetPath.TrimStart('/');
             var cdnUrl = $"{_cdnBaseUrl.TrimEnd('/')}/{cleanPath}";
             
-            _logger.LogDebug("Generated CDN URL: {CdnUrl} for asset: {AssetPath}", cdnUrl, assetPath);
+            _logger.LogDebug("Generated CDN URL for asset");
             return cdnUrl;
         }
 
@@ -48,24 +48,24 @@ namespace Masark.Infrastructure.Services
         {
             if (!_cdnEnabled)
             {
-                _logger.LogWarning("CDN is disabled, cannot upload asset: {FileName}", fileName);
+                _logger.LogWarning("CDN is disabled, cannot upload asset");
                 return fileName;
             }
 
             try
             {
-                _logger.LogInformation("Uploading asset to CDN: {FileName}, Size: {Size} bytes", fileName, content.Length);
+                _logger.LogInformation("Uploading asset to CDN");
 
                 var uploadPath = $"assets/{DateTime.UtcNow:yyyy/MM/dd}/{fileName}";
                 
                 var cdnUrl = GetCdnUrl(uploadPath);
                 
-                _logger.LogInformation("Asset uploaded successfully: {CdnUrl}", cdnUrl);
+                _logger.LogInformation("Asset uploaded successfully");
                 return cdnUrl;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to upload asset to CDN: {FileName}", fileName);
+                _logger.LogError(ex, "Failed to upload asset to CDN");
                 return fileName;
             }
         }
@@ -74,22 +74,22 @@ namespace Masark.Infrastructure.Services
         {
             if (!_cdnEnabled)
             {
-                _logger.LogWarning("CDN is disabled, cannot invalidate cache for: {AssetPath}", assetPath);
+                _logger.LogWarning("CDN is disabled, cannot invalidate cache for asset");
                 return false;
             }
 
             try
             {
-                _logger.LogInformation("Invalidating CDN cache for: {AssetPath}", assetPath);
+                _logger.LogInformation("Invalidating CDN cache for asset");
                 
                 await Task.Delay(100);
                 
-                _logger.LogInformation("CDN cache invalidated successfully for: {AssetPath}", assetPath);
+                _logger.LogInformation("CDN cache invalidated successfully");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to invalidate CDN cache for: {AssetPath}", assetPath);
+                _logger.LogError(ex, "Failed to invalidate CDN cache for asset");
                 return false;
             }
         }
@@ -136,7 +136,7 @@ namespace Masark.Infrastructure.Services
                 baseUrl += "?" + string.Join("&", queryParams);
             }
 
-            _logger.LogDebug("Generated optimized image URL: {OptimizedUrl}", baseUrl);
+            _logger.LogDebug("Generated optimized image URL");
             return baseUrl;
         }
     }

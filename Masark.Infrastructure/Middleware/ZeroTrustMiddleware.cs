@@ -56,8 +56,7 @@ namespace Masark.Infrastructure.Middleware
                 var requestId = Guid.NewGuid().ToString();
                 context.Items["RequestId"] = requestId;
 
-                _logger.LogInformation("ZeroTrust: Processing request {RequestId} from {RemoteIp} to {Path}",
-                    requestId, GetClientIpAddress(context), context.Request.Path);
+                _logger.LogInformation("ZeroTrust: Processing request from remote IP to path");
 
                 if (IsTestEnvironment(context) || ShouldBypassForCiTests(context))
                 {
@@ -101,7 +100,7 @@ namespace Masark.Infrastructure.Middleware
 
                 await _next(context);
 
-                _logger.LogInformation("ZeroTrust: Request {RequestId} completed successfully", requestId);
+                _logger.LogInformation("ZeroTrust: Request completed successfully");
             }
             catch (Exception ex)
             {
@@ -117,21 +116,21 @@ namespace Masark.Infrastructure.Middleware
                 var forwardedFor = context.Request.Headers["X-Forwarded-For"].ToString();
                 if (string.IsNullOrEmpty(forwardedFor) || forwardedFor.Split(',').Length > 5)
                 {
-                    _logger.LogWarning("ZeroTrust: Suspicious X-Forwarded-For header: {ForwardedFor}", forwardedFor);
+                    _logger.LogWarning("ZeroTrust: Suspicious X-Forwarded-For header detected");
                     return false;
                 }
             }
 
             if (context.Request.ContentLength > 10 * 1024 * 1024)
             {
-                _logger.LogWarning("ZeroTrust: Request size too large: {ContentLength}", context.Request.ContentLength);
+                _logger.LogWarning("ZeroTrust: Request size too large");
                 return false;
             }
 
             var requestPath = context.Request.Path.Value?.ToLowerInvariant();
             if (requestPath != null && (requestPath.Contains("../") || requestPath.Contains("..\\") || requestPath.Contains("%2e%2e")))
             {
-                _logger.LogWarning("ZeroTrust: Path traversal attempt detected: {Path}", requestPath);
+                _logger.LogWarning("ZeroTrust: Path traversal attempt detected");
                 return false;
             }
 
@@ -177,7 +176,7 @@ namespace Masark.Infrastructure.Middleware
             {
                 if (userAgent.Contains(suspicious))
                 {
-                    _logger.LogWarning("ZeroTrust: Suspicious User-Agent detected: {UserAgent}", userAgent);
+                    _logger.LogWarning("ZeroTrust: Suspicious User-Agent detected");
                     return false;
                 }
             }
@@ -385,8 +384,7 @@ namespace Masark.Infrastructure.Middleware
             var requestId = context.Items["RequestId"]?.ToString() ?? "unknown";
             var clientIp = GetClientIpAddress(context);
             
-            _logger.LogWarning("ZeroTrust: Unauthorized request {RequestId} from {ClientIp}: {Reason}",
-                requestId, clientIp, reason);
+            _logger.LogWarning("ZeroTrust: Unauthorized request detected");
 
             context.Response.StatusCode = 401;
             context.Response.ContentType = "application/json";

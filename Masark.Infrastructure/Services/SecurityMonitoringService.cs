@@ -64,8 +64,7 @@ namespace Masark.Infrastructure.Services
 
                 _telemetryClient.TrackEvent(eventTelemetry);
 
-                _logger.LogWarning("Security Event: {EventType} - {Description} | User: {UserId} | IP: {IpAddress} | Severity: {Severity}",
-                    securityEvent.EventType, securityEvent.Description, securityEvent.UserId, securityEvent.IpAddress, securityEvent.Severity);
+                _logger.LogWarning("Security Event logged with specified severity level");
 
                 if (securityEvent.Severity >= SecurityEventSeverity.High)
                 {
@@ -76,7 +75,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to log security event: {EventType}", securityEvent.EventType);
+                _logger.LogError(ex, "Failed to log security event");
             }
         }
 
@@ -267,7 +266,7 @@ namespace Masark.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to track security metric: {MetricName}", metricName);
+                _logger.LogError(ex, "Failed to track security metric");
             }
         }
 
