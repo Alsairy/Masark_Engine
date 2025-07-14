@@ -115,13 +115,13 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Starting enhanced personality type calculation for session {SessionId}", sessionId);
+                _logger.LogInformation("Starting enhanced personality type calculation for session");
 
                 throw new NotImplementedException("Data access layer integration needed for enhanced personality scoring");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in enhanced personality type calculation for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error in enhanced personality type calculation for session");
                 throw;
             }
         }
@@ -133,7 +133,7 @@ namespace Masark.Application.Services
         {
             try
             {
-                _logger.LogInformation("Calculating personality type for session {SessionId}", session.Id);
+                _logger.LogInformation("Calculating personality type for session");
 
                 var dimensionAnalyses = CalculateDimensionalAnalyses(answers, questions);
                 var (typeCode, confidence) = DetermineTypeWithConfidence(dimensionAnalyses);
@@ -160,7 +160,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calculating personality type for session {SessionId}", session.Id);
+                _logger.LogError(ex, "Error calculating personality type for session");
                 throw;
             }
         }
@@ -412,7 +412,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating quality assessment report for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error generating quality assessment report for session");
                 throw;
             }
         }

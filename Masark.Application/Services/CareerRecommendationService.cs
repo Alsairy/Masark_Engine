@@ -153,14 +153,13 @@ namespace Masark.Application.Services
                 };
                 _memoryCache.Set(cacheKey, result, cacheOptions);
 
-                _logger.LogInformation("Generated {Count} personalized career recommendations for {PersonalityType}", 
-                    topRecommendations.Count, personalityType);
+                _logger.LogInformation("Generated personalized career recommendations");
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating personalized recommendations for {PersonalityType}", personalityType);
+                _logger.LogError(ex, "Error generating personalized recommendations");
                 throw;
             }
         }
@@ -227,7 +226,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calculating recommendation for career {CareerId}", career.Id);
+                _logger.LogError(ex, "Error calculating recommendation for career");
                 return null;
             }
         }
@@ -382,7 +381,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting similar careers for {CareerId}", careerId);
+                _logger.LogError(ex, "Error getting similar careers");
                 return new List<CareerRecommendation>();
             }
         }
@@ -476,7 +475,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error analyzing career compatibility for {CareerId}", careerId);
+                _logger.LogError(ex, "Error analyzing career compatibility");
                 return new Dictionary<string, object> { ["error"] = "Analysis failed" };
             }
         }
@@ -519,7 +518,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting pathway recommendations for career {CareerId}", careerId);
+                _logger.LogError(ex, "Error getting pathway recommendations for career");
                 return new List<Dictionary<string, object>>();
             }
         }

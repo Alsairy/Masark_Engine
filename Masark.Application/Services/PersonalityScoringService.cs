@@ -90,7 +90,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calculating personality type for session {SessionId}", sessionId);
+                _logger.LogError(ex, "Error calculating personality type for session");
                 throw;
             }
         }
@@ -207,7 +207,7 @@ namespace Masark.Application.Services
             {
                 tieBreakerDimensions.Add(PersonalityDimension.EI);
                 typeLetters.Add(TieBreakingRules["EI"]);
-                _logger.LogDebug("E-I dimension requires tie-breaker: score = {Score}", scores.EScore);
+                _logger.LogDebug("E-I dimension requires tie-breaker");
             }
             else
             {
@@ -218,7 +218,7 @@ namespace Masark.Application.Services
             {
                 tieBreakerDimensions.Add(PersonalityDimension.SN);
                 typeLetters.Add(TieBreakingRules["SN"]);
-                _logger.LogDebug("S-N dimension requires tie-breaker: score = {Score}", scores.SScore);
+                _logger.LogDebug("S-N dimension requires tie-breaker");
             }
             else
             {
@@ -229,7 +229,7 @@ namespace Masark.Application.Services
             {
                 tieBreakerDimensions.Add(PersonalityDimension.TF);
                 typeLetters.Add(TieBreakingRules["TF"]);
-                _logger.LogDebug("T-F dimension requires tie-breaker: score = {Score}", scores.TScore);
+                _logger.LogDebug("T-F dimension requires tie-breaker");
             }
             else
             {
@@ -240,7 +240,7 @@ namespace Masark.Application.Services
             {
                 tieBreakerDimensions.Add(PersonalityDimension.JP);
                 typeLetters.Add(TieBreakingRules["JP"]);
-                _logger.LogDebug("J-P dimension requires tie-breaker: score = {Score}", scores.JScore);
+                _logger.LogDebug("J-P dimension requires tie-breaker");
             }
             else
             {
@@ -345,7 +345,7 @@ namespace Masark.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting personality description for type {TypeCode}", typeCode);
+                _logger.LogError(ex, "Error getting personality description for type");
                 throw;
             }
         }
